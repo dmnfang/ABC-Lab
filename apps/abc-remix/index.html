@@ -1,0 +1,114 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta name="theme-color" content="#F7F2E9" />
+  <title>ABC Remix</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Fredoka:wght@400;500;600;700&family=Nunito:wght@400;500;600;700;800;900&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="./css/styles.css" />
+</head>
+<body>
+  <main id="app" class="app-shell">
+    <section id="settingsScreen" class="settings-screen">
+      <header class="settings-header">
+        <div style="display:flex;align-items:center;gap:14px"><button class="icon-btn" type="button" aria-label="ABC Lab" title="ABC Lab" onclick="location.href='../../index.html'" style="font-size:12px;font-weight:900;width:auto;padding:0 14px">ABC LAB</button><h1>ABC Remix</h1></div>
+        <button id="settingsFullscreen" class="icon-btn" type="button" aria-label="Fullscreen" title="Fullscreen">
+          <svg class="lucide-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M8 3H5a2 2 0 0 0-2 2v3M16 3h3a2 2 0 0 1 2 2v3M21 16v3a2 2 0 0 1-2 2h-3M8 21H5a2 2 0 0 1-2-2v-3"/></svg>
+        </button>
+      </header>
+
+      <div class="settings-grid">
+        <section class="settings-card song-card">
+          <h2>Song</h2>
+
+          <div class="control-section">
+            <label>Song Version</label>
+            <div id="songVersionButtons" class="pill-group" role="group" aria-label="Song version">
+              <button class="pill active" data-song="standard" type="button">Standard</button>
+              <button class="pill" data-song="lmno" type="button">LMNOP</button>
+            </div>
+          </div>
+
+          <div class="control-section speed-section">
+            <div class="section-label-row">
+              <label>Song Speed</label>
+              <span id="speedValue" class="speed-value">0.50</span>
+            </div>
+            <div id="speedButtons" class="speed-pills" role="group" aria-label="Song speed"></div>
+          </div>
+
+          <div class="control-section loop-section">
+            <label>Number of Loops</label>
+            <div id="loopButtons" class="pill-group loop-group" role="group" aria-label="Number of loops"></div>
+          </div>
+
+          <div class="control-section mode-section">
+            <label>Game Mode</label>
+            <div id="modeButtons" class="pill-group mode-group" role="group" aria-label="Game mode">
+              <button class="pill active" data-mode="original" type="button">Original</button>
+              <button class="pill" data-mode="random" type="button">Random</button>
+              <button class="pill" data-mode="custom" type="button">Custom</button>
+            </div>
+          </div>
+
+          <div class="control-section difficulty-section">
+            <label>Difficulty</label>
+            <div id="difficultyButtons" class="pill-group difficulty-group" role="group" aria-label="Difficulty">
+              <button class="pill active" data-difficulty="easy" type="button">Easy</button>
+              <button class="pill" data-difficulty="hard" type="button">Hard</button>
+            </div>
+          </div>
+
+          <button id="launchButton" class="launch-button" type="button">Launch Song</button>
+        </section>
+
+        <section class="settings-card preview-card">
+          <div class="preview-heading">
+            <h2>Song Preview</h2>
+          </div>
+          <div id="previewInfo" class="preview-info"></div>
+          <div id="modeContent" class="preview-content"></div>
+        </section>
+      </div>
+    </section>
+
+    <section id="gameScreen" class="game-screen hidden">
+      <header class="game-header">
+        <div class="game-title-group">
+          <button id="backButton" class="icon-btn" type="button" aria-label="Back to settings" title="Back to settings">
+            <svg class="lucide-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="m12 19-7-7 7-7"/><path d="M19 12H5"/></svg>
+          </button>
+          <h1 id="gameTitle">Standard × Original</h1>
+          <div id="loopBadge" class="loop-badge" aria-live="polite">Loop 1 of 1</div>
+        </div>
+        <div id="progressDots" class="progress-dots" aria-hidden="true"></div>
+        <div class="game-actions">
+          <button id="restartButton" class="icon-btn" type="button" aria-label="Restart" title="Restart">
+            <svg class="lucide-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M3 12a9 9 0 1 0 3-6.7"/><path d="M3 4v5h5"/></svg>
+          </button>
+          <button id="pauseButton" class="icon-btn" type="button" aria-label="Play" title="Play">
+            <svg class="play-icon lucide-icon" viewBox="0 0 24 24" fill="currentColor" stroke="none" aria-hidden="true"><path d="M8 5.14v13.72a1 1 0 0 0 1.54.84l10.34-6.86a1 1 0 0 0 0-1.68L9.54 4.3A1 1 0 0 0 8 5.14Z"/></svg>
+            <svg class="pause-icon hidden lucide-icon" viewBox="0 0 24 24" fill="currentColor" stroke="none" aria-hidden="true"><path d="M7 5h3v14H7zM14 5h3v14h-3z"/></svg>
+          </button>
+          <button id="gameFullscreen" class="icon-btn" type="button" aria-label="Fullscreen" title="Fullscreen">
+            <svg class="lucide-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M8 3H5a2 2 0 0 0-2 2v3M16 3h3a2 2 0 0 1 2 2v3M21 16v3a2 2 0 0 1-2 2h-3M8 21H5a2 2 0 0 1-2-2v-3"/></svg>
+          </button>
+        </div>
+      </header>
+
+      <div class="game-stage">
+        <div class="game-body">
+          <div id="countInStage" class="count-in-stage" aria-live="polite"></div>
+          <div id="chunkStage" class="chunk-stage" aria-live="polite"></div>
+          <div id="easyPreviewStage" class="easy-preview-stage" aria-hidden="true"></div>
+        </div>
+      </div>
+    </section>
+  </main>
+
+  <script type="module" src="./js/app.js"></script>
+</body>
+</html>

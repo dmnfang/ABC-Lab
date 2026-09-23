@@ -1,0 +1,588 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Alphabet Jumble</title>
+<style>
+:root{
+  --bg:#f7f1e7;--panel:#fffaf2;--ink:#28232a;--muted:#817a7e;
+  --sand:#e7cda8;--sand-deep:#d7b887;--grape:#73549a;--grape2:#5f4385;
+  --line:#ded4c7;--soft:#eee5d9
+}
+*{box-sizing:border-box}
+html,body{margin:0;min-height:100%;background:var(--bg);color:var(--ink)}
+body{font-family:Inter,ui-sans-serif,system-ui,-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif}
+button{font:inherit;color:inherit}
+header{
+  height:66px;min-height:66px;padding:0 24px;display:flex;align-items:center;
+  border-bottom:1px solid var(--line);background:var(--panel);z-index:5
+}
+.brand{font-size:17px;font-weight:900;letter-spacing:.085em}
+.header-right{margin-left:auto;display:flex;align-items:center;gap:20px}
+.spread{display:flex;align-items:center;gap:10px}
+.pip{
+  width:11px;height:11px;border:0;border-radius:50%;padding:0;
+  background:#cfc8bd;cursor:pointer;transition:transform .15s,background .15s
+}
+.pip:hover{transform:scale(1.18)}
+.pip.active{background:var(--grape);transform:scale(1.18)}
+.settings-icon{
+  width:38px;height:38px;border:1px solid var(--line);border-radius:11px;
+  background:var(--panel);display:grid;place-items:center;cursor:pointer;font-size:18px
+}
+
+/* PLAY */
+.app{height:100vh;min-height:0;display:flex;flex-direction:column;overflow:hidden}
+.play-main{
+  width:100%;height:calc(100vh - 66px);box-sizing:border-box;min-height:0;
+  padding:20px;display:grid;
+  grid-template-columns:minmax(0,1fr) 108px 380px;
+  gap:16px;overflow:hidden
+}
+.jumble-area{
+  min-width:0;min-height:0;position:relative;overflow:hidden;
+  background:#fffdf8;border:1px solid var(--line);border-radius:18px
+}
+.collage{position:absolute;inset:0;overflow:hidden}
+.letter{
+  position:absolute;width:320px;height:320px;display:grid;place-items:center;
+  transform:translate(-50%,-50%);font-size:300px;font-weight:900;line-height:.8;
+  color:var(--grape);user-select:none;pointer-events:none;
+  transition:left .35s cubic-bezier(.2,.8,.2,1),top .35s cubic-bezier(.2,.8,.2,1)
+}
+.letter.reveal{transition:left .5s cubic-bezier(.2,.8,.2,1),top .5s cubic-bezier(.2,.8,.2,1)}
+
+.guess-tray{
+  min-width:0;min-height:0;overflow:hidden;
+  border:1px solid var(--line);border-radius:18px;
+  display:flex;flex-direction:column;align-items:center;justify-content:center;
+  gap:9px;padding:12px 8px;background:#fffdf8
+}
+.guess-chip{
+  flex:0 0 auto;width:76px;height:76px;padding:0;border:0;border-radius:13px;
+  background:var(--sand);font-size:48px;font-weight:900;cursor:pointer
+}
+.guess-chip:hover{background:var(--sand-deep);transform:translateY(-1px)}
+
+.play-right{
+  min-width:0;min-height:0;height:100%;
+  display:flex;flex-direction:column;overflow:hidden
+}
+.selector-heading{
+  flex:0 0 auto;font-size:12px;font-weight:900;letter-spacing:.11em;margin:2px 0 9px
+}
+.case-bank{
+  flex:0 0 auto;display:none;gap:5px;margin:0 0 9px;padding:4px;
+  border:1px solid var(--line);border-radius:10px;background:var(--panel)
+}
+.case-bank.visible{display:flex}
+.case-bank button{
+  flex:1;border:0;border-radius:7px;background:transparent;
+  padding:8px 10px;font-size:12px;font-weight:900;cursor:pointer
+}
+.case-bank button.active{background:var(--ink);color:#fff}
+
+.alphabet{
+  flex:0 0 auto;display:grid;
+  grid-template-columns:repeat(5,minmax(0,1fr));
+  gap:8px;overflow:hidden
+}
+.letter-btn{
+  width:100%;aspect-ratio:1;min-width:0;min-height:0;
+  border:1px solid var(--line);border-radius:10px;
+  background:var(--panel);font-size:20px;font-weight:900;cursor:pointer
+}
+.letter-btn:hover{background:var(--soft);transform:translateY(-1px)}
+
+.action-area{
+  flex:0 0 92px;height:92px;box-sizing:border-box;
+  margin-top:auto;padding:10px 14px;
+  border:1px solid var(--line);border-radius:16px;background:var(--panel);
+  display:flex;flex-direction:column;align-items:center;justify-content:center;gap:7px
+}
+.result{min-height:19px;text-align:center;color:var(--ink);font-size:12px;font-weight:900;letter-spacing:.03em}
+.result strong{color:var(--ink)}
+.actions{display:flex;justify-content:center;gap:9px}
+.primary,.secondary{
+  border:0;border-radius:10px;padding:10px 22px;font-weight:900;cursor:pointer
+}
+.primary{background:var(--grape);color:#fff}.primary:hover{background:var(--grape2)}
+.secondary{background:var(--sand)}
+.hidden{display:none!important}
+
+@media(max-width:1050px){
+  .play-main{grid-template-columns:minmax(0,1fr) 96px 320px;padding:16px;gap:12px}
+  .guess-chip{width:68px;height:68px;font-size:42px}
+  .letter-btn{font-size:18px}
+}
+@media(max-width:700px){
+  .app{height:auto;min-height:100vh;overflow:visible}
+  .play-main{
+    height:auto;min-height:0;grid-template-columns:1fr;grid-template-rows:minmax(440px,1fr) auto auto;
+    padding:14px;overflow:visible
+  }
+  .jumble-area{min-height:440px}
+  .guess-tray{
+    min-height:96px;flex-direction:row;overflow-x:auto;overflow-y:hidden;
+    justify-content:flex-start;padding:10px
+  }
+  .play-right{height:auto;min-height:520px;overflow:visible}
+  .alphabet{grid-template-columns:repeat(5,minmax(0,1fr));gap:8px}
+  .action-area{flex:0 0 92px;height:92px;margin-top:14px}
+}
+/* SETTINGS */
+.settings-screen{display:none;min-height:100vh;flex-direction:column}
+.settings-screen.active{display:flex}
+.settings-main{width:min(1080px,100%);margin:auto;padding:42px 28px 54px}
+.settings-title{font-size:34px;font-weight:900;letter-spacing:-.035em;margin:0 0 7px}
+.settings-sub{color:var(--muted);margin:0 0 30px}
+.settings-grid{
+  display:grid;grid-template-columns:1fr 1fr;gap:24px;align-items:start
+}
+.setting-label{
+  font-size:12px;font-weight:900;letter-spacing:.11em;text-transform:uppercase;
+  margin:0 0 10px
+}
+.setting-card{
+  border:1px solid var(--line);border-radius:18px;background:var(--panel);padding:8px
+}
+.setting-options{display:grid;gap:5px}
+.option-btn{
+  border:0;background:transparent;border-radius:11px;padding:13px 15px;
+  display:flex;align-items:center;justify-content:space-between;text-align:left;
+  cursor:pointer;font-weight:850
+}
+.option-btn:hover{background:var(--soft)}
+.option-btn.active{background:var(--grape);color:#fff}
+.letter-counts{display:grid;grid-template-columns:repeat(7,1fr);gap:8px}
+.count-toggle{
+  aspect-ratio:1;border:1px solid var(--line);border-radius:12px;
+  background:var(--panel);font-size:20px;font-weight:900;cursor:pointer
+}
+.count-toggle.active{background:var(--grape);color:#fff;border-color:var(--grape)}
+.note{font-size:12px;color:var(--muted);margin-top:10px;line-height:1.4}
+.settings-actions{display:flex;justify-content:flex-end;margin-top:24px}
+.play-btn{
+  border:0;border-radius:13px;padding:14px 28px;background:var(--grape);
+  color:#fff;font-weight:900;cursor:pointer
+}
+.play-btn:hover{background:var(--grape2)}
+
+@media(max-width:900px){
+  .play-main{grid-template-columns:1.7fr 1fr;padding:16px}
+  .letter{width:260px;height:260px;font-size:240px}
+  .letter-btn{font-size:17px}
+}
+@media(max-width:700px){
+  header{padding:0 16px}.brand{font-size:15px}
+  .play-main{grid-template-columns:1fr;height:auto;min-height:0;overflow:visible}
+  .jumble-area{min-height:420px}
+  .play-right{min-height:500px;overflow:visible}
+  .action-area{height:92px;min-height:92px}
+  .settings-main{padding:30px 18px}
+  .settings-grid{grid-template-columns:1fr}
+  .settings-actions{justify-content:stretch}
+  .play-btn{width:100%}
+}
+</style>
+</head>
+<body>
+
+<div id="playScreen" class="app" style="display:none">
+<header>
+  <div class="brand" style="cursor:pointer" onclick="location.href='../../index.html'" title="ABC Lab">ABC LAB / ALPHABET JUMBLE</div>
+  <div class="header-right">
+    <div class="spread">
+      <button class="pip active" data-jumble="85"></button>
+      <button class="pip" data-jumble="75"></button>
+      <button class="pip" data-jumble="65"></button>
+      <button class="pip" data-jumble="55"></button>
+    </div>
+    <button id="fullscreenButton" class="settings-icon" aria-label="Fullscreen" title="Fullscreen">⛶</button>
+    <button id="settingsButton" class="settings-icon" aria-label="Settings" title="Settings">⚙</button>
+  </div>
+</header>
+
+<main class="play-main">
+  <section class="jumble-area">
+    <div id="collage" class="collage"></div>
+  </section>
+
+  <section id="guessTray" class="guess-tray" aria-label="Selected letters"></section>
+
+  <section class="play-right">
+    <div class="selector-heading">SELECT LETTERS</div>
+    <div id="caseBank" class="case-bank">
+      <button class="active" data-bank="upper">UPPER</button>
+      <button data-bank="lower">LOWER</button>
+    </div>
+    <div id="alphabet" class="alphabet"></div>
+    <div class="action-area">
+      <div id="result" class="result">WHICH LETTERS?</div>
+      <div class="actions">
+        <button id="submit" class="primary">SUBMIT</button>
+        <button id="next" class="secondary hidden">NEXT JUMBLE</button>
+      </div>
+    </div>
+  </section>
+</main>
+</div>
+
+<div id="settingsScreen" class="settings-screen active">
+<header><div class="brand" style="cursor:pointer" onclick="location.href='../../index.html'" title="ABC Lab">ABC LAB / ALPHABET JUMBLE</div></header>
+<div class="settings-main">
+  <h1 class="settings-title">Quiz Settings</h1>
+  <p class="settings-sub">Choose the rules for the next quiz.</p>
+
+  <div class="settings-grid">
+    <section>
+      <div class="setting-label">Letter case</div>
+      <div class="setting-card setting-options">
+        <button class="option-btn active" data-setting-case="upper"><span>ABC</span><span>Uppercase</span></button>
+        <button class="option-btn" data-setting-case="lower"><span>abc</span><span>Lowercase</span></button>
+        <button class="option-btn" data-setting-case="mixed"><span>Aa</span><span>Mixed case</span></button>
+      </div>
+
+      <div class="setting-label" style="margin-top:24px">Letters per jumble</div>
+      <div class="setting-card" style="padding:16px">
+        <div class="letter-counts" id="countToggles"></div>
+        <div class="note">Choose which puzzle sizes can appear.</div>
+      </div>
+    </section>
+
+    <section>
+      <div class="setting-label">Number of questions</div>
+      <div class="setting-card setting-options">
+        <button class="option-btn active" data-questions="10">10 questions</button>
+        <button class="option-btn" data-questions="15">15 questions</button>
+        <button class="option-btn" data-questions="20">20 questions</button>
+        <button class="option-btn" data-questions="999">Unlimited</button>
+      </div>
+      <div class="settings-actions">
+        <button id="startQuiz" class="play-btn">START QUIZ</button>
+      </div>
+    </section>
+  </div>
+</div>
+</div>
+
+<script>
+const alphabet="ABCDEFGHIJKLMNOPQRSTUVWXYZ".split("");
+
+const settings={
+  caseMode:"upper",
+  questions:10,
+  allowedCounts:new Set([3,4,5,6])
+};
+
+const state={
+  caseMode:"upper",
+  jumble:85,
+  letters:[],
+  selected:[],
+  revealed:false,
+  currentQuestion:1
+};
+
+const playScreen=document.getElementById("playScreen");
+const settingsScreen=document.getElementById("settingsScreen");
+const collage=document.getElementById("collage");
+const alphabetEl=document.getElementById("alphabet");
+const guessTray=document.getElementById("guessTray");
+const resultEl=document.getElementById("result");
+const submitBtn=document.getElementById("submit");
+const nextBtn=document.getElementById("next");
+
+function shuffled(a){return [...a].sort(()=>Math.random()-.5)}
+
+function makePuzzle(){
+  const counts=[...settings.allowedCounts];
+  const n=counts[Math.floor(Math.random()*counts.length)];
+
+  state.caseMode=settings.caseMode;
+  state.bank="upper";
+  state.jumble=85;
+  state.revealed=false;
+  state.selected=[];
+
+  if(state.caseMode==="upper"){
+    state.letters=shuffled(alphabet).slice(0,n);
+  }else if(state.caseMode==="lower"){
+    state.letters=shuffled(alphabet.map(x=>x.toLowerCase())).slice(0,n);
+  }else{
+    const out=[],used=new Set();
+    while(out.length<n){
+      const base=alphabet[Math.floor(Math.random()*26)];
+      if(used.has(base))continue;
+      used.add(base);
+      out.push(Math.random()<.5?base:base.toLowerCase());
+    }
+    state.letters=out;
+  }
+
+  document.querySelectorAll(".pip").forEach((p,i)=>p.classList.toggle("active",i===0));
+  resultEl.textContent="WHICH LETTERS?";
+  submitBtn.classList.remove("hidden");
+  nextBtn.classList.add("hidden");
+  nextBtn.textContent="NEXT JUMBLE";
+
+  renderAlphabet();
+  renderGuess();
+  renderCollage();
+}
+
+function renderCollage(){
+  collage.innerHTML="";
+  const n=state.letters.length;
+  const w=collage.clientWidth;
+  const h=collage.clientHeight;
+
+  const letterBox=320;
+  const safeRadius=Math.max(0,Math.min(w,h)/2-letterBox/2-24);
+  const spreadMap={85:.22,75:.38,65:.56,55:.74};
+  const radius=state.revealed
+    ? safeRadius
+    : safeRadius*(spreadMap[state.jumble] ?? .43);
+
+  state.letters.forEach((char,i)=>{
+    const el=document.createElement("div");
+    el.className="letter";
+    el.textContent=char;
+
+    const angle=-Math.PI/2+i*(Math.PI*2/n);
+    el.style.left=w/2+Math.cos(angle)*radius+"px";
+    el.style.top=h/2+Math.sin(angle)*radius+"px";
+
+    collage.appendChild(el);
+  });
+}
+
+function renderGuess(){
+  guessTray.innerHTML="";
+
+  state.selected.forEach(char=>{
+    const chip=document.createElement("button");
+    chip.className="guess-chip";
+    chip.textContent=char;
+    chip.title="Remove "+char;
+
+    chip.onclick=()=>{
+      if(state.revealed)return;
+      state.selected=state.selected.filter(x=>x!==char);
+      renderGuess();
+    };
+
+    guessTray.appendChild(chip);
+  });
+}
+
+function renderAlphabet(){
+  alphabetEl.innerHTML="";
+  const bank=document.getElementById("caseBank");
+  bank.classList.toggle("visible",state.caseMode==="mixed");
+
+  let chars;
+  if(state.caseMode==="upper"){
+    chars=alphabet;
+  }else if(state.caseMode==="lower"){
+    chars=alphabet.map(x=>x.toLowerCase());
+  }else{
+    chars=state.bank==="upper"
+      ? alphabet
+      : alphabet.map(x=>x.toLowerCase());
+  }
+
+  document.querySelectorAll("#caseBank button").forEach(button=>{
+    button.classList.toggle("active",button.dataset.bank===state.bank);
+  });
+
+  chars.forEach(char=>{
+    const button=document.createElement("button");
+    button.className="letter-btn";
+    button.textContent=char;
+
+    button.onclick=()=>{
+      if(state.revealed)return;
+      if(state.selected.includes(char))return;
+      state.selected.push(char);
+      renderGuess();
+    };
+
+    alphabetEl.appendChild(button);
+  });
+}
+
+function reveal(){
+  if(state.revealed)return;
+
+  state.revealed=true;
+  submitBtn.classList.add("hidden");
+
+  const found=state.letters.filter(x=>state.selected.includes(x)).length;
+
+  resultEl.innerHTML=
+    "<strong>THERE WERE "+state.letters.length+
+    " LETTERS</strong> · YOU FOUND "+found+"/"+state.letters.length;
+
+  const w=collage.clientWidth;
+  const h=collage.clientHeight;
+  const letterBox=320;
+  const radius=Math.max(0,Math.min(w,h)/2-letterBox/2-24);
+
+  [...collage.children].forEach((el,i)=>{
+    const angle=-Math.PI/2+i*(Math.PI*2/state.letters.length);
+
+    setTimeout(()=>{
+      el.style.left=w/2+Math.cos(angle)*radius+"px";
+      el.style.top=h/2+Math.sin(angle)*radius+"px";
+    },i*180);
+  });
+
+  nextBtn.textContent=
+    settings.questions!==999 &&
+    state.currentQuestion>=settings.questions
+      ?"FINISH":"NEXT JUMBLE";
+
+  nextBtn.classList.remove("hidden");
+}
+
+function nextPuzzle(){
+  if(settings.questions!==999 &&
+     state.currentQuestion>=settings.questions){
+    openSettings();
+    return;
+  }
+
+  state.currentQuestion++;
+  makePuzzle();
+}
+
+function openSettings(){
+  playScreen.style.display="none";
+  settingsScreen.classList.add("active");
+  syncSettingsUI();
+}
+
+function startQuiz(){
+  state.currentQuestion=1;
+  playScreen.style.display="flex";
+  settingsScreen.classList.remove("active");
+  makePuzzle();
+}
+
+function syncSettingsUI(){
+  document.querySelectorAll("[data-setting-case]").forEach(button=>{
+    button.classList.toggle(
+      "active",
+      button.dataset.settingCase===settings.caseMode
+    );
+  });
+
+  document.querySelectorAll("[data-questions]").forEach(button=>{
+    button.classList.toggle(
+      "active",
+      +button.dataset.questions===settings.questions
+    );
+  });
+
+  document.querySelectorAll(".count-toggle").forEach(button=>{
+    button.classList.toggle(
+      "active",
+      settings.allowedCounts.has(+button.dataset.count)
+    );
+  });
+}
+
+document.querySelectorAll(".pip").forEach(pip=>{
+  pip.onclick=()=>{
+    if(state.revealed)return;
+
+    state.jumble=+pip.dataset.jumble;
+
+    document.querySelectorAll(".pip").forEach(p=>{
+      p.classList.toggle("active",p===pip);
+    });
+
+    renderCollage();
+  };
+});
+
+document.querySelectorAll("#caseBank button").forEach(button=>{
+  button.onclick=()=>{
+    if(state.revealed || state.caseMode!=="mixed")return;
+    state.bank=button.dataset.bank;
+    renderAlphabet();
+  };
+});
+
+document.getElementById("settingsButton").onclick=openSettings;
+
+document.getElementById("fullscreenButton").onclick=async()=>{
+  try{
+    if(!document.fullscreenElement){
+      await document.documentElement.requestFullscreen();
+    }else{
+      await document.exitFullscreen();
+    }
+  }catch(e){}
+};
+
+submitBtn.onclick=reveal;
+nextBtn.onclick=nextPuzzle;
+
+document.querySelectorAll("[data-setting-case]").forEach(button=>{
+  button.onclick=()=>{
+    settings.caseMode=button.dataset.settingCase;
+    syncSettingsUI();
+  };
+});
+
+document.querySelectorAll("[data-questions]").forEach(button=>{
+  button.onclick=()=>{
+    settings.questions=+button.dataset.questions;
+    syncSettingsUI();
+  };
+});
+
+const countToggles=document.getElementById("countToggles");
+
+[2,3,4,5,6,7,8].forEach(n=>{
+  const button=document.createElement("button");
+
+  button.className="count-toggle";
+  button.dataset.count=n;
+  button.textContent=n;
+
+  button.onclick=()=>{
+    if(settings.allowedCounts.has(n)){
+      if(settings.allowedCounts.size===1)return;
+      settings.allowedCounts.delete(n);
+    }else{
+      settings.allowedCounts.add(n);
+    }
+
+    syncSettingsUI();
+  };
+
+  countToggles.appendChild(button);
+});
+
+document.getElementById("startQuiz").onclick=startQuiz;
+
+function updateFullscreenIcon(){
+  const button=document.getElementById("fullscreenButton");
+  button.textContent=document.fullscreenElement?"⛶":"⛶";
+}
+document.addEventListener("fullscreenchange",updateFullscreenIcon);
+
+window.addEventListener("resize",()=>{
+  if(playScreen.style.display!=="none"){
+    renderCollage();
+  }
+});
+
+syncSettingsUI();
+</script>
+</body>
+</html>

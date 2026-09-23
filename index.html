@@ -1,0 +1,43 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>ABC Lab</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Fredoka:wght@400;500;600;700&family=Nunito:wght@400;500;600;700;800;900&display=swap" rel="stylesheet">
+<style>
+:root{--bg:#f7f2e9;--card:#fff;--sand:#ede6d4;--sand-line:#d1c5a9;--ink:#353127;--muted:#6f654d;--grape:#9b6bc7;--grape-dark:#764a9c;--grape-soft:#eee3f7}
+*{box-sizing:border-box}html,body{margin:0;min-height:100%;background:var(--bg);color:var(--ink)}body{font-family:Nunito,sans-serif;-webkit-font-smoothing:antialiased}button{font:inherit;color:inherit}
+.page{min-height:100vh;padding:clamp(28px,5vw,64px);display:flex;align-items:center;justify-content:center}.shell{width:min(1180px,100%)}
+.header{display:flex;align-items:flex-end;justify-content:space-between;margin-bottom:34px}.eyebrow{font-size:12px;font-weight:900;letter-spacing:.16em;text-transform:uppercase;color:var(--grape-dark);margin-bottom:8px}.title{font-family:Fredoka,sans-serif;font-size:clamp(46px,7vw,76px);line-height:.95;font-weight:600;letter-spacing:-.035em;margin:0}.subtitle{font-size:18px;color:var(--muted);margin:12px 0 0}.version{font-size:12px;font-weight:800;color:var(--muted);padding:9px 12px;border:1px solid var(--sand-line);border-radius:999px;background:rgba(255,255,255,.55)}
+.grid{display:grid;grid-template-columns:repeat(3,1fr);gap:22px}.card{min-height:390px;background:var(--card);border:2px solid var(--sand-line);border-radius:28px;padding:24px;display:flex;flex-direction:column;position:relative;overflow:hidden;transition:transform .16s ease,box-shadow .16s ease}.card.active{cursor:pointer}.card.active:hover{transform:translateY(-4px);box-shadow:0 14px 34px rgba(53,49,39,.1)}.card.coming{background:#faf7f0}.card-top{display:flex;justify-content:space-between;align-items:flex-start}.badge{font-size:11px;font-weight:900;letter-spacing:.1em;text-transform:uppercase;padding:8px 10px;border-radius:999px;background:var(--sand);color:var(--muted)}.badge.live{background:var(--grape-soft);color:var(--grape-dark)}
+.art{height:190px;border-radius:20px;background:var(--bg);border:1px solid #e4dbc9;margin:20px 0;display:grid;place-items:center;position:relative;overflow:hidden}.art-letter{font-family:Fredoka,sans-serif;font-size:150px;font-weight:600;color:var(--grape);line-height:1}.remix-art .blocks{display:flex;gap:7px;align-items:center;transform:rotate(-3deg)}.block{width:54px;height:54px;border-radius:10px;background:#f5f0e3;border:2px solid var(--sand-line);display:grid;place-items:center;font-family:Fredoka;font-size:28px;font-weight:600;box-shadow:0 5px 0 #c4b89d}.block:nth-child(2){transform:translateY(-13px)}.block:nth-child(3){transform:translateY(9px)}.jumble-art .scatter{position:relative;width:190px;height:150px}.scatter span{position:absolute;font-family:Fredoka;font-size:58px;font-weight:600;color:var(--grape)}.scatter span:nth-child(1){left:22px;top:20px;transform:rotate(-16deg)}.scatter span:nth-child(2){left:84px;top:42px;transform:rotate(11deg)}.scatter span:nth-child(3){left:130px;top:2px;transform:rotate(19deg)}.scatter span:nth-child(4){left:62px;top:88px;transform:rotate(-7deg)}.trail-art .trail{position:relative;width:210px;height:150px}.trail svg{width:210px;height:150px}.trail-path{fill:none;stroke:var(--grape);stroke-width:12;stroke-linecap:round;stroke-linejoin:round;stroke-dasharray:2 18;opacity:.28}.trail-dot{fill:var(--grape)}
+.card h2{font-family:Fredoka,sans-serif;font-size:30px;line-height:1;margin:0 0 8px}.card p{font-size:15px;line-height:1.5;color:var(--muted);margin:0;max-width:34ch}.launch{margin-top:auto;padding-top:22px}.launch button{width:100%;height:52px;border:0;border-radius:15px;background:var(--grape);color:#fff;font-weight:900;cursor:pointer}.launch button:hover{background:var(--grape-dark)}.coming .launch button{background:var(--sand);color:var(--muted);cursor:default}.footer{margin-top:24px;color:var(--muted);font-size:12px;text-align:center}
+@media(max-width:850px){.grid{grid-template-columns:1fr}.card{min-height:330px}.art{height:150px}.header{align-items:flex-start;gap:18px;flex-direction:column}.version{display:none}}
+</style>
+</head>
+<body>
+<main class="page"><div class="shell">
+  <header class="header"><div><div class="eyebrow">Classroom English Games</div><h1 class="title">ABC Lab</h1><p class="subtitle">Simple alphabet games built for the big screen.</p></div><div class="version">MVP 1</div></header>
+  <section class="grid">
+    <article class="card active" onclick="location.href='apps/abc-remix/index.html'">
+      <div class="card-top"><span class="badge live">Ready to play</span></div>
+      <div class="art remix-art"><div class="blocks"><div class="block">A</div><div class="block">B</div><div class="block">C</div></div></div>
+      <h2>ABC Remix</h2><p>Sing the alphabet in familiar, randomized, or custom order while the letters move with the music.</p><div class="launch"><button type="button">OPEN ABC REMIX →</button></div>
+    </article>
+    <article class="card active" onclick="location.href='apps/alphabet-jumble/index.html'">
+      <div class="card-top"><span class="badge live">Ready to play</span></div>
+      <div class="art jumble-art"><div class="scatter"><span>A</span><span>R</span><span>T</span><span>M</span></div></div>
+      <h2>Alphabet Jumble</h2><p>Look at the scattered letters, make a guess, and reveal how many letters are actually hiding in the jumble.</p><div class="launch"><button type="button">OPEN ALPHABET JUMBLE →</button></div>
+    </article>
+    <article class="card coming">
+      <div class="card-top"><span class="badge">Coming soon</span></div>
+      <div class="art trail-art"><div class="trail"><svg viewBox="0 0 210 150" aria-hidden="true"><path class="trail-path" d="M38 116 L74 30 L106 116 L130 72 L164 72"/><circle class="trail-dot" cx="164" cy="72" r="7"/></svg></div></div>
+      <h2>ABC Trail</h2><p>Follow an invisible letter through the air. Watch the glowing trail and guess what letter is being traced.</p><div class="launch"><button type="button">COMING SOON</button></div>
+    </article>
+  </section>
+  <div class="footer">ABC Lab · designed for classroom display</div>
+</div></main>
+</body></html>

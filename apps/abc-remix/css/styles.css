@@ -1,0 +1,1303 @@
+:root {
+  --sand-0: #FFFFFF;
+  --sand-50: #F7F2E9;
+  --sand-100: #EDE6D4;
+  --sand-300: #D1C5A9;
+  --sand-500: #A79976;
+  --sand-700: #6F654D;
+  --sand-900: #353127;
+  --grape-50: #EEE3F7;
+  --grape-100: #DCC7EF;
+  --grape-300: #BB94DE;
+  --grape-500: #9B6BC7;
+  --grape-700: #764A9C;
+  --grape-900: #4A2C63;
+  --surface-base: var(--sand-50);
+  --surface-card: var(--sand-0);
+  --surface-inset: var(--sand-50);
+  --text-primary: var(--sand-900);
+  --text-secondary: var(--sand-700);
+  --text-muted: var(--sand-500);
+  --stroke-default: var(--sand-300);
+  --interactive-primary: var(--grape-500);
+  --r-lg: 24px;
+  --r-md: 14px;
+  --r-pill: 9999px;
+  --wood-face: #F5F0E3;
+  --wood-edge: #D1C5A9;
+  --wood-shadow: #A79976;
+}
+
+* { box-sizing: border-box; }
+html, body { width: 100%; height: 100%; margin: 0; }
+.app-shell { width: 100%; height: 100%; min-height: 100%; }
+body {
+  overflow: hidden;
+  background: var(--surface-base);
+  color: var(--text-primary);
+  font-family: "Nunito", sans-serif;
+  -webkit-font-smoothing: antialiased;
+  user-select: none;
+}
+button { font: inherit; color: inherit; cursor: pointer; border: 0; }
+.hidden { display: none !important; }
+
+h1, h2 { font-family: "Fredoka", sans-serif; }
+h1 { margin: 0; font-size: 32px; line-height: 1; font-weight: 600; }
+h2 { margin: 0; font-size: 28px; line-height: 1; font-weight: 500; }
+
+.settings-screen {
+  width: 100%; height: 100%; padding: 34px 34px 32px;
+  display: flex; flex-direction: column; gap: 28px;
+}
+.settings-header, .game-header {
+  display: flex; align-items: center; justify-content: space-between;
+  flex-shrink: 0;
+}
+.settings-grid {
+  min-height: 0; flex: 1; display: grid; grid-template-columns: 1fr 1fr; gap: 34px;
+}
+.settings-card {
+  min-width: 0; min-height: 0; background: var(--surface-card);
+  border: 2px solid var(--stroke-default); border-radius: var(--r-lg);
+  padding: 28px 32px; display: flex; flex-direction: column; overflow: hidden;
+}
+.song-card { gap: 0; }
+.preview-card { padding: 28px 30px; }
+.preview-heading { flex-shrink: 0; margin-bottom: 28px; }
+
+.icon-btn {
+  width: 48px; height: 48px; border-radius: 14px; background: var(--sand-100);
+  color: var(--text-primary); display: grid; place-items: center;
+  border: 2px solid var(--sand-300); transition: transform .12s ease, background .12s ease;
+}
+.icon-btn:hover { background: var(--sand-50); }
+.icon-btn:active { transform: scale(.94); }
+.icon-btn svg { width: 23px; height: 23px; fill: none; stroke: currentColor; stroke-width: 2.5; stroke-linecap: round; stroke-linejoin: round; }
+
+.control-section { flex-shrink: 0; }
+.control-section > label, .section-label-row label {
+  display: block; margin-bottom: 12px; font-size: 18px; line-height: 1.2;
+  font-weight: 700; color: var(--text-secondary);
+}
+.pill-group { display: flex; gap: 12px; flex-wrap: wrap; }
+.pill, .speed-pill {
+  height: 48px; padding: 0 20px; border-radius: var(--r-pill);
+  background: var(--sand-100); color: var(--text-primary); font-weight: 800;
+  transition: background .12s ease, color .12s ease, transform .12s ease;
+}
+.pill:hover, .speed-pill:hover { transform: translateY(-1px); }
+.pill.active, .speed-pill.active { background: var(--text-primary); color: #fff; }
+.shuffle-icon { display: inline-block; font-size: 23px; line-height: 0; transform: rotate(-35deg); margin-right: 3px; }
+
+.speed-section { margin-top: 30px; }
+.section-label-row { display: flex; align-items: center; justify-content: space-between; }
+.section-label-row label { margin-bottom: 12px; }
+.speed-value { display: none; }
+.speed-pills { display: flex; gap: 10px; flex-wrap: wrap; }
+.speed-pill { min-width: 68px; padding: 0 15px; }
+
+.mode-section { margin-top: 30px; }
+.loop-section { margin-top: 30px; }
+.loop-group { gap: 8px; }
+.loop-group .pill { min-width: 46px; padding-left: 13px; padding-right: 13px; }
+.mode-group { gap: 12px; }
+.mode-group .pill { padding-left: 20px; padding-right: 20px; }
+
+.launch-button {
+  width: 100%; height: 76px; margin-top: auto; flex-shrink: 0;
+  border-radius: 18px; background: var(--grape-500); color: #fff;
+  font-size: 17px; font-weight: 900; box-shadow: inset 0 -5px 0 var(--grape-700);
+  transition: transform .12s ease, filter .12s ease;
+}
+.launch-button:hover { filter: brightness(1.03); }
+.launch-button:active { transform: translateY(3px); box-shadow: inset 0 -2px 0 var(--grape-700); }
+.launch-button:disabled { opacity: .45; cursor: not-allowed; }
+
+.preview-info { flex-shrink: 0; margin-bottom: 24px; }
+.preview-summary {
+  min-height: 90px; padding: 18px 20px; border-radius: 17px; background: var(--surface-inset);
+  display: flex; flex-direction: column; justify-content: center; gap: 6px;
+}
+.preview-summary strong { font-size: 18px; font-weight: 800; }
+.preview-summary span { font-size: 16px; color: var(--text-secondary); }
+.preview-content { min-height: 0; flex: 1; overflow: hidden; display: flex; flex-direction: column; }
+
+.song-layout { width: 100%; display: flex; flex-direction: column; gap: 18px; }
+.song-row { width: 100%; display: grid; grid-template-columns: 4fr 3fr; gap: 30px; }
+.song-row:nth-child(4) { grid-template-columns: 2fr 3fr; }
+.song-group { display: grid; grid-template-columns: repeat(auto-fit, minmax(0, 1fr)); gap: 10px; min-width: 0; }
+.song-slot { min-width: 0; aspect-ratio: 1; display: grid; place-items: center; }
+
+.wood-block {
+  width: 100%; aspect-ratio: 1; min-width: 0; border-radius: 15px;
+  background: var(--wood-face); border: 4px solid var(--wood-edge); color: var(--text-primary);
+  font-family: "Nunito", sans-serif; font-size: clamp(22px, 2vw, 34px); font-weight: 900;
+  display: grid; place-items: center; position: relative;
+  box-shadow: 0 7px 0 var(--wood-shadow), 0 9px 10px rgba(53,49,39,.08);
+  transition: transform .12s ease, box-shadow .12s ease, background .12s ease;
+}
+.wood-block::after { display: none; }
+.wood-block:active { transform: translateY(3px); box-shadow: 0 4px 0 var(--wood-shadow), 0 6px 8px rgba(53,49,39,.08); }
+
+.preview-content > .song-layout { flex: 1; justify-content: center; min-height: 0; }
+.preview-content .song-row { gap: 20px; min-height: 0; }
+.preview-content .song-group { gap: 10px; }
+.preview-content .song-slot .wood-block { width: min(100%, 68px); border-width: 4px; }
+.preview-content .preview-song-row { grid-template-columns: 1fr 1fr; }
+
+.random-tools { display: flex; align-items: center; justify-content: space-between; gap: 14px; margin-bottom: 16px; flex-shrink: 0; }
+.random-tools span { font-size: 14px; color: var(--text-secondary); font-weight: 600; }
+.shuffle-button, .reset-button, .reverse-button {
+  height: 42px; padding: 0 18px; border-radius: var(--r-pill); background: var(--text-primary); color: #fff; font-weight: 800;
+}
+.shuffle-symbol { display: inline-block; font-size: 21px; transform: rotate(-35deg); margin-right: 5px; }
+.random-board { flex: 1; min-height: 0; display: flex; align-items: center; }
+
+.custom-editor {
+  min-height: 0;
+  flex: 1 1 auto;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: flex-start;
+  overflow: visible;
+}
+.custom-song-area { flex: 0 0 auto; width: 100%; }
+.custom-layout { gap: 10px; }
+.custom-layout .song-row { gap: 20px; }
+.custom-layout .song-group { gap: 10px; }
+.custom-slot { border: 2px dashed var(--sand-300); border-radius: 15px; background: transparent; }
+.custom-slot .wood-block { width: calc(100% - 4px); border-width: 4px; }
+.custom-slot.filled { border-color: transparent; background: transparent; }
+.custom-divider { height: 1px; background: var(--sand-300); margin: 20px 0 18px; flex-shrink: 0; }
+.letter-tray {
+  display: grid; grid-template-columns: repeat(9, minmax(0, 1fr)); gap: 10px;
+  flex-shrink: 0; padding: 0 2px;
+}
+.tray-cell { aspect-ratio: 1; min-width: 0; display: grid; place-items: center; }
+.tray-cell .tray-block { width: 100%; font-size: clamp(15px, 1.25vw, 24px); border-width: 3px; border-radius: 13px; box-shadow: 0 5px 0 var(--wood-shadow), 0 7px 9px rgba(53,49,39,.07); }
+.tray-cell.used {
+  border: 2px dashed var(--sand-300); border-radius: 13px; background: transparent;
+}
+
+
+.game-screen { width: 100%; height: 100%; min-height: 100%; padding: 24px 34px 30px; display: flex; flex-direction: column; background: var(--surface-base); }
+.game-header { flex-shrink: 0; gap: 20px; position: relative; }
+.game-header h1 { flex: 1; font-size: 32px; }
+.game-actions { display: flex; gap: 12px; }
+.game-stage { min-height: 0; flex: 1; display: flex; flex-direction: column; justify-content: center; align-items: stretch; padding: 30px 0 36px; }
+.chunk-stage {
+  width: 100%;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  min-height: 0;
+}
+
+/*
+ * Play-screen blocks are sized from the four-letter case.
+ * A chunk with 2 or 3 letters keeps exactly the same physical block size
+ * and is centered instead of stretching its blocks to fill the row.
+ */
+.chunk-row {
+  --play-gap: clamp(10px, 1.2vw, 26px);
+  width: 100%;
+  display: grid;
+  grid-template-columns: repeat(
+    var(--chunk-count),
+    calc((100% - (3 * var(--play-gap))) / 4)
+  );
+  justify-content: center;
+  gap: var(--play-gap);
+}
+.chunk-slot {
+  width: 100%;
+  aspect-ratio: 1;
+  min-width: 0;
+  display: grid;
+  place-items: center;
+}
+.chunk-slot .wood-block {
+  width: 100%; height: 100%; border-radius: clamp(18px, 1.5vw, 32px); border-width: clamp(4px, .35vw, 7px);
+  font-size: clamp(96px, 13vw, 240px);
+  box-shadow: 0 clamp(10px, .8vw, 18px) 0 var(--wood-shadow), 0 clamp(18px, 1.4vw, 30px) 35px rgba(53,49,39,.13);
+  animation: blockPop .34s cubic-bezier(.2,.9,.2,1);
+}
+.chunk-slot.current .wood-block { transform: translateY(clamp(-12px, -.8vw, -6px)); box-shadow: 0 clamp(14px, 1vw, 22px) 0 var(--wood-shadow), 0 clamp(24px, 1.8vw, 38px) 42px rgba(53,49,39,.18); }
+@keyframes blockPop {
+  0% { opacity: 0; transform: translateY(28px) scale(.72) rotate(-3deg); }
+  70% { opacity: 1; transform: translateY(-5px) scale(1.04) rotate(.5deg); }
+  100% { opacity: 1; transform: translateY(0) scale(1) rotate(0); }
+}
+.progress-dots { display: flex; justify-content: center; align-items: center; gap: 10px; margin-top: clamp(30px, 5vh, 58px); flex-shrink: 0; }
+.progress-dot { width: 16px; height: 16px; border-radius: 50%; background: var(--sand-300); transition: background .18s ease, transform .18s ease; }
+.progress-dot.active { background: var(--grape-500); transform: scale(1.05); }
+.progress-dot.done { background: var(--grape-500); }
+
+body.presentation .game-screen { padding: 24px 32px 28px; }
+body.presentation .game-header { opacity: 0; pointer-events: none; }
+body.presentation .game-stage { padding-top: 2vh; padding-bottom: 3vh; }
+
+@media (max-width: 1000px) {
+  .settings-screen { padding: 22px; }
+  .settings-grid { grid-template-columns: 1fr; overflow-y: auto; }
+  .settings-card { min-height: 540px; }
+  .song-card { min-height: 640px; }
+  .preview-card { min-height: 640px; }
+}
+
+@media (max-width: 600px) {
+  .settings-screen { padding: 16px; gap: 18px; }
+  h1 { font-size: 28px; }
+  h2 { font-size: 24px; }
+  .settings-card { padding: 22px; }
+  .settings-grid { gap: 18px; }
+  .song-row { gap: 14px; }
+  .preview-content .song-row, .custom-layout .song-row { gap: 12px; }
+  .preview-content .song-group, .custom-layout .song-group { gap: 6px; }
+  .letter-tray { grid-template-columns: repeat(9, 1fr); gap: 6px; }
+  .game-screen { padding: 16px 20px 22px; }
+  .game-header h1 { font-size: 24px; }
+  .game-actions { gap: 6px; }
+  .icon-btn { width: 44px; height: 44px; }
+  .chunk-row { --play-gap: 6px; }
+  .progress-dot { width: 11px; height: 11px; }
+}
+
+/* Figma spacing + fixed 48px preview tiles */
+.settings-screen {
+  width: 100%;
+  height: 100vh;
+  min-height: 100vh;
+  padding: 24px 22px 22px;
+  gap: 18px;
+}
+.settings-header { min-height: 34px; }
+.settings-header h1 { font-size: 24px; }
+.settings-header .icon-btn {
+  width: 34px;
+  height: 34px;
+  border-radius: 10px;
+  border-width: 1.5px;
+}
+.settings-header .icon-btn svg { width: 17px; height: 17px; }
+.settings-grid {
+  gap: 24px;
+  min-height: 0;
+  flex: 1 1 auto;
+  height: 0;
+  align-items: stretch;
+}
+.settings-card {
+  border-width: 1.5px;
+  border-radius: 16px;
+  padding: 20px 22px;
+}
+.preview-card { padding: 20px 20px; }
+.settings-card h2 { font-size: 20px; }
+.song-card > h2 { margin-bottom: 14px; }
+.preview-heading { margin-bottom: 16px; }
+.control-section > label,
+.section-label-row label {
+  margin-bottom: 8px;
+  font-size: 12px;
+  line-height: 1.2;
+}
+.pill-group { gap: 10px; }
+.pill, .speed-pill {
+  height: 34px;
+  padding: 0 14px;
+  font-size: 12px;
+}
+.speed-pills { gap: 8px; }
+.speed-pill { min-width: 45px; padding: 0 10px; }
+.speed-section { margin-top: 20px; }
+.mode-section { margin-top: 20px; }
+.loop-section { margin-top: 20px; }
+.mode-group { gap: 10px; }
+.mode-group .pill { padding-left: 14px; padding-right: 14px; }
+.shuffle-icon { font-size: 17px; margin-right: 2px; }
+.launch-button {
+  height: 54px;
+  border-radius: 13px;
+  font-size: 14px;
+  box-shadow: inset 0 -4px 0 var(--grape-700);
+}
+
+.preview-info { margin-bottom: 18px; }
+.preview-summary {
+  min-height: 62px;
+  padding: 11px 14px;
+  border-radius: 13px;
+  flex-direction: row;
+  align-items: center;
+  justify-content: space-between;
+  gap: 16px;
+}
+.preview-summary-copy {
+  min-width: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 3px;
+}
+.preview-summary strong { font-size: 13px; line-height: 1.2; }
+.preview-summary span { font-size: 11px; line-height: 1.25; }
+.preview-action {
+  flex: 0 0 auto;
+  height: 42px;
+  min-width: 84px;
+  padding: 0 18px;
+  border-radius: var(--r-pill);
+  font-size: 12px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+}
+.preview-action.active {
+  background: var(--text-primary);
+  color: #fff;
+}
+.shuffle-symbol { font-size: 17px; margin-right: 3px; }
+
+/* Preview tiles are physical 48px blocks, never fluid grid cells. */
+.song-layout { width: max-content; max-width: 100%; gap: 12px; margin: 0 auto; }
+.song-row,
+.song-row:nth-child(4) {
+  width: max-content;
+  max-width: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 20px;
+}
+.song-group {
+  display: flex;
+  flex: 0 0 auto;
+  gap: 8px;
+}
+.song-slot {
+  width: 48px;
+  height: 48px;
+  flex: 0 0 48px;
+  aspect-ratio: auto;
+}
+.preview-content > .song-layout { flex: 0 0 auto; justify-content: center; }
+.preview-content .song-row,
+.custom-layout .song-row { gap: 20px; }
+.preview-content .song-group,
+.custom-layout .song-group { gap: 8px; }
+.preview-content .song-slot .wood-block {
+  width: 48px;
+  height: 48px;
+  flex: 0 0 48px;
+  aspect-ratio: auto;
+  border-width: 3px;
+  border-radius: 11px;
+  font-size: 26px;
+}
+
+.random-board {
+  flex: 0 0 auto;
+  display: flex;
+  justify-content: center;
+  align-items: flex-start;
+}
+
+.custom-editor { align-items: center; }
+.custom-song-area { width: 100%; }
+.custom-layout { width: max-content; }
+.custom-slot {
+  width: 48px;
+  height: 48px;
+  flex: 0 0 48px;
+  aspect-ratio: auto;
+  border-radius: 11px;
+}
+.custom-slot .wood-block {
+  width: 48px;
+  height: 48px;
+  flex: 0 0 48px;
+  aspect-ratio: auto;
+  border-width: 3px;
+  border-radius: 11px;
+  font-size: 24px;
+}
+.custom-divider { width: 100%; margin: 18px 0 14px; }
+.letter-tray {
+  width: max-content;
+  max-width: 100%;
+  grid-template-columns: repeat(9, 48px);
+  gap: 8px;
+  padding: 0;
+  margin: 0 auto;
+}
+.tray-cell {
+  width: 48px;
+  height: 48px;
+  flex: 0 0 48px;
+  aspect-ratio: auto;
+}
+.tray-cell .tray-block {
+  width: 48px;
+  height: 48px;
+  aspect-ratio: auto;
+  font-size: 18px;
+  border-width: 3px;
+  border-radius: 11px;
+}
+.tray-cell.used { border-radius: 11px; }
+
+@media (max-width: 600px) {
+  .settings-screen { padding: 16px; gap: 16px; }
+  .settings-card { padding: 18px; }
+  .preview-card { padding: 18px; }
+  .settings-grid { gap: 16px; }
+  .song-layout { gap: 10px; }
+  .song-row,
+  .song-row:nth-child(4),
+  .preview-content .song-row,
+  .custom-layout .song-row { gap: 12px; }
+  .preview-content .song-group,
+  .custom-layout .song-group { gap: 6px; }
+  .letter-tray { grid-template-columns: repeat(9, 48px); gap: 6px; }
+}
+
+
+/* Musical word blocks */
+.lyric-slot .wood-block, .lyric-chunk-slot .wood-block {
+  font-size: clamp(14px, 1.7vw, 30px);
+  padding: 0 10px;
+  white-space: nowrap;
+}
+
+.count-in-stage {
+  position: absolute;
+  inset: 0 0 72px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  pointer-events: none;
+  z-index: 3;
+}
+.count-in-stage:not(.visible) { opacity: 0; }
+.count-in-row { display: flex; align-items: baseline; justify-content: center; gap: clamp(24px, 4vw, 64px); width: 100%; }
+.count-in-single { gap: 0; }
+.count-word {
+  color: var(--text-primary);
+  font-family: "Fredoka", sans-serif;
+  font-size: clamp(108px, 13vw, 240px);
+  font-weight: 600;
+  line-height: 1;
+  white-space: nowrap;
+  opacity: 0;
+  transform: translateY(-24px) scale(.94);
+}
+.count-word.count-pop { animation: lyricFall .28s cubic-bezier(.2,.9,.2,1) forwards; }
+
+.count-in {
+  position: absolute; left: 50%; top: 50%; transform: translate(-50%, -50%);
+  color: var(--text-muted); font-family: "Fredoka", sans-serif; font-size: clamp(24px, 4vw, 52px);
+  font-weight: 500; letter-spacing: .08em; opacity: .85;
+}
+.game-stage { position: relative; }
+.loop-badge {
+  flex-shrink: 0;
+  padding: 7px 14px;
+  border-radius: 999px;
+  background: var(--sand-100);
+  border: 1px solid var(--sand-300);
+  color: var(--text-secondary);
+  font-size: 13px;
+  line-height: 1;
+  font-weight: 800;
+  white-space: nowrap;
+}
+.game-header .loop-badge { position: absolute; left: 50%; top: 50%; transform: translate(-50%, -50%); margin: 0; }
+body.presentation .game-header .loop-badge { display: block; }
+
+/* v14 layout corrections */
+.game-stage {
+  position: relative;
+  min-height: 0;
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  justify-content: stretch;
+  align-items: stretch;
+  padding: 0;
+}
+.game-body {
+  position: relative;
+  flex: 1 1 auto;
+  min-height: 0;
+  display: grid;
+  place-items: center;
+}
+.game-body .count-in-stage,
+.game-body .chunk-stage {
+  position: absolute;
+  inset: 0;
+}
+.game-body .count-in-stage {
+  inset: 0;
+  z-index: 3;
+}
+.game-body .chunk-stage {
+  z-index: 2;
+}
+.game-stage > .progress-dots {
+  position: relative;
+  z-index: 4;
+  margin-top: 0;
+  padding: 24px 0 12px;
+  flex: 0 0 auto;
+}
+body.presentation .game-header {
+  opacity: 1;
+  pointer-events: auto;
+}
+body.presentation .game-screen {
+  background: var(--surface-base);
+}
+#settingsScreen:fullscreen,
+#gameScreen:fullscreen {
+  background: var(--surface-base);
+}
+html:fullscreen,
+body:fullscreen {
+  background: var(--surface-base);
+}
+
+/* Lyric text is intentionally text-first, not another alphabet block wall. */
+.lyric-row {
+  width: min(96vw, 1700px);
+  display: flex;
+  align-items: baseline;
+  justify-content: center;
+  gap: clamp(22px, 2.5vw, 48px);
+  box-sizing: border-box;
+}
+.lyric-word {
+  flex: 0 0 auto;
+  min-width: 1ch;
+  color: var(--text-primary);
+  font-family: "Fredoka", sans-serif;
+  font-size: clamp(82px, 9vw, 190px);
+  font-weight: 600;
+  line-height: 1;
+  text-align: center;
+  white-space: nowrap;
+  opacity: .98;
+}
+/* Four-word lyric screens use deliberately generous fixed spacing. The word
+   slots are reserved from the beginning, so later fragments never shove an
+   earlier word around. */
+.lyric-row.lyric-count-4 {
+  width: min(96vw, 1680px);
+  gap: clamp(42px, 4vw, 86px);
+}
+.lyric-row.lyric-count-4 .lyric-word {
+  font-size: clamp(70px, 8.2vw, 178px);
+}
+.lyric-row[data-screen="9"] { gap: clamp(48px, 4.5vw, 96px); }
+.lyric-row[data-screen="11"] { gap: clamp(52px, 4.8vw, 100px); }
+.lyric-ghost { visibility: hidden; display: inline-block; }
+.lyric-live { position: absolute; inset: 0; display: flex; align-items: baseline; justify-content: flex-start; }
+.lyric-word { position: relative; }
+.lyric-pop {
+  animation: lyricFall .28s cubic-bezier(.2,.9,.2,1);
+}
+@keyframes lyricFall {
+  0% { opacity: 0; transform: translateY(-24px) scale(.94); }
+  100% { opacity: 1; transform: translateY(0) scale(1); }
+}
+.mixed-lyric-text {
+  color: var(--text-primary);
+  font-family: "Fredoka", sans-serif;
+  font-size: clamp(30px, 5vw, 86px);
+  font-weight: 600;
+  white-space: nowrap;
+  animation: lyricFall .28s cubic-bezier(.2,.9,.2,1);
+}
+.lyric-part {
+  display: inline-block;
+}
+
+/* Fullscreen surfaces: never expose the browser's black backdrop. */
+#settingsScreen::backdrop,
+#gameScreen::backdrop { background: var(--surface-base); }
+
+body.presentation .game-header { opacity: 1 !important; pointer-events: auto !important; }
+body.presentation .game-header .loop-badge { display: block !important; }
+
+
+/* v19 difficulty control */
+.difficulty-section { margin-top: 20px; }
+.difficulty-group { gap: 10px; }
+
+/* Easy mode: keep the current musical chunk visible and highlight the called letter. */
+.easy-chunk-row {
+  --play-gap: clamp(10px, 1.2vw, 26px);
+}
+.easy-chunk-slot .wood-block {
+  transition: background .14s ease, border-color .14s ease, box-shadow .14s ease, transform .14s ease;
+  animation: none;
+}
+.easy-chunk-slot:not(.called) .wood-block {
+  transform: none;
+}
+.easy-chunk-slot.called .wood-block {
+  background: var(--grape-50);
+  border-color: var(--grape-300);
+  color: var(--grape-900);
+  box-shadow: 0 clamp(10px, .8vw, 18px) 0 var(--grape-700), 0 clamp(18px, 1.4vw, 30px) 35px rgba(118,74,156,.18);
+}
+.easy-chunk-slot .wood-block.letter-jiggle {
+  animation: letterJiggle .34s cubic-bezier(.2,.9,.2,1);
+}
+@keyframes letterJiggle {
+  0% { transform: translateY(0) rotate(0deg) scale(1); }
+  25% { transform: translateY(-7px) rotate(-2deg) scale(1.045); }
+  50% { transform: translateY(2px) rotate(2deg) scale(1.02); }
+  75% { transform: translateY(-2px) rotate(-1deg) scale(1.01); }
+  100% { transform: translateY(0) rotate(0deg) scale(1); }
+}
+
+
+/* Easy mode lookahead: show the upcoming letter chunk shortly before its
+   musical entrance, giving students a visual runway without revealing the
+   next call as the active/highlighted letter. */
+.easy-next-preview {
+  position: absolute;
+  left: 50%;
+  top: 17%;
+  width: min(82%, 1180px);
+  transform: translateX(-50%) scale(.58);
+  transform-origin: center;
+  opacity: .34;
+  filter: saturate(.82);
+  pointer-events: none;
+}
+.easy-next-preview .wood-block { animation: none !important; }
+
+/* v22: four-beat visual pause between loops */
+.loop-gap-dots { display:flex; align-items:center; justify-content:center; gap:28px; }
+.loop-gap-dot { width:28px; height:28px; border-radius:50%; background:var(--grape-500); opacity:0; transform:scale(.65); animation:gapDotPop .28s cubic-bezier(.2,.9,.2,1) forwards; }
+.loop-gap-dot:nth-child(1){animation-delay:0s}.loop-gap-dot:nth-child(2){animation-delay:1s}.loop-gap-dot:nth-child(3){animation-delay:2s}.loop-gap-dot:nth-child(4){animation-delay:3s}
+@keyframes gapDotPop { to { opacity:1; transform:scale(1); } }
+
+/* v23: fullscreen interaction layer. Keep the header above the presentation stage. */
+.game-screen:fullscreen { position: relative; z-index: 0; }
+.game-screen:fullscreen .game-header { position: relative; z-index: 50; }
+.game-screen:fullscreen .game-actions,
+.game-screen:fullscreen .game-header .icon-btn { position: relative; z-index: 51; pointer-events: auto; }
+.settings-screen:fullscreen { position: relative; z-index: 0; }
+.settings-screen:fullscreen .settings-header,
+.settings-screen:fullscreen .settings-grid { position: relative; z-index: 10; }
+
+/* Lyric words occupy predetermined slots and keep their positions as fragments arrive. */
+.lyric-word { overflow: visible; }
+
+/* v26: gameplay hierarchy. Progress lives in the header, loop status sits beside the title,
+   and Easy lookahead gets a dedicated shelf beneath the active chunk. */
+.game-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 20px;
+  position: relative;
+  z-index: 20;
+}
+.game-title-group {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  min-width: 0;
+  flex: 1 1 auto;
+}
+.game-title-group h1 {
+  flex: 0 1 auto;
+  min-width: 0;
+  white-space: nowrap;
+}
+.game-header .loop-badge {
+  position: static;
+  transform: none;
+  margin: 0;
+  flex: 0 0 auto;
+  padding: 6px 11px;
+  font-size: 11px;
+}
+.game-header > .progress-dots {
+  position: static;
+  margin: 0;
+  padding: 0;
+  flex: 0 1 auto;
+  min-width: 0;
+  gap: 6px;
+}
+.game-header > .progress-dots .progress-dot {
+  width: 9px;
+  height: 9px;
+}
+.game-stage {
+  min-height: 0;
+  flex: 1 1 auto;
+  padding: 0;
+}
+.game-body {
+  position: relative;
+  min-height: 0;
+  height: 100%;
+  display: grid;
+  grid-template-rows: minmax(0, 1fr) 104px;
+  place-items: stretch;
+}
+.game-body .count-in-stage {
+  position: absolute;
+  inset: 0;
+  z-index: 30;
+}
+.game-body .chunk-stage {
+  position: relative;
+  inset: auto;
+  z-index: 2;
+  min-height: 0;
+  width: 100%;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+.easy-preview-stage {
+  /* v28: reserve the shelf whether or not a preview is visible.
+     Visibility/opacity are used instead of display:none so the main chunk
+     never gets reflowed when the preview pops in. */
+  display: flex;
+  min-height: 0;
+  width: 100%;
+  align-items: center;
+  justify-content: center;
+  padding: 4px 0 18px;
+  position: relative;
+  z-index: 3;
+  visibility: hidden;
+  opacity: 0;
+  pointer-events: none;
+}
+.easy-preview-stage.has-preview {
+  visibility: visible;
+  opacity: 1;
+}
+.easy-preview-stage .easy-next-preview {
+  position: relative;
+  left: auto;
+  top: auto;
+  transform: none;
+  transform-origin: center;
+  width: min(58%, 760px);
+  opacity: .36;
+  filter: saturate(.82);
+  margin: 0 auto;
+}
+.easy-preview-stage .easy-next-preview .wood-block {
+  animation: none !important;
+}
+
+@media (max-width: 800px) {
+  .game-title-group { gap: 10px; }
+  .game-header > .progress-dots { gap: 4px; }
+  .game-header > .progress-dots .progress-dot { width: 7px; height: 7px; }
+  .game-header .loop-badge { font-size: 10px; padding: 5px 8px; }
+  .easy-preview-stage .easy-next-preview { width: min(72%, 620px); }
+}
+
+/* v26 lyric guardrails: fixed visual columns prevent late fragments from
+   collapsing the gaps between the words. */
+.lyric-row[data-screen="9"],
+.lyric-row[data-screen="11"] {
+  width: min(92vw, 1480px);
+  display: grid;
+  align-items: baseline;
+  justify-content: center;
+  column-gap: clamp(24px, 3vw, 58px);
+}
+.lyric-row[data-screen="9"] {
+  grid-template-columns: minmax(150px, 1.5fr) minmax(55px, .75fr) minmax(180px, 1.45fr) minmax(120px, 1fr);
+}
+.lyric-row[data-screen="11"] {
+  grid-template-columns: minmax(150px, 1.35fr) minmax(120px, 1fr) minmax(130px, 1fr) minmax(110px, .9fr);
+}
+.lyric-row[data-screen="9"] .lyric-word,
+.lyric-row[data-screen="11"] .lyric-word {
+  width: auto !important;
+  min-width: 0 !important;
+  justify-self: center;
+}
+.lyric-row[data-screen="9"] .lyric-live,
+.lyric-row[data-screen="11"] .lyric-live {
+  justify-content: center;
+}
+
+/* v27: Easy lookahead is a compact preview shelf, not a second full-size chunk. */
+.easy-preview-stage .easy-next-preview {
+  width: max-content;
+  max-width: 100%;
+  display: grid;
+  grid-template-columns: repeat(var(--chunk-count), 72px);
+  justify-content: center;
+  gap: 12px;
+  transform: none;
+  margin: 0 auto;
+  opacity: 1;
+}
+.easy-preview-stage .easy-next-preview .chunk-slot {
+  width: 72px;
+  height: 72px;
+  aspect-ratio: 1;
+}
+.easy-preview-stage .easy-next-preview .wood-block {
+  width: 72px;
+  height: 72px;
+  font-size: 48px;
+  border-width: 4px;
+  border-radius: 14px;
+  box-shadow: 0 5px 0 var(--wood-shadow), 0 8px 14px rgba(53,49,39,.08);
+}
+
+/* v28: preview appearance is purely visual. The shelf itself never changes size. */
+.easy-preview-stage.has-preview .easy-next-preview {
+  animation: previewShelfPop .24s cubic-bezier(.2,.9,.2,1);
+}
+@keyframes previewShelfPop {
+  0% { opacity: 0; transform: translateY(8px) scale(.94); }
+  100% { opacity: 1; transform: translateY(0) scale(1); }
+}
+
+/* v27: progress is a true centered header element. */
+.game-header > .progress-dots {
+  position: absolute;
+  left: 50%;
+  top: 50%;
+  transform: translate(-50%, -50%);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  margin: 0;
+  padding: 0;
+  width: max-content;
+  z-index: 2;
+}
+.game-header > .progress-dots .progress-dot {
+  width: 13px;
+  height: 13px;
+  flex: 0 0 13px;
+}
+
+@media (max-width: 800px) {
+  .easy-preview-stage .easy-next-preview {
+    grid-template-columns: repeat(var(--chunk-count), 58px);
+    gap: 8px;
+  }
+  .easy-preview-stage .easy-next-preview .chunk-slot,
+  .easy-preview-stage .easy-next-preview .wood-block {
+    width: 58px;
+    height: 58px;
+  }
+  .easy-preview-stage .easy-next-preview .wood-block {
+    font-size: 38px;
+    border-width: 3px;
+    border-radius: 12px;
+  }
+  .game-header > .progress-dots { gap: 6px; }
+  .game-header > .progress-dots .progress-dot {
+    width: 10px;
+    height: 10px;
+    flex-basis: 10px;
+  }
+  .game-body { grid-template-rows: minmax(0, 1fr) 82px; }
+}
+
+
+/* v30: restore the lyric choreography without letting song screen indexes
+   collide between Standard and LMNOP. Every lyric word gets a reserved slot. */
+.lyric-row {
+  display: grid;
+  justify-content: center;
+  align-items: baseline;
+  width: min(94vw, 1560px);
+  gap: clamp(28px, 3vw, 64px);
+}
+.lyric-row .lyric-word {
+  width: auto !important;
+  min-width: 0 !important;
+  justify-self: center;
+  position: relative;
+}
+
+/* Standard: happy happy / I'm happy / I can sing my / ABCs */
+.lyric-row[data-song="standard"][data-screen="8"] {
+  grid-template-columns: minmax(260px, 1fr) minmax(260px, 1fr);
+  column-gap: clamp(56px, 7vw, 120px);
+}
+.lyric-row[data-song="standard"][data-screen="9"] {
+  grid-template-columns: minmax(140px, .7fr) minmax(260px, 1.3fr);
+  column-gap: clamp(70px, 8vw, 150px);
+}
+.lyric-row[data-song="standard"][data-screen="10"] {
+  grid-template-columns: repeat(4, minmax(120px, 1fr));
+  column-gap: clamp(28px, 3vw, 60px);
+}
+.lyric-row[data-song="standard"][data-screen="11"] {
+  grid-template-columns: minmax(260px, 1fr);
+}
+
+/* LMNOP: Now I know my / ABCs / Next time won't you / sing with me */
+.lyric-row[data-song="lmno"][data-screen="9"] {
+  grid-template-columns: minmax(220px, 1.2fr) minmax(90px, .55fr) minmax(210px, 1.15fr) minmax(150px, .85fr);
+  column-gap: clamp(46px, 5vw, 92px);
+}
+.lyric-row[data-song="lmno"][data-screen="10"] {
+  grid-template-columns: minmax(260px, 1fr);
+}
+.lyric-row[data-song="lmno"][data-screen="11"] {
+  grid-template-columns: minmax(220px, 1.2fr) minmax(180px, 1fr) minmax(220px, 1.2fr) minmax(150px, .85fr);
+  column-gap: clamp(42px, 4.5vw, 86px);
+}
+.lyric-row[data-song="lmno"][data-screen="12"] {
+  grid-template-columns: repeat(3, minmax(150px, 1fr));
+  column-gap: clamp(42px, 5vw, 90px);
+}
+
+/* Split-word fragments stay inside one reserved word slot and assemble
+   additively instead of replacing/recentering the first fragment. */
+.lyric-word .lyric-live {
+  position: absolute;
+  inset: 0;
+  display: flex;
+  align-items: baseline;
+  justify-content: center;
+  white-space: nowrap;
+}
+.lyric-word .lyric-ghost {
+  display: inline-block;
+  visibility: hidden;
+  white-space: nowrap;
+}
+.lyric-word .lyric-part {
+  display: inline-block;
+}
+
+/* Y and Z are letter blocks with the sung "and" living between them. */
+.mixed-song-row {
+  width: min(92vw, 980px);
+  display: grid;
+  grid-template-columns: minmax(180px, 1fr) minmax(90px, .5fr) minmax(180px, 1fr);
+  align-items: center;
+  justify-content: center;
+  column-gap: clamp(30px, 4vw, 72px);
+}
+.mixed-song-slot {
+  display: grid;
+  place-items: center;
+  min-width: 0;
+}
+.mixed-song-slot .wood-block {
+  width: clamp(180px, 20vw, 330px);
+  height: clamp(180px, 20vw, 330px);
+}
+.mixed-inline-lyric {
+  font-size: clamp(52px, 6vw, 108px);
+  font-weight: 600;
+  white-space: nowrap;
+}
+
+@media (max-width: 800px) {
+  .lyric-row[data-song="standard"][data-screen="10"],
+  .lyric-row[data-song="lmno"][data-screen="9"],
+  .lyric-row[data-song="lmno"][data-screen="11"] {
+    column-gap: 18px;
+  }
+  .mixed-song-row { column-gap: 14px; }
+  .mixed-song-slot .wood-block { width: 120px; height: 120px; }
+  .mixed-inline-lyric { font-size: 38px; }
+}
+
+
+/* v31: final lyric layout correction.
+   Keep lyric groups centered as groups, with fixed-width word slots so
+   fragments never determine the position of the line. */
+.lyric-row {
+  display: flex !important;
+  flex-wrap: nowrap;
+  align-items: baseline;
+  justify-content: center !important;
+  width: 100% !important;
+  max-width: none !important;
+  box-sizing: border-box;
+  gap: clamp(28px, 3.2vw, 72px) !important;
+}
+.lyric-row .lyric-word {
+  flex: 0 0 auto !important;
+  width: var(--lyric-slot-width) !important;
+  min-width: var(--lyric-slot-width) !important;
+  max-width: var(--lyric-slot-width) !important;
+  justify-self: auto !important;
+  text-align: center;
+  position: relative;
+}
+
+/* Standard */
+.lyric-row[data-song="standard"][data-screen="8"] {
+  --lyric-slot-width: clamp(250px, 25vw, 520px);
+  gap: clamp(48px, 5vw, 96px) !important;
+}
+.lyric-row[data-song="standard"][data-screen="9"] {
+  --lyric-slot-width: clamp(180px, 16vw, 300px);
+  gap: clamp(56px, 6vw, 110px) !important;
+}
+.lyric-row[data-song="standard"][data-screen="9"] .lyric-word:nth-child(2) {
+  --lyric-slot-width: clamp(300px, 25vw, 520px);
+}
+.lyric-row[data-song="standard"][data-screen="10"] {
+  --lyric-slot-width: clamp(130px, 11vw, 220px);
+  gap: clamp(26px, 2.8vw, 54px) !important;
+}
+.lyric-row[data-song="standard"][data-screen="11"] {
+  --lyric-slot-width: clamp(300px, 28vw, 520px);
+}
+
+/* LMNOP */
+.lyric-row[data-song="lmno"][data-screen="9"] {
+  gap: clamp(34px, 3.8vw, 72px) !important;
+}
+.lyric-row[data-song="lmno"][data-screen="9"] .lyric-word:nth-child(1) { width: clamp(230px, 18vw, 360px) !important; min-width: clamp(230px, 18vw, 360px) !important; max-width: clamp(230px, 18vw, 360px) !important; }
+.lyric-row[data-song="lmno"][data-screen="9"] .lyric-word:nth-child(2) { width: clamp(90px, 7vw, 130px) !important; min-width: clamp(90px, 7vw, 130px) !important; max-width: clamp(90px, 7vw, 130px) !important; }
+.lyric-row[data-song="lmno"][data-screen="9"] .lyric-word:nth-child(3) { width: clamp(230px, 18vw, 360px) !important; min-width: clamp(230px, 18vw, 360px) !important; max-width: clamp(230px, 18vw, 360px) !important; }
+.lyric-row[data-song="lmno"][data-screen="9"] .lyric-word:nth-child(4) { width: clamp(140px, 10vw, 200px) !important; min-width: clamp(140px, 10vw, 200px) !important; max-width: clamp(140px, 10vw, 200px) !important; }
+.lyric-row[data-song="lmno"][data-screen="10"] { --lyric-slot-width: clamp(300px, 28vw, 520px); }
+.lyric-row[data-song="lmno"][data-screen="11"] {
+  gap: clamp(30px, 3.2vw, 64px) !important;
+}
+.lyric-row[data-song="lmno"][data-screen="11"] .lyric-word:nth-child(1) { width: clamp(210px, 17vw, 320px) !important; min-width: clamp(210px, 17vw, 320px) !important; max-width: clamp(210px, 17vw, 320px) !important; }
+.lyric-row[data-song="lmno"][data-screen="11"] .lyric-word:nth-child(2) { width: clamp(210px, 17vw, 320px) !important; min-width: clamp(210px, 17vw, 320px) !important; max-width: clamp(210px, 17vw, 320px) !important; }
+.lyric-row[data-song="lmno"][data-screen="11"] .lyric-word:nth-child(3) { width: clamp(250px, 20vw, 380px) !important; min-width: clamp(250px, 20vw, 380px) !important; max-width: clamp(250px, 20vw, 380px) !important; }
+.lyric-row[data-song="lmno"][data-screen="11"] .lyric-word:nth-child(4) { width: clamp(150px, 12vw, 220px) !important; min-width: clamp(150px, 12vw, 220px) !important; max-width: clamp(150px, 12vw, 220px) !important; }
+.lyric-row[data-song="lmno"][data-screen="12"] {
+  gap: clamp(36px, 4vw, 78px) !important;
+}
+.lyric-row[data-song="lmno"][data-screen="12"] .lyric-word:nth-child(1) { width: clamp(170px, 14vw, 270px) !important; min-width: clamp(170px, 14vw, 270px) !important; max-width: clamp(170px, 14vw, 270px) !important; }
+.lyric-row[data-song="lmno"][data-screen="12"] .lyric-word:nth-child(2) { width: clamp(210px, 17vw, 320px) !important; min-width: clamp(210px, 17vw, 320px) !important; max-width: clamp(210px, 17vw, 320px) !important; }
+.lyric-row[data-song="lmno"][data-screen="12"] .lyric-word:nth-child(3) { width: clamp(130px, 11vw, 210px) !important; min-width: clamp(130px, 11vw, 210px) !important; max-width: clamp(130px, 11vw, 210px) !important; }
+
+/* Y and Z: keep the two wooden blocks and the sung "and" in fixed,
+   centered positions. The lyric slot never changes width when "and" appears. */
+.mixed-song-row {
+  width: 100% !important;
+  display: flex !important;
+  align-items: center;
+  justify-content: center !important;
+  flex-wrap: nowrap;
+  gap: clamp(24px, 3vw, 60px) !important;
+}
+.mixed-song-slot {
+  flex: 0 0 clamp(180px, 20vw, 330px);
+  width: clamp(180px, 20vw, 330px);
+  display: grid;
+  place-items: center;
+  min-width: 0;
+}
+.mixed-song-slot[data-event-type="lyric"] {
+  flex-basis: clamp(90px, 8vw, 150px);
+  width: clamp(90px, 8vw, 150px);
+}
+.mixed-song-slot .wood-block {
+  width: 100%;
+  height: auto;
+  aspect-ratio: 1;
+}
+.mixed-inline-lyric {
+  width: 100%;
+  text-align: center;
+}
+
+@media (max-width: 800px) {
+  .lyric-row { gap: 18px !important; }
+  .lyric-row[data-song="standard"][data-screen="8"] { --lyric-slot-width: 150px; }
+  .lyric-row[data-song="standard"][data-screen="9"] .lyric-word:nth-child(1) { width: 100px !important; min-width: 100px !important; max-width: 100px !important; }
+  .lyric-row[data-song="standard"][data-screen="9"] .lyric-word:nth-child(2) { width: 170px !important; min-width: 170px !important; max-width: 170px !important; }
+  .lyric-row[data-song="standard"][data-screen="10"] { --lyric-slot-width: 78px; }
+  .lyric-row[data-song="standard"][data-screen="11"],
+  .lyric-row[data-song="lmno"][data-screen="10"] { --lyric-slot-width: 190px; }
+  .lyric-row[data-song="lmno"][data-screen="9"] .lyric-word:nth-child(1) { width: 130px !important; min-width: 130px !important; max-width: 130px !important; }
+  .lyric-row[data-song="lmno"][data-screen="9"] .lyric-word:nth-child(2) { width: 60px !important; min-width: 60px !important; max-width: 60px !important; }
+  .lyric-row[data-song="lmno"][data-screen="9"] .lyric-word:nth-child(3) { width: 130px !important; min-width: 130px !important; max-width: 130px !important; }
+  .lyric-row[data-song="lmno"][data-screen="9"] .lyric-word:nth-child(4) { width: 80px !important; min-width: 80px !important; max-width: 80px !important; }
+  .lyric-row[data-song="lmno"][data-screen="11"] .lyric-word { width: 100px !important; min-width: 100px !important; max-width: 100px !important; }
+  .lyric-row[data-song="lmno"][data-screen="12"] .lyric-word { width: 90px !important; min-width: 90px !important; max-width: 90px !important; }
+  .mixed-song-row { gap: 12px !important; }
+  .mixed-song-slot { flex-basis: 120px; width: 120px; }
+  .mixed-song-slot[data-event-type="lyric"] { flex-basis: 58px; width: 58px; }
+}
+
+
+/* v32: lyric system rebuilt around intrinsic reserved word widths.
+   Each lyric slot gets its width from an invisible copy of the COMPLETE word.
+   Live fragments are then anchored to the left edge of that reserved slot.
+   This keeps every fragment in the final word position and keeps the whole
+   lyric group centered without late reflow. */
+.lyric-row,
+.lyric-row.lyric-count-1,
+.lyric-row.lyric-count-2,
+.lyric-row.lyric-count-3,
+.lyric-row.lyric-count-4 {
+  display: grid !important;
+  grid-template-columns: repeat(var(--lyric-count), max-content) !important;
+  width: max-content !important;
+  max-width: 96vw !important;
+  margin: 0 auto !important;
+  justify-content: center !important;
+  align-items: baseline !important;
+  column-gap: clamp(36px, 4vw, 82px) !important;
+  box-sizing: border-box;
+}
+.lyric-row { --lyric-count: 1; }
+.lyric-row.lyric-count-2 { --lyric-count: 2; }
+.lyric-row.lyric-count-3 { --lyric-count: 3; }
+.lyric-row.lyric-count-4 { --lyric-count: 4; }
+.lyric-row .lyric-word {
+  width: auto !important;
+  min-width: 0 !important;
+  max-width: none !important;
+  flex: none !important;
+  position: relative !important;
+  display: block !important;
+  justify-self: stretch !important;
+  text-align: left !important;
+  white-space: nowrap !important;
+}
+.lyric-row .lyric-ghost {
+  display: inline-block !important;
+  visibility: hidden !important;
+  white-space: nowrap !important;
+  width: auto !important;
+}
+.lyric-row .lyric-live {
+  position: absolute !important;
+  inset: 0 !important;
+  display: flex !important;
+  align-items: baseline !important;
+  justify-content: flex-start !important;
+  white-space: nowrap !important;
+  overflow: visible !important;
+}
+.lyric-row .lyric-part,
+.lyric-row .lyric-live > span {
+  display: inline-block !important;
+  white-space: nowrap !important;
+}
+
+/* Keep deliberate breathing room on the longer four-word lines. */
+.lyric-row[data-song="lmno"][data-screen="9"],
+.lyric-row[data-song="lmno"][data-screen="11"] {
+  column-gap: clamp(48px, 5vw, 100px) !important;
+}
+.lyric-row[data-song="standard"][data-screen="10"] {
+  column-gap: clamp(30px, 3vw, 60px) !important;
+}
+.lyric-row[data-song="lmno"][data-screen="12"] {
+  column-gap: clamp(44px, 4.5vw, 90px) !important;
+}
+
+/* Split words have a stable internal assembly line. The reserved ghost keeps
+   the full word's width, while fragments remain where they first appeared. */
+.lyric-row[data-song="standard"][data-screen="8"] .lyric-live,
+.lyric-row[data-song="standard"][data-screen="9"] .lyric-live,
+.lyric-row[data-song="standard"][data-screen="11"] .lyric-live,
+.lyric-row[data-song="lmno"][data-screen="10"] .lyric-live {
+  justify-content: flex-start !important;
+}
+
+/* v32: mixed Y / and / Z uses the same full-size gameplay letter treatment. */
+.mixed-song-row {
+  width: max-content !important;
+  max-width: 96vw !important;
+  margin: 0 auto !important;
+  display: grid !important;
+  grid-template-columns: max-content max-content max-content !important;
+  align-items: center !important;
+  justify-content: center !important;
+  column-gap: clamp(34px, 4vw, 80px) !important;
+}
+.mixed-song-slot {
+  display: grid !important;
+  place-items: center !important;
+  width: auto !important;
+  min-width: 0 !important;
+  flex: none !important;
+}
+.mixed-song-slot .wood-block {
+  width: clamp(180px, 20vw, 330px) !important;
+  height: clamp(180px, 20vw, 330px) !important;
+  aspect-ratio: 1 !important;
+  font-size: clamp(96px, 13vw, 240px) !important;
+  border-radius: clamp(18px, 1.5vw, 32px) !important;
+  border-width: clamp(4px, .35vw, 7px) !important;
+  box-shadow: 0 clamp(10px, .8vw, 18px) 0 var(--wood-shadow), 0 clamp(18px, 1.4vw, 30px) 35px rgba(53,49,39,.13) !important;
+}
+.mixed-song-slot[data-event-type="lyric"] {
+  width: clamp(90px, 8vw, 150px) !important;
+}
+.mixed-inline-lyric {
+  font-size: clamp(52px, 6vw, 108px) !important;
+  font-weight: 600 !important;
+  white-space: nowrap !important;
+}
+@media (max-width: 800px) {
+  .lyric-row { column-gap: 22px !important; }
+  .lyric-row[data-song="lmno"][data-screen="9"],
+  .lyric-row[data-song="lmno"][data-screen="11"] { column-gap: 26px !important; }
+  .mixed-song-row { column-gap: 14px !important; }
+  .mixed-song-slot .wood-block { width: 120px !important; height: 120px !important; font-size: 72px !important; }
+  .mixed-song-slot[data-event-type="lyric"] { width: 58px !important; }
+  .mixed-inline-lyric { font-size: 38px !important; }
+}
+
+/* v34: Easy-mode mixed Y / and / Z highlighting.
+   Mixed screens use .mixed-song-slot instead of .easy-chunk-slot, so they
+   need the same grape highlight treatment explicitly. */
+.mixed-song-slot.called .wood-block {
+  background: var(--grape-50) !important;
+  border-color: var(--grape-300) !important;
+  color: var(--grape-900) !important;
+  box-shadow: 0 clamp(10px, .8vw, 18px) 0 var(--grape-700), 0 clamp(18px, 1.4vw, 30px) 35px rgba(118,74,156,.18) !important;
+}
+.mixed-song-slot .wood-block.letter-jiggle {
+  animation: letterJiggle .34s cubic-bezier(.2,.9,.2,1);
+}
+
+
+/* Lucide icon system */
+.lucide-icon {
+  display: block;
+  flex: 0 0 auto;
+}
+
+.icon-btn .lucide-icon {
+  width: 20px;
+  height: 20px;
+}
+
+.pill .lucide-icon,
+.preview-action .lucide-icon {
+  width: 17px;
+  height: 17px;
+}
+
+.preview-action {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 7px;
+}
