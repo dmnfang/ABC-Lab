@@ -31,7 +31,7 @@ header{height:64px;flex:0 0 64px;background:var(--panel);border-bottom:1px solid
 <div class="setting"><h2>Letter Pool</h2><p class="panel-sub">Select the letters your students have mastered.</p>
 <div class="label">MASTERED LETTERS</div><div class="letters" id="letters"></div><div class="actions"><button class="mini" id="all">SELECT ALL</button><button class="mini" id="clear">CLEAR ALL</button></div>
 <div class="label">LETTERS PER SEQUENCE</div><div class="segment six" id="count"><button data-v="1" class="active">1</button><button data-v="2">2</button><button data-v="3">3</button><button data-v="4">4</button><button data-v="5">5</button><button data-v="6">6</button></div>
-<p class="hint">The app draws this many letters consecutively from the mastered-letter pool. A letter appears no more than twice in one sequence.</p>
+<p class="hint">The app draws this many different letters consecutively from the mastered-letter pool. Letters do not repeat within a sequence.</p>
 </div></div>
 <button class="launch" id="start">START TRAIL</button>
 </div></section>
@@ -75,7 +75,7 @@ Z:['M28 20 L72 20 L28 78 L73 78']
 const S={speed:1,trail:2,count:1,selected:new Set(LETTERS),current:null,playing:false,revealed:false,guesses:[],token:0};
 const $=id=>document.getElementById(id);
 function setActive(id,v){document.querySelectorAll('#'+id+' button').forEach(b=>b.classList.toggle('active',b.dataset.v===String(v)))}
-function renderLetters(){const w=$('letters');w.innerHTML='';LETTERS.forEach(x=>{const b=document.createElement('button');b.className='letter'+(S.selected.has(x)?' active':'');b.textContent=x;b.onclick=()=>{if(S.selected.has(x)){if(S.selected.size===1)return;S.selected.delete(x)}else S.selected.add(x);renderLetters();refreshCountOptions()};w.append(b)})}
+function renderLetters(){const w=$('letters');w.innerHTML='';LETTERS.forEach(x=>{const b=document.createElement('button');b.className='letter'+(S.selected.has(x)?' active':'');b.textContent=x;b.onclick=()=>{if(S.selected.has(x)){if(S.selected.size===1)return;S.selected.delete(x)}else S.selected.add(x);renderLetters()};w.append(b)})}
 function renderGuessGrid(){const w=$('guessGrid');w.innerHTML='';LETTERS.forEach(x=>{const b=document.createElement('button');b.className='guess-letter'+(S.guesses.includes(x)?' selected':'');b.textContent=x;b.onclick=()=>selectGuess(x);w.append(b)})}
 function selectGuess(x){if(S.playing||S.revealed||S.guesses.length>=sequence.length)return;S.guesses.push(x);renderGuessValue();renderGuessGrid();$('checkBtn').disabled=S.guesses.length!==sequence.length}
 function renderGuessValue(){$('guessValue').textContent=S.guesses.length?S.guesses.join(''):'?';$('guessValue').classList.toggle('has',S.guesses.length>0)}
@@ -83,7 +83,7 @@ function resetGuess(){S.guesses=[];renderGuessValue();$('checkBtn').disabled=tru
 function pathLength(d){const p=document.createElementNS('http://www.w3.org/2000/svg','path');p.setAttribute('d',d);$('trailLayer').append(p);const n=p.getTotalLength();p.remove();return n}
 function clearDrawingOnly(){S.token++;$('trailLayer').innerHTML='';$('dotLayer').innerHTML='';$('answer').classList.remove('show');$('answerLetter').textContent=''}
 function clearStage(){clearDrawingOnly();S.revealed=false;resetGuess();$('prompt').textContent='';$('playBtn').disabled=false;$('revealBtn').disabled=true;$('nextBtn').disabled=true}
-function makeSequence(){const pool=[...S.selected];if(!pool.length)return [];const maxPossible=Math.min(S.count,pool.length*2);const out=[];const used=Object.fromEntries(pool.map(x=>[x,0]));let previous=null;for(let i=0;i<maxPossible;i++){let choices=pool.filter(x=>used[x]<2&&x!==previous);if(!choices.length)choices=pool.filter(x=>used[x]<2);if(!choices.length)break;const x=choices[Math.floor(Math.random()*choices.length)];out.push(x);used[x]++;previous=x}return out}
+function makeSequence(){const pool=[...S.selected];if(!pool.length)return [];const shuffled=[...pool];for(let i=shuffled.length-1;i>0;i--){const j=Math.floor(Math.random()*(i+1));[shuffled[i],shuffled[j]]=[shuffled[j],shuffled[i]]}return shuffled.slice(0,Math.min(S.count,pool.length))}
 let sequence=[],index=0;
 function renderSequence(){const w=$('sequence');w.innerHTML='';sequence.forEach((_,i)=>{const d=document.createElement('span');d.className='seq-dot'+(i===index?' active':i<index?' done':'');w.append(d)})}
 function setupSequence(){S.current=sequence[0]||null;$('answerLetter').textContent='';$('badge').textContent=`${sequence.length} LETTER${sequence.length===1?'':'S'} READY`;$('prompt').textContent='PRESS PLAY';renderSequence();clearDrawingOnly();resetGuess();$('playBtn').disabled=false;$('revealBtn').disabled=true;$('nextBtn').disabled=true}
@@ -102,7 +102,7 @@ function next(){if(S.playing)return;sequence=makeSequence();index=0;setupSequenc
 function start(){if(!S.selected.size)return;sequence=makeSequence();index=0;$('settingsView').style.display='none';$('play').style.display='block';setupSequence()}
 $('homeBtn').onclick=()=>location.href='../../index.html';$('start').onclick=start;$('playBtn').onclick=animate;$('revealBtn').onclick=reveal;$('nextBtn').onclick=next;$('checkBtn').onclick=checkGuess;$('settingsBtn').onclick=()=>{S.token++;S.playing=false;$('play').style.display='none';$('settingsView').style.display='flex';clearStage()};$('fullBtn').onclick=()=>document.fullscreenElement?document.exitFullscreen():document.documentElement.requestFullscreen();
 $('all').onclick=()=>{S.selected=new Set(LETTERS);renderLetters();refreshCountOptions()};$('clear').onclick=()=>{S.selected.clear();renderLetters();refreshCountOptions()};
-document.querySelectorAll('#speed button').forEach(b=>b.onclick=()=>{S.speed=+b.dataset.v;setActive('speed',S.speed)});document.querySelectorAll('#trail button').forEach(b=>b.onclick=()=>{S.trail=+b.dataset.v;setActive('trail',S.trail)});function refreshCountOptions(){const max=S.selected.size*2;document.querySelectorAll('#count button').forEach(b=>{const v=+b.dataset.v;b.disabled=v>max;if(v>max)b.classList.remove('active')});if(S.count>max){S.count=Math.max(1,max);setActive('count',S.count)}}
+document.querySelectorAll('#speed button').forEach(b=>b.onclick=()=>{S.speed=+b.dataset.v;setActive('speed',S.speed)});document.querySelectorAll('#trail button').forEach(b=>b.onclick=()=>{S.trail=+b.dataset.v;setActive('trail',S.trail)});function refreshCountOptions(){const max=S.selected.size;document.querySelectorAll('#count button').forEach(b=>{const v=+b.dataset.v;b.disabled=v>max;if(v>max)b.classList.remove('active')});if(S.count>max){S.count=Math.max(1,max);setActive('count',S.count)}}
 document.querySelectorAll('#count button').forEach(b=>b.onclick=()=>{S.count=+b.dataset.v;setActive('count',S.count)});
 renderLetters();renderGuessGrid();refreshCountOptions();
 </script>

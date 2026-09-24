@@ -1,3 +1,3 @@
-# ABC Trail MVP 12
+ABC Trail MVP 11
 
-Fixes letters-per-sequence controls so they update immediately when the mastered-letter pool changes.
+Changes: consistent path velocity across letters/strokes using path length; blue trail color for visibility.
