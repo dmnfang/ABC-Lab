@@ -1,5 +1,10 @@
 import { ALPHABET } from "./sequences.js";
 
+function displayLetter(letter, letterCase = "uppercase") {
+  if (!letter) return "";
+  return letterCase === "lowercase" ? letter.toLowerCase() : letter.toUpperCase();
+}
+
 export function createWoodBlock(label, className = "") {
   const block = document.createElement("button");
   block.type = "button";
@@ -22,12 +27,12 @@ function createSlot({ label = null, className = "", onClick = null, title = "" }
   return slot;
 }
 
-function eventLabel(event, sequence) {
-  if (event.type === "letter") return sequence[event.letterIndex] ?? "";
+function eventLabel(event, sequence, letterCase = "uppercase") {
+  if (event.type === "letter") return displayLetter(sequence[event.letterIndex] ?? "", letterCase);
   return event.display;
 }
 
-export function renderSongPreview(container, sequence, song, compact = true) {
+export function renderSongPreview(container, sequence, song, compact = true, letterCase = "uppercase") {
   container.innerHTML = "";
   const layout = document.createElement("div");
   layout.className = `song-layout ${compact ? "compact" : ""}`;
@@ -51,7 +56,7 @@ export function renderSongPreview(container, sequence, song, compact = true) {
         const event = song.events[eventIndex];
         if (event.type !== "letter") return;
         groupEl.appendChild(createSlot({
-          label: eventLabel(event, sequence),
+          label: eventLabel(event, sequence, letterCase),
           className: ""
         }));
       });
@@ -62,7 +67,7 @@ export function renderSongPreview(container, sequence, song, compact = true) {
   }
   container.appendChild(layout);
 }
-export function renderCustomEditor(container, sequence, song, { onTopLetter, onTrayLetter }) {
+export function renderCustomEditor(container, sequence, song, { onTopLetter, onTrayLetter, letterCase = "uppercase" }) {
   container.innerHTML = "";
   const editor = document.createElement("div");
   editor.className = "custom-editor";
@@ -90,7 +95,7 @@ export function renderCustomEditor(container, sequence, song, { onTopLetter, onT
 
         const letterValue = sequence[event.letterIndex];
         const slot = createSlot({
-          label: letterValue,
+          label: displayLetter(letterValue, letterCase),
           className: "custom-slot",
           title: letterValue ? `Return ${letterValue} to the letter bank` : "Empty song position"
         });
@@ -117,8 +122,8 @@ export function renderCustomEditor(container, sequence, song, { onTopLetter, onT
     if (used) {
       cell.setAttribute("aria-hidden", "true");
     } else {
-      const block = createWoodBlock(letter, "tray-block");
-      block.title = `Add ${letter}`;
+      const block = createWoodBlock(displayLetter(letter, letterCase), "tray-block");
+      block.title = `Add ${displayLetter(letter, letterCase)}`;
       block.addEventListener("click", () => onTrayLetter(letter));
       cell.appendChild(block);
     }
@@ -196,7 +201,7 @@ export function revealLyricWord(row, position, fragment, completeWord = fragment
 
 
 
-export function renderMixedScreen(container, events, sequence, easy = false) {
+export function renderMixedScreen(container, events, sequence, easy = false, letterCase = "uppercase") {
   container.innerHTML = "";
   const row = document.createElement("div");
   row.className = "mixed-song-row";
@@ -210,7 +215,7 @@ export function renderMixedScreen(container, events, sequence, easy = false) {
     slot.dataset.eventIndex = String(event._index ?? "");
 
     if (event.type === "letter") {
-      const label = sequence[event.letterIndex] ?? "";
+      const label = displayLetter(sequence[event.letterIndex] ?? "", letterCase);
       const block = createWoodBlock(label);
       if (!easy) block.style.visibility = "hidden";
       slot.appendChild(block);
@@ -228,7 +233,7 @@ export function renderMixedScreen(container, events, sequence, easy = false) {
   return row;
 }
 
-export function revealMixedEvent(row, position, event, sequence, easy = false) {
+export function revealMixedEvent(row, position, event, sequence, easy = false, letterCase = "uppercase") {
   const slot = row?.querySelector(`[data-position="${position}"]`);
   if (!slot) return;
 
@@ -250,7 +255,7 @@ export function revealMixedEvent(row, position, event, sequence, easy = false) {
   }
 }
 
-export function renderEasyChunk(container, labels) {
+export function renderEasyChunk(container, labels, letterCase = "uppercase") {
   container.innerHTML = "";
   const row = document.createElement("div");
   row.className = "chunk-row easy-chunk-row";
@@ -259,7 +264,7 @@ export function renderEasyChunk(container, labels) {
     const slot = document.createElement("div");
     slot.className = "chunk-slot easy-chunk-slot";
     slot.dataset.position = String(index);
-    const block = createWoodBlock(label);
+    const block = createWoodBlock(displayLetter(label, letterCase));
     // Easy mode reveals the whole chunk quietly. Movement is reserved
     // exclusively for the letter when its musical timing is called.
     block.style.animation = "none";
@@ -270,7 +275,7 @@ export function renderEasyChunk(container, labels) {
   return row;
 }
 
-export function renderEasyChunkPreview(container, labels) {
+export function renderEasyChunkPreview(container, labels, letterCase = "uppercase") {
   const row = document.createElement("div");
   row.className = "chunk-row easy-chunk-row easy-next-preview";
   row.style.setProperty("--chunk-count", String(labels.length));
@@ -278,7 +283,7 @@ export function renderEasyChunkPreview(container, labels) {
     const slot = document.createElement("div");
     slot.className = "chunk-slot easy-chunk-slot";
     slot.dataset.position = String(index);
-    const block = createWoodBlock(label);
+    const block = createWoodBlock(displayLetter(label, letterCase));
     block.style.animation = "none";
     slot.appendChild(block);
     row.appendChild(slot);
@@ -309,7 +314,7 @@ export function jiggleEasyLetter(board, position) {
   highlightEasyChunkLetter(board, position);
 }
 
-export function revealChunkLetter(row, position, label, type = "letter") {
+export function revealChunkLetter(row, position, label, type = "letter", letterCase = "uppercase") {
   const slots = [...row.querySelectorAll(".chunk-slot")];
   const slot = slots[position];
   if (!slot) return;
@@ -321,7 +326,7 @@ export function revealChunkLetter(row, position, label, type = "letter") {
     text.textContent = label;
     slot.appendChild(text);
   } else {
-    slot.appendChild(createWoodBlock(label));
+    slot.appendChild(createWoodBlock(displayLetter(label, letterCase)));
   }
   slots.forEach((item, i) => { if (i !== position) item.classList.remove("current"); });
 }

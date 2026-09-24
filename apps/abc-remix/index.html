@@ -14,7 +14,7 @@
   <main id="app" class="app-shell">
     <section id="settingsScreen" class="settings-screen">
       <header class="settings-header">
-        <div style="display:flex;align-items:center;gap:14px"><button class="icon-btn" type="button" aria-label="ABC Lab" title="ABC Lab" onclick="location.href='../../index.html'" style="font-size:12px;font-weight:900;width:auto;padding:0 14px">ABC LAB</button><h1>ABC Remix</h1></div>
+        <h1>ABC Remix</h1>
         <button id="settingsFullscreen" class="icon-btn" type="button" aria-label="Fullscreen" title="Fullscreen">
           <svg class="lucide-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M8 3H5a2 2 0 0 0-2 2v3M16 3h3a2 2 0 0 1 2 2v3M21 16v3a2 2 0 0 1-2 2h-3M8 21H5a2 2 0 0 1-2-2v-3"/></svg>
         </button>
@@ -29,6 +29,14 @@
             <div id="songVersionButtons" class="pill-group" role="group" aria-label="Song version">
               <button class="pill active" data-song="standard" type="button">Standard</button>
               <button class="pill" data-song="lmno" type="button">LMNOP</button>
+            </div>
+          </div>
+
+          <div class="control-section letter-case-section">
+            <label>Letter Case</label>
+            <div id="letterCaseButtons" class="pill-group" role="group" aria-label="Letter case">
+              <button class="pill active" data-case="uppercase" type="button">UPPERCASE</button>
+              <button class="pill" data-case="lowercase" type="button">lowercase</button>
             </div>
           </div>
 

@@ -9,6 +9,7 @@ const state = {
   speed: 1.00,
   loops: 1,
   difficulty: "easy",
+  letterCase: "uppercase",
   randomSequence: randomSequence(),
   customSequence: Array(26).fill(null),
   originalReversed: false
@@ -33,6 +34,7 @@ const easyPreviewStage = $("#easyPreviewStage");
 const countInStage = $("#countInStage");
 const pauseButton = $("#pauseButton");
 const difficultyButtons = $("#difficultyButtons");
+const letterCaseButtons = $("#letterCaseButtons");
 
 const speedOptions = [0.25, 0.50, 0.75, 1.00, 1.25, 1.50, 1.75, 2.00];
 const loopOptions = [1, 2, 3, 4, 5];
@@ -89,11 +91,13 @@ function updateButtons() {
   document.querySelectorAll("[data-song]").forEach(button => button.classList.toggle("active", button.dataset.song === state.songKey));
   document.querySelectorAll("[data-mode]").forEach(button => button.classList.toggle("active", button.dataset.mode === state.mode));
   document.querySelectorAll("[data-difficulty]").forEach(button => button.classList.toggle("active", button.dataset.difficulty === state.difficulty));
+  document.querySelectorAll("[data-case]").forEach(button => button.classList.toggle("active", button.dataset.case === state.letterCase));
 }
 
 function updatePreviewInfo() {
   const song = currentSong();
-  const text = `${song.name} × ${modeLabel()} × ${state.difficulty[0].toUpperCase() + state.difficulty.slice(1)} × ${formatSpeed(state.speed)} Speed × ${state.loops} ${state.loops === 1 ? "Loop" : "Loops"}`;
+  const caseLabel = state.letterCase === "lowercase" ? "lowercase" : "UPPERCASE";
+  const text = `${song.name} × ${modeLabel()} × ${caseLabel} × ${state.difficulty[0].toUpperCase() + state.difficulty.slice(1)} × ${formatSpeed(state.speed)} Speed × ${state.loops} ${state.loops === 1 ? "Loop" : "Loops"}`;
   const description = state.mode === "original"
     ? (state.originalReversed ? "The alphabet will be played in reverse order." : "The original alphabet order will be used.")
     : state.mode === "random"
@@ -153,7 +157,7 @@ function renderModeContent() {
 
   if (state.mode === "original") {
     const sequence = state.originalReversed ? [...ALPHABET].reverse() : ALPHABET;
-    renderSongPreview(modeContent, sequence, song, true);
+    renderSongPreview(modeContent, sequence, song, true, state.letterCase);
     launchButton.disabled = false;
     return;
   }
@@ -161,7 +165,7 @@ function renderModeContent() {
   if (state.mode === "random") {
     const board = document.createElement("div");
     board.className = "preview-board random-board";
-    renderSongPreview(board, state.randomSequence, song, true);
+    renderSongPreview(board, state.randomSequence, song, true, state.letterCase);
     modeContent.appendChild(board);
     launchButton.disabled = false;
     return;
@@ -179,6 +183,7 @@ function renderModeContent() {
       state.customSequence[emptyIndex] = letter;
       renderModeContent();
     },
+    letterCase: state.letterCase,
     onReset: () => {
       state.customSequence = Array(26).fill(null);
       renderModeContent();
@@ -353,7 +358,7 @@ function maybeShowEasyLookahead(positionBeat) {
   if (easyPreviewStage) {
     easyPreviewStage.innerHTML = "";
     easyPreviewStage.classList.add("has-preview");
-    renderEasyChunkPreview(easyPreviewStage, labels);
+    renderEasyChunkPreview(easyPreviewStage, labels, state.letterCase);
   }
   easyPreviewScreen = nextScreen;
 }
@@ -379,7 +384,7 @@ const playback = new PlaybackEngine({
       if (hasLetters && hasLyrics) {
         const mixedEvents = screenEvents.map(item => ({ ...item, _index: song.events.indexOf(item) }));
         activeEasyBoard = null;
-        activeMixedRow = renderMixedScreen(chunkStage, mixedEvents, gameSequence, state.difficulty === "easy");
+        activeMixedRow = renderMixedScreen(chunkStage, mixedEvents, gameSequence, state.difficulty === "easy", state.letterCase);
       } else if (lyricOnly) {
         const words = [...new Map(screenEvents.map(item => [item.wordIndex, item.word])).values()];
         activeEasyBoard = null;
@@ -391,7 +396,7 @@ const playback = new PlaybackEngine({
           .map(eventIndex => song.events[eventIndex])
           .filter(item => item.type === "letter")
           .map(item => gameSequence[item.letterIndex] ?? "");
-        activeEasyBoard = renderEasyChunk(chunkStage, labels);
+        activeEasyBoard = renderEasyChunk(chunkStage, labels, state.letterCase);
       } else {
         const chunk = song.chunks[screenIndex];
         activeRow = renderGameChunk(chunkStage, chunk.length, false);
@@ -406,7 +411,7 @@ const playback = new PlaybackEngine({
     if (activeMixedRow) {
       const mixedEvents = screenEvents;
       const position = mixedEvents.indexOf(event);
-      revealMixedEvent(activeMixedRow, position, event, gameSequence, state.difficulty === "easy");
+      revealMixedEvent(activeMixedRow, position, event, gameSequence, state.difficulty === "easy", state.letterCase);
     } else if (event.type === "lyric" && activeLyricRow) {
       revealLyricWord(activeLyricRow, event.wordIndex, event.fragment, event.word, event.append);
     } else if (activeEasyBoard && event.type === "letter") {
@@ -421,7 +426,7 @@ const playback = new PlaybackEngine({
     } else if (activeRow) {
       const chunk = song.chunks[screenIndex];
       const position = chunk.indexOf(index);
-      revealChunkLetter(activeRow, position, display, event.type);
+      revealChunkLetter(activeRow, position, display, event.type, state.letterCase);
     }
   },
   onCountIn: renderCountIn,
@@ -462,6 +467,14 @@ $("#songVersionButtons").addEventListener("click", event => {
   const button = event.target.closest("[data-song]");
   if (!button) return;
   state.songKey = button.dataset.song;
+  updateButtons();
+  renderModeContent();
+});
+
+letterCaseButtons.addEventListener("click", event => {
+  const button = event.target.closest("[data-case]");
+  if (!button) return;
+  state.letterCase = button.dataset.case;
   updateButtons();
   renderModeContent();
 });

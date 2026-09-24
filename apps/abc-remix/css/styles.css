@@ -76,6 +76,7 @@ h2 { margin: 0; font-size: 28px; line-height: 1; font-weight: 500; }
 .icon-btn svg { width: 23px; height: 23px; fill: none; stroke: currentColor; stroke-width: 2.5; stroke-linecap: round; stroke-linejoin: round; }
 
 .control-section { flex-shrink: 0; }
+.letter-case-section { margin-top: 24px; }
 .control-section > label, .section-label-row label {
   display: block; margin-bottom: 12px; font-size: 18px; line-height: 1.2;
   font-weight: 700; color: var(--text-secondary);
