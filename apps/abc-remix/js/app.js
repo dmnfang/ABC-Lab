@@ -1,6 +1,7 @@
 import { ALPHABET, originalSequence, randomSequence } from "./sequences.js";
 import { SONGS } from "./songs.js";
 import { PlaybackEngine } from "./playback.js";
+import { primeAudio } from "./audio.js";
 import { renderSongPreview, renderCustomEditor, renderGameChunk, renderEasyChunk, renderEasyChunkPreview, highlightEasyChunkLetter, revealChunkLetter, renderLyricScreen, revealLyricWord, renderMixedScreen, revealMixedEvent } from "./ui.js";
 
 const state = {
@@ -268,6 +269,10 @@ function renderCountIn(event) {
 }
 
 function launchGame() {
+  // Prime Web Audio immediately inside the Launch button's user gesture.
+  // This avoids Safari/iPad delaying the first transient on a fresh visit.
+  primeAudio();
+
   if (state.mode === "original") gameSequence = state.originalReversed ? [...ALPHABET].reverse() : originalSequence();
   else if (state.mode === "random") gameSequence = [...state.randomSequence];
   else gameSequence = [...state.customSequence];
