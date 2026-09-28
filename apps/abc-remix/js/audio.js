@@ -145,8 +145,13 @@ export async function scheduleSongAudio(midiData, speed, startAt = null, fromBea
   const leadSeconds = 0.12;
   const nowPerformance = performance.now();
   const nowContext = ctx.currentTime;
-  const origin = startAt ?? (nowContext + leadSeconds);
   const beatSeconds = 60 / midiData.tempo / speed;
+
+  // Fresh AudioContexts can take a moment to wake the output device on the
+  // first launch. Give the audio system one completely silent beat before the
+  // actual count-in begins. The visual clock uses the same offset below.
+  const prerollSeconds = beatSeconds;
+  const origin = startAt ?? (nowContext + leadSeconds + prerollSeconds);
   const tracks = midiData.tracks || [];
 
   const scheduleTrackNote = (note, start, duration, velocity, voice) => {
@@ -233,7 +238,7 @@ export async function scheduleSongAudio(midiData, speed, startAt = null, fromBea
   }
 
   const performanceStart = startAt == null
-    ? nowPerformance + leadSeconds * 1000
+    ? nowPerformance + (leadSeconds + prerollSeconds) * 1000
     : performance.now();
 
   return {
