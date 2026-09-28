@@ -19,6 +19,9 @@ header{
   border-bottom:1px solid var(--line);background:var(--panel);z-index:5
 }
 .brand{font-size:17px;font-weight:900;letter-spacing:.085em}
+.brand-row{display:flex;align-items:center;gap:12px}
+.home-link{height:36px;padding:0 12px;border:1px solid var(--line);border-radius:10px;background:var(--panel);font-size:12px;font-weight:900;cursor:pointer;white-space:nowrap}
+.home-link:hover{background:var(--soft)}
 .header-right{margin-left:auto;display:flex;align-items:center;gap:20px}
 .spread{display:flex;align-items:center;gap:10px}
 .pip{
@@ -292,7 +295,7 @@ html, body {
 
 <div id="playScreen" class="app" style="display:none">
 <header>
-  <div class="brand">ALPHABET JUMBLE</div>
+  <div class="brand-row"><button id="homeButton" class="home-link" type="button">← ABC Lab</button><div class="brand">ALPHABET JUMBLE</div></div>
   <div class="header-right">
     <div class="spread">
       <button class="pip active" data-jumble="85"></button>
@@ -331,7 +334,7 @@ html, body {
 </div>
 
 <div id="settingsScreen" class="settings-screen active">
-<header><div class="brand">ALPHABET JUMBLE</div></header>
+<header><div class="brand-row"><button id="settingsHomeButton" class="home-link" type="button">← ABC Lab</button><div class="brand">ALPHABET JUMBLE</div></div></header>
 <div class="settings-main">
   <h1 class="settings-title">Quiz Settings</h1>
   <p class="settings-sub">Choose the rules for the next quiz.</p>
@@ -627,6 +630,8 @@ document.querySelectorAll("#caseBank button").forEach(button=>{
 });
 
 document.getElementById("settingsButton").onclick=openSettings;
+document.getElementById("homeButton").onclick=()=>location.href="../../index.html";
+document.getElementById("settingsHomeButton").onclick=()=>location.href="../../index.html";
 
 document.getElementById("fullscreenButton").onclick=async()=>{
   try{
@@ -696,3 +701,37 @@ syncSettingsUI();
 </script>
 </body>
 </html>
+
+<style>
+/* Responsive guess tray: all eight selections fit without horizontal scrolling. */
+.guess-tray{
+  display:grid;
+  grid-template-columns:repeat(8,minmax(0,1fr));
+  align-items:center;
+  justify-items:center;
+  gap:clamp(4px,0.7vw,8px);
+  padding:8px 10px;
+  overflow:hidden;
+}
+.guess-chip{
+  width:100%;
+  max-width:56px;
+  aspect-ratio:1;
+  height:auto;
+  min-width:0;
+  flex:none;
+  font-size:clamp(18px,2.7vw,34px);
+}
+@media (max-width:1050px){
+  .guess-tray{gap:5px;padding:7px}
+  .guess-chip{max-width:48px;font-size:28px}
+}
+@media (max-height:760px) and (orientation:landscape){
+  .guess-tray{height:70px;min-height:70px}
+  .guess-chip{max-width:48px;font-size:27px}
+}
+@media (max-width:800px) and (orientation:portrait){
+  .guess-tray{height:78px;min-height:78px;grid-template-columns:repeat(8,minmax(0,1fr));gap:4px;padding:7px}
+  .guess-chip{max-width:48px;font-size:26px}
+}
+</style>
