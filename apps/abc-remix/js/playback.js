@@ -1,7 +1,7 @@
 /* ABC Remix playback timing */
 
 import { SONGS } from "./songs.js";
-import { scheduleSongAudio, stopAllAudio } from "./audio.js";
+import { COUNT_IN_CUES, scheduleSongAudio, stopAllAudio } from "./audio.js";
 
 const COUNT_IN_BEATS = 8;
 const GAP_MS = 4000;
@@ -166,34 +166,38 @@ export class PlaybackEngine {
   renderTimelineState() {
     this.onTimeline?.(this.positionBeat, SONGS[this.songKey]);
 
-    let key = "clear";
     let payload = { type: "clear", values: [] };
 
     if (this.positionBeat < COUNT_IN_BEATS) {
-      if (this.positionBeat >= 7) key = "seq-4";
-      else if (this.positionBeat >= 6) key = "seq-3";
-      else if (this.positionBeat >= 5) key = "seq-2";
-      else if (this.positionBeat >= 4) key = "seq-1";
-      else if (this.positionBeat >= 2) key = "single-2";
-      else key = "single-1";
+      // Derive the visible count directly from the same cue timeline used by
+      // the audio scheduler. This prevents visual/audio drift.
+      const activeNumber = [...COUNT_IN_CUES]
+        .reverse()
+        .find(cue => cue.kind === "number" && cue.beat <= this.positionBeat);
 
-      const valuesByKey = {
-        "single-1": ["1"],
-        "single-2": ["2"],
-        "seq-1": ["1"],
-        "seq-2": ["1", "2"],
-        "seq-3": ["1", "2", "3"],
-        "seq-4": ["1", "2", "3", "4"]
-      };
-
-      payload = {
-        type: key.startsWith("seq") ? "sequence" : "single",
-        values: valuesByKey[key],
-        beat: key.startsWith("seq") ? 4 : key === "single-2" ? 2 : 0,
-        animateFrom: key.startsWith("seq") ? Number(key.split("-")[1]) - 1 : 0
-      };
+      if (activeNumber) {
+        const numberIndex = Number(activeNumber.value);
+        if (activeNumber.beat >= 4) {
+          const values = [];
+          for (let n = 1; n <= numberIndex; n += 1) values.push(String(n));
+          payload = {
+            type: "sequence",
+            values,
+            beat: activeNumber.beat,
+            animateFrom: Math.max(0, values.length - 1)
+          };
+        } else {
+          payload = {
+            type: "single",
+            values: [activeNumber.value],
+            beat: activeNumber.beat,
+            animateFrom: 0
+          };
+        }
+      }
     }
 
+    const key = JSON.stringify(payload);
     if (key !== this.countKey) {
       this.countKey = key;
       this.onCountIn?.(payload);
