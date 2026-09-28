@@ -186,7 +186,7 @@ export async function scheduleSongAudio(midiData, speed, startAt = null, fromBea
   bass?.notes?.forEach(n => scheduleTrackNote(n.note, n.start, n.duration, n.velocity, "bass"));
   // The MIDI drum track is useful for the song itself, but its original
   // count-in pattern does not match the visual count-in:
-  // 1 (tick), pause, 2 (tick), pause, 1, 2, 3, 4!
+  // 1 + tick-tick, 2 + tick-tick, 1, 2, 3, 4 + tick-tick.
   //
   // Keep the song's MIDI timing untouched and build the count-in explicitly.
   // This makes the audio land on the same 8-beat structure as the UI.
@@ -200,14 +200,14 @@ export async function scheduleSongAudio(midiData, speed, startAt = null, fromBea
     const countInHits = COUNT_IN_CUES;
 
     const hitVelocity = 112;
-    countInHits.forEach(({ beat, type }) => {
+    countInHits.forEach(({ beat, kind }) => {
       const when = origin + (beat - fromBeat) * beatSeconds;
       const volume = Math.max(
         0.02,
         Math.min(0.22, (hitVelocity / 127) * 0.14)
       );
 
-      if (type === "tick") {
+      if (kind === "tick") {
         // The first tick gets a stronger, slightly fuller transient so it is
         // reliably audible when Safari is starting the audio context fresh.
         const isFirstCountTick = beat === 0.25;
@@ -222,7 +222,7 @@ export async function scheduleSongAudio(midiData, speed, startAt = null, fromBea
         if (isFirstCountTick) {
           scheduleNoise(ctx, when, Math.min(beatSeconds * 0.07, 0.035), volume * 0.32, 0.001);
         }
-      } else if (type === "number") {
+      } else if (kind === "number") {
         scheduleTone(ctx, 75, when, Math.min(beatSeconds * 0.14, 0.12), "sine", volume * 1.8);
       } else {
         scheduleNoise(ctx, when, Math.min(beatSeconds * 0.11, 0.075), volume * 1.55, 0.001);
