@@ -1302,3 +1302,135 @@ body.presentation .game-header .loop-badge { display: block !important; }
   justify-content: center;
   gap: 7px;
 }
+
+
+/* v43: iPad-safe viewport and compact classroom layout */
+html, body {
+  width: 100%;
+  height: 100%;
+  min-height: 100%;
+  overflow: hidden;
+}
+.app-shell {
+  width: 100%;
+  height: 100dvh;
+  min-height: 100dvh;
+}
+.settings-screen {
+  width: 100%;
+  height: 100dvh;
+  min-height: 100dvh;
+  padding: 16px 20px 18px;
+  gap: 14px;
+}
+.settings-header { min-height: 36px; }
+.settings-header h1 { font-size: 24px; }
+.settings-grid {
+  width: 100%;
+  min-height: 0;
+  height: 0;
+  flex: 1 1 auto;
+  grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
+  gap: 16px;
+  overflow: hidden;
+}
+.settings-card {
+  min-height: 0;
+  height: 100%;
+  padding: 18px 20px;
+  overflow: hidden;
+}
+.song-card > h2 { margin-bottom: 10px; }
+.letter-case-section { margin-top: 16px; }
+.speed-section, .loop-section, .mode-section { margin-top: 14px; }
+.control-section > label, .section-label-row label { margin-bottom: 7px; }
+.pill-group { gap: 8px; }
+.pill, .speed-pill { height: 32px; padding: 0 13px; font-size: 12px; }
+.speed-pills { gap: 6px; }
+.speed-pill { min-width: 43px; padding: 0 9px; }
+.loop-group { gap: 7px; }
+.loop-group .pill { min-width: 40px; padding-left: 11px; padding-right: 11px; }
+.mode-group { gap: 8px; }
+.mode-group .pill { padding-left: 13px; padding-right: 13px; }
+.difficulty-section { margin-top: 14px !important; }
+.launch-button { height: 50px; margin-top: auto; border-radius: 12px; font-size: 14px; }
+.preview-card { padding: 18px; }
+.preview-heading { margin-bottom: 10px; }
+.preview-info { margin-bottom: 10px; }
+.preview-summary { min-height: 54px; padding: 9px 12px; }
+.preview-summary strong { font-size: 12px; }
+.preview-summary span { font-size: 10px; }
+.preview-content { overflow: hidden; }
+.preview-content > .song-layout { gap: 8px; }
+.preview-content .song-row { gap: 12px; }
+.preview-content .song-group { gap: 6px; }
+.preview-content .song-slot,
+.preview-content .song-slot .wood-block {
+  width: 44px;
+  height: 44px;
+  flex-basis: 44px;
+}
+.preview-content .song-slot .wood-block { font-size: 23px; border-width: 3px; }
+
+.game-screen {
+  width: 100%;
+  height: 100dvh;
+  min-height: 100dvh;
+  padding: 12px 18px 14px;
+  overflow: hidden;
+}
+.game-header { min-height: 42px; }
+.game-header h1 { font-size: 24px; }
+.game-stage { min-height: 0; flex: 1 1 auto; }
+.game-body { min-height: 0; height: 100%; grid-template-rows: minmax(0, 1fr) 68px; }
+.game-stage > .progress-dots { padding: 10px 0 4px; }
+.easy-preview-stage { padding: 2px 0 8px; }
+.easy-preview-stage .easy-next-preview {
+  grid-template-columns: repeat(var(--chunk-count), 50px);
+  gap: 6px;
+}
+.easy-preview-stage .easy-next-preview .chunk-slot,
+.easy-preview-stage .easy-next-preview .wood-block {
+  width: 50px;
+  height: 50px;
+}
+.easy-preview-stage .easy-next-preview .wood-block { font-size: 32px; }
+
+@media (max-width: 900px) and (orientation: landscape) {
+  .settings-screen { padding: 12px 14px 14px; gap: 10px; }
+  .settings-grid { gap: 12px; }
+  .settings-card { padding: 14px 16px; }
+  .settings-card h2 { font-size: 18px; }
+  .song-card > h2 { margin-bottom: 8px; }
+  .letter-case-section, .speed-section, .loop-section, .mode-section, .difficulty-section { margin-top: 10px !important; }
+  .control-section > label, .section-label-row label { font-size: 11px; margin-bottom: 5px; }
+  .pill, .speed-pill { height: 29px; font-size: 11px; padding: 0 10px; }
+  .speed-pill { min-width: 38px; padding: 0 7px; }
+  .launch-button { height: 44px; font-size: 13px; }
+  .preview-card { padding: 14px; }
+  .preview-heading { margin-bottom: 7px; }
+  .preview-info { margin-bottom: 7px; }
+  .preview-summary { min-height: 45px; padding: 7px 9px; }
+  .preview-content .song-layout { gap: 5px; }
+  .preview-content .song-row { gap: 8px; }
+  .preview-content .song-group { gap: 4px; }
+  .preview-content .song-slot,
+  .preview-content .song-slot .wood-block { width: 38px; height: 38px; flex-basis: 38px; }
+  .preview-content .song-slot .wood-block { font-size: 20px; border-width: 2px; border-radius: 9px; }
+  .game-screen { padding: 10px 14px 12px; }
+  .game-header { min-height: 38px; }
+  .game-header h1 { font-size: 20px; }
+  .game-header .loop-badge { font-size: 9px; padding: 4px 7px; }
+  .game-header > .progress-dots .progress-dot { width: 8px; height: 8px; flex-basis: 8px; }
+  .game-body { grid-template-rows: minmax(0, 1fr) 58px; }
+}
+
+@media (max-width: 800px) and (orientation: portrait) {
+  html, body { overflow: auto; }
+  .app-shell { height: auto; min-height: 100dvh; }
+  .settings-screen { height: auto; min-height: 100dvh; }
+  .settings-grid { height: auto; overflow: visible; grid-template-columns: 1fr; }
+  .settings-card { height: auto; min-height: 0; overflow: visible; }
+  .preview-card { min-height: 420px; }
+  .game-screen { height: 100dvh; min-height: 100dvh; }
+}

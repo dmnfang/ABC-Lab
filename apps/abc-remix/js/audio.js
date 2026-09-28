@@ -15,11 +15,33 @@ function getAudioContext() {
     masterGain.connect(audioContext.destination);
   }
 
+<<<<<<< HEAD
   return audioContext;
 }
 
 async function ensureAudioReady() {
   const ctx = getAudioContext();
+=======
+function getContext() {
+  if (!audioContext) {
+    const AudioContextClass = window.AudioContext || window.webkitAudioContext;
+    audioContext = new AudioContextClass({ latencyHint: "interactive" });
+  }
+  return audioContext;
+}
+
+async function ensureRunning() {
+  const ctx = getContext();
+  if (ctx.state !== "running") await ctx.resume();
+  return ctx;
+}
+
+function trackNode(node) {
+  activeNodes.add(node);
+  node.addEventListener?.("ended", () => activeNodes.delete(node));
+  return node;
+}
+>>>>>>> 2b05729 (new)
 
   if (ctx.state === "suspended") {
     await ctx.resume();
@@ -48,6 +70,7 @@ function getOutputClockTime() {
     }
   }
 
+<<<<<<< HEAD
   return {
     contextTime: ctx.currentTime,
     performanceTime: performance.now()
@@ -145,4 +168,41 @@ function stopAllAudio() {
 
   audioContext = null;
   masterGain = null;
+=======
+export async function playMidiNote({ songKey, beat, speed }) {
+  await ensureRunning();
+}
+
+export async function scheduleSongAudio(midiData, speed, startAt = null, fromBeat = 0) {
+  const ctx = await ensureRunning();
+  const origin = startAt ?? (ctx.currentTime + 0.12);
+  const beatSeconds = 60 / midiData.tempo / speed;
+  const [melody, bass, drums] = midiData.tracks;
+
+  const scheduleNote = (note, start, duration, velocity, voice) => {
+    if (start + duration < fromBeat) return;
+    const effectiveStart = Math.max(start, fromBeat);
+    const when = origin + (effectiveStart - fromBeat) * beatSeconds;
+    const dur = Math.max(0.04, (start < fromBeat ? (start + duration - fromBeat) : duration) * beatSeconds);
+    if (voice === "melody") tone({ frequency: midiFreq(note), duration: dur, when, velocity: velocity / 127, type: "triangle" });
+    else if (voice === "bass") tone({ frequency: midiFreq(note), duration: dur, when, velocity: velocity / 127, type: "sine" });
+    else if (note === 36) tone({ frequency: 75, duration: 0.13, when, velocity: velocity / 127, type: "sine" });
+    else if (note === 40) noise(0.11, when, velocity / 127);
+    else if (note === 54) noise(0.055, when, velocity / 127);
+  };
+
+  melody.notes.forEach(n => scheduleNote(n.note, n.start, n.duration, n.velocity, "melody"));
+  bass.notes.forEach(n => scheduleNote(n.note, n.start, n.duration, n.velocity, "bass"));
+  drums.notes.forEach(n => scheduleNote(n.note, n.start, n.duration, n.velocity, "drums"));
+
+  let performanceStart = performance.now() + (origin - ctx.currentTime) * 1000;
+  if (typeof ctx.getOutputTimestamp === "function") {
+    const ts = ctx.getOutputTimestamp();
+    if (Number.isFinite(ts?.contextTime) && Number.isFinite(ts?.performanceTime)) {
+      performanceStart = ts.performanceTime + (origin - ts.contextTime) * 1000;
+    }
+  }
+
+  return { contextStart: origin, performanceStart };
+>>>>>>> 2b05729 (new)
 }

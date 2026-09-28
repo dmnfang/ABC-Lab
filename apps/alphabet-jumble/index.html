@@ -185,6 +185,107 @@ header{
   .settings-actions{justify-content:stretch}
   .play-btn{width:100%}
 }
+
+/* MVP 25: iPad landscape layout and viewport-safe sizing */
+html, body {
+  width: 100%;
+  min-height: 100%;
+  overflow: hidden;
+}
+.app {
+  height: 100dvh;
+  min-height: 100dvh;
+}
+.play-main {
+  height: calc(100dvh - 66px);
+  min-height: 0;
+  grid-template-columns: minmax(0, 1fr) minmax(0, 460px);
+  grid-template-rows: minmax(0, 1fr);
+  gap: 16px;
+  padding: 16px;
+}
+.jumble-area {
+  min-height: 0;
+}
+.guess-tray {
+  grid-column: 2;
+  grid-row: 1;
+  min-height: 72px;
+  height: 72px;
+  flex-direction: row;
+  justify-content: flex-start;
+  overflow-x: auto;
+  overflow-y: hidden;
+  padding: 8px 10px;
+  gap: 8px;
+}
+.guess-chip {
+  width: 56px;
+  height: 56px;
+  flex: 0 0 56px;
+  font-size: 34px;
+}
+.play-right {
+  grid-column: 2;
+  grid-row: 1;
+  padding-top: 88px;
+  min-height: 0;
+}
+.alphabet {
+  flex: 1 1 auto;
+  min-height: 0;
+  grid-template-columns: repeat(5, minmax(0, 1fr));
+  grid-auto-rows: minmax(0, 1fr);
+  gap: 8px;
+  align-content: stretch;
+}
+.letter-btn {
+  aspect-ratio: auto;
+  min-height: 0;
+  height: 100%;
+}
+.action-area {
+  flex: 0 0 82px;
+  height: 82px;
+  margin-top: 10px;
+}
+
+/* The reveal is sized from the actual canvas instead of a fixed 320px footprint. */
+.letter {
+  width: var(--letter-size, 220px);
+  height: var(--letter-size, 220px);
+  font-size: var(--letter-font, 200px);
+}
+
+@media (max-height: 760px) and (orientation: landscape) {
+  header { height: 56px; min-height: 56px; padding: 0 18px; }
+  .play-main { height: calc(100dvh - 56px); padding: 12px; gap: 12px; }
+  .play-right { padding-top: 82px; }
+  .guess-tray { height: 70px; min-height: 70px; }
+  .guess-chip { width: 52px; height: 52px; flex-basis: 52px; font-size: 31px; }
+  .selector-heading { margin-top: 0; margin-bottom: 6px; }
+  .alphabet { gap: 6px; }
+  .letter-btn { font-size: 18px; }
+  .action-area { height: 72px; flex-basis: 72px; margin-top: 8px; }
+  .primary, .secondary { padding: 8px 18px; }
+}
+
+@media (max-width: 800px) and (orientation: portrait) {
+  html, body { overflow: auto; }
+  .app { height: auto; min-height: 100dvh; }
+  .play-main {
+    height: auto; min-height: calc(100dvh - 56px);
+    grid-template-columns: 1fr; grid-template-rows: minmax(360px, 52dvh) auto auto;
+    overflow: visible;
+  }
+  .guess-tray, .play-right { grid-column: 1; grid-row: auto; }
+  .guess-tray { height: 78px; min-height: 78px; padding: 8px 10px; }
+  .play-right { padding-top: 0; min-height: 0; }
+  .alphabet { flex: 0 0 auto; grid-auto-rows: auto; }
+  .letter-btn { aspect-ratio: 1; height: auto; }
+  .action-area { margin-top: 12px; }
+}
+
 </style>
 </head>
 <body>
@@ -332,27 +433,39 @@ function makePuzzle(){
   renderCollage();
 }
 
+function getRevealGeometry(){
+  const w=collage.clientWidth;
+  const h=collage.clientHeight;
+  const d=Math.max(1,Math.min(w,h));
+  const n=Math.max(1,state.letters.length);
+  const margin=Math.max(12,Math.min(28,d*.035));
+  const angleStep=Math.PI*2/n;
+  const sin=Math.sin(angleStep/2);
+  const maxSize=Math.min(280,d*.48);
+  const size=Math.max(72,Math.min(maxSize,(d-2*margin)*sin/(1+sin)));
+  const radius=Math.max(0,d/2-size/2-margin);
+  return {w,h,size,radius};
+}
+
 function renderCollage(){
   collage.innerHTML="";
   const n=state.letters.length;
-  const w=collage.clientWidth;
-  const h=collage.clientHeight;
-
-  const letterBox=320;
-  const safeRadius=Math.max(0,Math.min(w,h)/2-letterBox/2-24);
+  const {w,h,size,radius}=getRevealGeometry();
   const spreadMap={85:.22,75:.38,65:.56,55:.74};
-  const radius=state.revealed
-    ? safeRadius
-    : safeRadius*(spreadMap[state.jumble] ?? .43);
+  const previewRadius=state.revealed
+    ? radius
+    : radius*(spreadMap[state.jumble] ?? .43);
 
   state.letters.forEach((char,i)=>{
     const el=document.createElement("div");
     el.className="letter";
     el.textContent=char;
+    el.style.setProperty("--letter-size",`${size}px`);
+    el.style.setProperty("--letter-font",`${Math.round(size*.92)}px`);
 
     const angle=-Math.PI/2+i*(Math.PI*2/n);
-    el.style.left=w/2+Math.cos(angle)*radius+"px";
-    el.style.top=h/2+Math.sin(angle)*radius+"px";
+    el.style.left=w/2+Math.cos(angle)*previewRadius+"px";
+    el.style.top=h/2+Math.sin(angle)*previewRadius+"px";
 
     collage.appendChild(el);
   });
@@ -425,10 +538,7 @@ function reveal(){
     "<strong>THERE WERE "+state.letters.length+
     " LETTERS</strong> · YOU FOUND "+found+"/"+state.letters.length;
 
-  const w=collage.clientWidth;
-  const h=collage.clientHeight;
-  const letterBox=320;
-  const radius=Math.max(0,Math.min(w,h)/2-letterBox/2-24);
+  const {w,h,radius}=getRevealGeometry();
 
   [...collage.children].forEach((el,i)=>{
     const angle=-Math.PI/2+i*(Math.PI*2/state.letters.length);
