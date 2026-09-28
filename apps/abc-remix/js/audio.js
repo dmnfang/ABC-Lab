@@ -1,87 +1,148 @@
-let audioContext = null;
-const activeNodes = new Set();
+/* ABC Remix audio engine */
 
-function getContext() {
-  if (!audioContext) audioContext = new (window.AudioContext || window.webkitAudioContext)();
-  if (audioContext.state === "suspended") audioContext.resume();
+let audioContext = null;
+let masterGain = null;
+
+function getAudioContext() {
+  if (!audioContext) {
+    const AudioCtx = window.AudioContext || window.webkitAudioContext;
+    audioContext = new AudioCtx({
+      latencyHint: "interactive"
+    });
+
+    masterGain = audioContext.createGain();
+    masterGain.gain.value = 0.9;
+    masterGain.connect(audioContext.destination);
+  }
+
   return audioContext;
 }
 
-function trackNode(node) {
-  activeNodes.add(node);
-  node.addEventListener?.("ended", () => activeNodes.delete(node));
-  return node;
-}
+async function ensureAudioReady() {
+  const ctx = getAudioContext();
 
-export function stopAllAudio() {
-  for (const node of activeNodes) {
-    try { node.stop(); } catch {}
+  if (ctx.state === "suspended") {
+    await ctx.resume();
   }
-  activeNodes.clear();
+
+  return ctx;
 }
 
-function tone({ frequency, duration, when, velocity = 0.5, type = "triangle" }) {
-  const ctx = getContext();
-  const osc = trackNode(ctx.createOscillator());
-  const gain = ctx.createGain();
-  osc.type = type;
-  osc.frequency.setValueAtTime(frequency, when);
-  gain.gain.setValueAtTime(0.0001, when);
-  gain.gain.exponentialRampToValueAtTime(Math.max(0.001, velocity * 0.12), when + 0.012);
-  gain.gain.exponentialRampToValueAtTime(0.0001, when + Math.max(0.05, duration * 0.9));
-  osc.connect(gain).connect(ctx.destination);
-  osc.start(when);
-  osc.stop(when + duration);
-}
+function getOutputClockTime() {
+  const ctx = getAudioContext();
 
-function noise(duration, when, velocity = 0.4) {
-  const ctx = getContext();
-  const buffer = ctx.createBuffer(1, Math.ceil(ctx.sampleRate * duration), ctx.sampleRate);
-  const data = buffer.getChannelData(0);
-  for (let i = 0; i < data.length; i++) data[i] = Math.random() * 2 - 1;
-  const source = trackNode(ctx.createBufferSource());
-  const filter = ctx.createBiquadFilter();
-  const gain = ctx.createGain();
-  filter.type = "highpass";
-  filter.frequency.value = 3500;
-  gain.gain.setValueAtTime(velocity * 0.07, when);
-  gain.gain.exponentialRampToValueAtTime(0.0001, when + duration);
-  source.buffer = buffer;
-  source.connect(filter).connect(gain).connect(ctx.destination);
-  source.start(when);
-  source.stop(when + duration);
-}
+  if (
+    typeof ctx.getOutputTimestamp === "function"
+  ) {
+    const timestamp = ctx.getOutputTimestamp();
 
-function midiFreq(note) { return 440 * Math.pow(2, (note - 69) / 12); }
+    if (
+      timestamp &&
+      Number.isFinite(timestamp.contextTime) &&
+      Number.isFinite(timestamp.performanceTime)
+    ) {
+      return {
+        contextTime: timestamp.contextTime,
+        performanceTime: timestamp.performanceTime
+      };
+    }
+  }
 
-// Renders the supplied MIDI's three musical tracks using Web Audio:
-// melody, bass, and the existing kick/snare/hat MIDI pattern.
-// The MIDI itself remains the source of timing; these are just browser-safe voices.
-export async function playMidiNote({ songKey, beat, speed }) {
-  // Audio is scheduled by app startup in scheduleSongAudio. This function is
-  // intentionally retained as the visual event hook for future per-event cues.
-  getContext();
-}
-
-export function scheduleSongAudio(midiData, speed, startAt = null, fromBeat = 0) {
-  const ctx = getContext();
-  const origin = startAt ?? (ctx.currentTime + 0.03);
-  const beatSeconds = 60 / midiData.tempo / speed;
-  const [melody, bass, drums] = midiData.tracks;
-
-  const scheduleNote = (note, start, duration, velocity, voice) => {
-    if (start + duration < fromBeat) return;
-    const effectiveStart = Math.max(start, fromBeat);
-    const when = origin + (effectiveStart - fromBeat) * beatSeconds;
-    const dur = Math.max(0.04, (start < fromBeat ? (start + duration - fromBeat) : duration) * beatSeconds);
-    if (voice === "melody") tone({ frequency: midiFreq(note), duration: dur, when, velocity: velocity / 127, type: "triangle" });
-    else if (voice === "bass") tone({ frequency: midiFreq(note), duration: dur, when, velocity: velocity / 127, type: "sine" });
-    else if (note === 36) tone({ frequency: 75, duration: 0.13, when, velocity: velocity / 127, type: "sine" });
-    else if (note === 40) noise(0.11, when, velocity / 127);
-    else if (note === 54) noise(0.055, when, velocity / 127);
+  return {
+    contextTime: ctx.currentTime,
+    performanceTime: performance.now()
   };
+}
 
-  melody.notes.forEach(n => scheduleNote(n.note, n.start, n.duration, n.velocity, "melody"));
-  bass.notes.forEach(n => scheduleNote(n.note, n.start, n.duration, n.velocity, "bass"));
-  drums.notes.forEach(n => scheduleNote(n.note, n.start, n.duration, n.velocity, "drums"));
+function scheduleTone(
+  frequency,
+  startTime,
+  duration,
+  type = "sine",
+  volume = 0.12
+) {
+  const ctx = getAudioContext();
+
+  const oscillator = ctx.createOscillator();
+  const gain = ctx.createGain();
+
+  oscillator.type = type;
+  oscillator.frequency.setValueAtTime(frequency, startTime);
+
+  gain.gain.setValueAtTime(0, startTime);
+  gain.gain.linearRampToValueAtTime(
+    volume,
+    startTime + 0.008
+  );
+  gain.gain.setValueAtTime(
+    volume,
+    Math.max(startTime + 0.008, startTime + duration - 0.02)
+  );
+  gain.gain.linearRampToValueAtTime(
+    0,
+    startTime + duration
+  );
+
+  oscillator.connect(gain);
+  gain.connect(masterGain);
+
+  oscillator.start(startTime);
+  oscillator.stop(startTime + duration + 0.01);
+
+  return oscillator;
+}
+
+async function scheduleSongNotes(notes, startDelay = 0) {
+  const ctx = await ensureAudioReady();
+
+  const clock = getOutputClockTime();
+
+  const nowPerformance = performance.now();
+  const nowContext = ctx.currentTime;
+
+  const outputPerformance = clock.performanceTime;
+  const outputContext = clock.contextTime;
+
+  const performanceOffset =
+    outputPerformance - nowPerformance;
+
+  const contextOffset =
+    outputContext - nowContext;
+
+  const synchronizedNow =
+    ctx.currentTime + contextOffset;
+
+  const startTime =
+    synchronizedNow + startDelay;
+
+  for (const note of notes) {
+    scheduleTone(
+      note.frequency,
+      startTime + note.start,
+      note.duration,
+      note.type || "sine",
+      note.volume ?? 0.12
+    );
+  }
+
+  return {
+    startTime,
+    performanceStart:
+      performance.now() +
+      performanceOffset +
+      startDelay * 1000
+  };
+}
+
+function stopAllAudio() {
+  if (!audioContext) return;
+
+  try {
+    audioContext.close();
+  } catch (error) {
+    console.warn("Unable to close audio context:", error);
+  }
+
+  audioContext = null;
+  masterGain = null;
 }
