@@ -162,7 +162,49 @@ export async function scheduleSongAudio(midiData, speed, startAt = null, fromBea
 
   melody?.notes?.forEach(n => scheduleTrackNote(n.note, n.start, n.duration, n.velocity, "melody"));
   bass?.notes?.forEach(n => scheduleTrackNote(n.note, n.start, n.duration, n.velocity, "bass"));
-  drums?.notes?.forEach(n => scheduleTrackNote(n.note, n.start, n.duration, n.velocity, "drums"));
+  // The MIDI drum track is useful for the song itself, but its original
+  // count-in pattern does not match the visual count-in:
+  // 1 (tick), pause, 2 (tick), pause, 1, 2, 3, 4!
+  //
+  // Keep the song's MIDI timing untouched and build the count-in explicitly.
+  // This makes the audio land on the same 8-beat structure as the UI.
+  if (fromBeat < 8) {
+    drums?.notes?.forEach(n => {
+      if (n.start >= 8) {
+        scheduleTrackNote(n.note, n.start, n.duration, n.velocity, "drums");
+      }
+    });
+
+    const countInHits = [
+      { beat: 0, type: "number" },
+      { beat: 0.5, type: "tick" },
+      { beat: 2, type: "number" },
+      { beat: 2.5, type: "tick" },
+      { beat: 4, type: "count" },
+      { beat: 5, type: "count" },
+      { beat: 6, type: "count" },
+      { beat: 7, type: "count" }
+    ];
+
+    const hitVelocity = 112;
+    countInHits.forEach(({ beat, type }) => {
+      const when = origin + (beat - fromBeat) * beatSeconds;
+      const volume = Math.max(
+        0.02,
+        Math.min(0.22, (hitVelocity / 127) * 0.14)
+      );
+
+      if (type === "tick") {
+        scheduleNoise(ctx, when, Math.min(beatSeconds * 0.12, 0.055), volume * 0.72, 0.001);
+      } else if (type === "number") {
+        scheduleTone(ctx, 75, when, Math.min(beatSeconds * 0.14, 0.12), "sine", volume * 1.8);
+      } else {
+        scheduleNoise(ctx, when, Math.min(beatSeconds * 0.11, 0.075), volume * 1.55, 0.001);
+      }
+    });
+  } else {
+    drums?.notes?.forEach(n => scheduleTrackNote(n.note, n.start, n.duration, n.velocity, "drums"));
+  }
 
   const performanceStart = startAt == null
     ? nowPerformance + leadSeconds * 1000
