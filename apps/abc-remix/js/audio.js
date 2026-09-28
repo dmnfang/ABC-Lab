@@ -202,7 +202,20 @@ export async function scheduleSongAudio(midiData, speed, startAt = null, fromBea
       );
 
       if (type === "tick") {
-        scheduleNoise(ctx, when, Math.min(beatSeconds * 0.12, 0.055), volume * 0.72, 0.001);
+        // The first tick gets a stronger, slightly fuller transient so it is
+        // reliably audible when Safari is starting the audio context fresh.
+        const isFirstTick = beat === 1;
+        scheduleTone(
+          ctx,
+          1800,
+          when,
+          Math.min(beatSeconds * (isFirstTick ? 0.12 : 0.08), isFirstTick ? 0.06 : 0.04),
+          "square",
+          volume * (isFirstTick ? 0.95 : 0.62)
+        );
+        if (isFirstTick) {
+          scheduleNoise(ctx, when, Math.min(beatSeconds * 0.06, 0.03), volume * 0.3, 0.001);
+        }
       } else if (type === "number") {
         scheduleTone(ctx, 75, when, Math.min(beatSeconds * 0.14, 0.12), "sine", volume * 1.8);
       } else {
