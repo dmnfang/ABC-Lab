@@ -177,9 +177,9 @@ export async function scheduleSongAudio(midiData, speed, startAt = null, fromBea
 
     const countInHits = [
       { beat: 0, type: "number" },
-      { beat: 0.5, type: "tick" },
+      { beat: 1, type: "tick" },
       { beat: 2, type: "number" },
-      { beat: 2.5, type: "tick" },
+      { beat: 3, type: "tick" },
       { beat: 4, type: "count" },
       { beat: 5, type: "count" },
       { beat: 6, type: "count" },
