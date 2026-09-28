@@ -108,7 +108,15 @@ function getOutputTimestamp() {
 
 export async function scheduleSongAudio(midiData, speed, startAt = null, fromBeat = 0) {
   const ctx = await ensureRunning();
-  const origin = startAt ?? (ctx.currentTime + 0.12);
+
+  // Keep the visual clock on performance.now(). Using getOutputTimestamp()
+  // here can produce a stale/offset clock on Safari/iPad after the audio
+  // context has been recreated or resumed. We schedule audio from the same
+  // moment we establish the visual start time.
+  const leadSeconds = 0.12;
+  const nowPerformance = performance.now();
+  const nowContext = ctx.currentTime;
+  const origin = startAt ?? (nowContext + leadSeconds);
   const beatSeconds = 60 / midiData.tempo / speed;
   const tracks = midiData.tracks || [];
 
@@ -141,10 +149,9 @@ export async function scheduleSongAudio(midiData, speed, startAt = null, fromBea
   bass?.notes?.forEach(n => scheduleTrackNote(n.note, n.start, n.duration, n.velocity, "bass"));
   drums?.notes?.forEach(n => scheduleTrackNote(n.note, n.start, n.duration, n.velocity, "drums"));
 
-  const timestamp = getOutputTimestamp();
-  const performanceStart =
-    timestamp.performanceTime +
-    (origin - timestamp.contextTime) * 1000;
+  const performanceStart = startAt == null
+    ? nowPerformance + leadSeconds * 1000
+    : performance.now();
 
   return {
     contextStart: origin,
