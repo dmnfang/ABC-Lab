@@ -35,11 +35,16 @@ export class PlaybackEngine {
     this.loopTimer = null;
     this.rafId = null;
 
+    // Every new load/stop gets a new session. Async audio setup from an
+    // older session is then unable to restart playback in the new session.
+    this.sessionId = 0;
+
     this.tick = this.tick.bind(this);
   }
 
   load({ alphabetSequence, songKey, speed, loops, midiData }) {
     this.stop();
+    this.sessionId += 1;
     this.alphabetSequence = [...alphabetSequence];
     this.songKey = songKey;
     this.speed = speed;
@@ -68,6 +73,8 @@ export class PlaybackEngine {
   async play() {
     if (!this.alphabetSequence.length || this.playing) return;
 
+    const session = this.sessionId;
+
     if (this.inGap) {
       this.playing = true;
       this.paused = false;
@@ -78,11 +85,11 @@ export class PlaybackEngine {
       clearTimeout(this.loopTimer);
 
       this.loopTimer = setTimeout(() => {
-        if (!this.playing) return;
+        if (!this.playing || this.sessionId !== session) return;
         this.inGap = false;
         this.gapRemainingMs = 0;
         this.loopNumber += 1;
-        this.startLoop();
+        this.startLoop(session);
       }, remaining);
 
       return;
@@ -97,7 +104,7 @@ export class PlaybackEngine {
         ? await scheduleSongAudio(this.midiData, this.speed, null, this.positionBeat)
         : null;
 
-      if (!this.playing) return;
+      if (!this.playing || this.sessionId !== session) return;
 
       this.phaseStartedAt = audio?.performanceStart ?? performance.now();
       this.renderTimelineState();
@@ -108,10 +115,10 @@ export class PlaybackEngine {
     this.playing = true;
     if (this.loopNumber === 0) this.loopNumber = 1;
     this.onState?.("playing");
-    await this.startLoop();
+    await this.startLoop(session);
   }
 
-  async startLoop() {
+  async startLoop(session = this.sessionId) {
     cancelAnimationFrame(this.rafId);
     clearTimeout(this.loopTimer);
     this.loopTimer = null;
@@ -127,7 +134,9 @@ export class PlaybackEngine {
       ? await scheduleSongAudio(this.midiData, this.speed)
       : null;
 
-    if (!this.playing) return;
+    // The user may have returned to settings or launched a new session while
+    // the audio context was being prepared. Never let the old run continue.
+    if (!this.playing || this.sessionId !== session) return;
 
     this.phaseStartedAt = audio?.performanceStart ?? performance.now();
     this.countKey = "";
@@ -249,6 +258,7 @@ export class PlaybackEngine {
   }
 
   stop() {
+    this.sessionId += 1;
     cancelAnimationFrame(this.rafId);
     clearTimeout(this.loopTimer);
     stopAllAudio();
@@ -262,6 +272,7 @@ export class PlaybackEngine {
     this.positionBeat = 0;
     this.eventCursor = 0;
     this.index = 0;
+    this.loopNumber = 0;
     this.countKey = "";
     this.onCountIn?.({ type: "clear", values: [] });
   }
@@ -287,12 +298,13 @@ export class PlaybackEngine {
     this.onCountIn?.({ type: "gap" });
     this.onState?.("gap");
 
+    const session = this.sessionId;
     this.loopTimer = setTimeout(() => {
-      if (!this.playing) return;
+      if (!this.playing || this.sessionId !== session) return;
       this.loopNumber += 1;
       this.inGap = false;
       this.gapRemainingMs = 0;
-      this.startLoop();
+      this.startLoop(session);
     }, GAP_MS);
   }
 
