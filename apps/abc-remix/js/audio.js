@@ -7,6 +7,20 @@
 let audioContext = null;
 let masterGain = null;
 
+// One authoritative count-in timeline. Both audio scheduling and the visual
+// count-in use these exact beat positions.
+export const COUNT_IN_CUES = [
+  { beat: 0, kind: "number", value: "1" },
+  { beat: 1, kind: "tick" },
+  { beat: 2, kind: "number", value: "2" },
+  { beat: 3, kind: "tick" },
+  { beat: 4, kind: "number", value: "1" },
+  { beat: 5, kind: "number", value: "2" },
+  { beat: 6, kind: "number", value: "3" },
+  { beat: 7, kind: "tick" },
+  { beat: 7.25, kind: "tick" }
+];
+
 function getAudioContext() {
   if (!audioContext) {
     const AudioCtx = window.AudioContext || window.webkitAudioContext;
@@ -177,16 +191,7 @@ export async function scheduleSongAudio(midiData, speed, startAt = null, fromBea
       }
     });
 
-    const countInHits = [
-      { beat: 0, type: "number" },
-      { beat: 1, type: "tick" },
-      { beat: 2, type: "number" },
-      { beat: 3, type: "tick" },
-      { beat: 4, type: "count" },
-      { beat: 5, type: "count" },
-      { beat: 6, type: "count" },
-      { beat: 7, type: "count" }
-    ];
+    const countInHits = COUNT_IN_CUES;
 
     const hitVelocity = 112;
     countInHits.forEach(({ beat, type }) => {
