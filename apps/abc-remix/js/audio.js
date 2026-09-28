@@ -11,15 +11,21 @@ let masterGain = null;
 // count-in use these exact beat positions.
 export const COUNT_IN_CUES = [
   { beat: 0, kind: "number", value: "1" },
-  { beat: 1, kind: "tick" },
+  { beat: 0.25, kind: "tick", owner: "1" },
+  { beat: 0.5, kind: "tick", owner: "1" },
+
   { beat: 2, kind: "number", value: "2" },
-  { beat: 3, kind: "tick" },
+  { beat: 2.25, kind: "tick", owner: "2" },
+  { beat: 2.5, kind: "tick", owner: "2" },
+
   { beat: 4, kind: "number", value: "1" },
   { beat: 5, kind: "number", value: "2" },
   { beat: 6, kind: "number", value: "3" },
-  { beat: 7, kind: "tick" },
-  { beat: 7.25, kind: "tick" }
-];
+
+  { beat: 7, kind: "number", value: "4" },
+  { beat: 7, kind: "tick", owner: "4" },
+  { beat: 7.25, kind: "tick", owner: "4" }
+]
 
 function getAudioContext() {
   if (!audioContext) {
@@ -204,17 +210,17 @@ export async function scheduleSongAudio(midiData, speed, startAt = null, fromBea
       if (type === "tick") {
         // The first tick gets a stronger, slightly fuller transient so it is
         // reliably audible when Safari is starting the audio context fresh.
-        const isFirstTick = beat === 1;
+        const isFirstCountTick = beat === 0.25;
         scheduleTone(
           ctx,
           1800,
           when,
-          Math.min(beatSeconds * (isFirstTick ? 0.12 : 0.08), isFirstTick ? 0.06 : 0.04),
+          Math.min(beatSeconds * (isFirstCountTick ? 0.14 : 0.08), isFirstCountTick ? 0.07 : 0.04),
           "square",
-          volume * (isFirstTick ? 0.95 : 0.62)
+          volume * (isFirstCountTick ? 1.05 : 0.62)
         );
-        if (isFirstTick) {
-          scheduleNoise(ctx, when, Math.min(beatSeconds * 0.06, 0.03), volume * 0.3, 0.001);
+        if (isFirstCountTick) {
+          scheduleNoise(ctx, when, Math.min(beatSeconds * 0.07, 0.035), volume * 0.32, 0.001);
         }
       } else if (type === "number") {
         scheduleTone(ctx, 75, when, Math.min(beatSeconds * 0.14, 0.12), "sine", volume * 1.8);
