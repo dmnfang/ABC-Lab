@@ -321,6 +321,24 @@ html, body {
 }
 
 
+/* Responsive guess tray: all eight selections fit without horizontal scrolling. */
+.guess-tray{
+  display:grid;
+  grid-template-columns:repeat(8,minmax(0,1fr));
+  align-items:center;
+  justify-items:center;
+  gap:clamp(4px,0.7vw,8px);
+  padding:8px 10px;
+  overflow:hidden;
+}
+.guess-chip{
+  width:100%; max-width:56px; aspect-ratio:1; height:auto; min-width:0; flex:none;
+  font-size:clamp(18px,2.7vw,34px);
+}
+@media (max-width:1050px){.guess-tray{gap:5px;padding:7px}.guess-chip{max-width:48px;font-size:28px}}
+@media (max-height:760px) and (orientation:landscape){.guess-tray{height:70px;min-height:70px}.guess-chip{max-width:48px;font-size:27px}}
+@media (max-width:800px) and (orientation:portrait){.guess-tray{height:78px;min-height:78px;grid-template-columns:repeat(8,minmax(0,1fr));gap:4px;padding:7px}.guess-chip{max-width:48px;font-size:26px}}
+
 </style>
 </head>
 <body>
@@ -733,37 +751,3 @@ syncSettingsUI();
 </script>
 </body>
 </html>
-
-<style>
-/* Responsive guess tray: all eight selections fit without horizontal scrolling. */
-.guess-tray{
-  display:grid;
-  grid-template-columns:repeat(8,minmax(0,1fr));
-  align-items:center;
-  justify-items:center;
-  gap:clamp(4px,0.7vw,8px);
-  padding:8px 10px;
-  overflow:hidden;
-}
-.guess-chip{
-  width:100%;
-  max-width:56px;
-  aspect-ratio:1;
-  height:auto;
-  min-width:0;
-  flex:none;
-  font-size:clamp(18px,2.7vw,34px);
-}
-@media (max-width:1050px){
-  .guess-tray{gap:5px;padding:7px}
-  .guess-chip{max-width:48px;font-size:28px}
-}
-@media (max-height:760px) and (orientation:landscape){
-  .guess-tray{height:70px;min-height:70px}
-  .guess-chip{max-width:48px;font-size:27px}
-}
-@media (max-width:800px) and (orientation:portrait){
-  .guess-tray{height:78px;min-height:78px;grid-template-columns:repeat(8,minmax(0,1fr));gap:4px;padding:7px}
-  .guess-chip{max-width:48px;font-size:26px}
-}
-</style>
