@@ -48,6 +48,15 @@ async function ensureRunning() {
   return ctx;
 }
 
+export function primeAudio() {
+  const ctx = getAudioContext();
+  if (ctx.state !== "running") {
+    // Called directly from the Launch button gesture so Safari/iPad can
+    // associate the AudioContext resume with the user's interaction.
+    ctx.resume().catch(error => console.warn("Unable to resume audio:", error));
+  }
+}
+
 function midiFreq(note) {
   return 440 * Math.pow(2, (note - 69) / 12);
 }
@@ -146,12 +155,7 @@ export async function scheduleSongAudio(midiData, speed, startAt = null, fromBea
   const nowPerformance = performance.now();
   const nowContext = ctx.currentTime;
   const beatSeconds = 60 / midiData.tempo / speed;
-
-  // Fresh AudioContexts can take a moment to wake the output device on the
-  // first launch. Give the audio system one completely silent beat before the
-  // actual count-in begins. The visual clock uses the same offset below.
-  const prerollSeconds = beatSeconds;
-  const origin = startAt ?? (nowContext + leadSeconds + prerollSeconds);
+  const origin = startAt ?? (nowContext + leadSeconds);
   const tracks = midiData.tracks || [];
 
   const scheduleTrackNote = (note, start, duration, velocity, voice) => {
@@ -216,17 +220,13 @@ export async function scheduleSongAudio(midiData, speed, startAt = null, fromBea
         // The first tick gets a stronger, slightly fuller transient so it is
         // reliably audible when Safari is starting the audio context fresh.
         const isFirstCountTick = beat === 0.25;
-        scheduleTone(
+        scheduleNoise(
           ctx,
-          1800,
           when,
-          Math.min(beatSeconds * (isFirstCountTick ? 0.14 : 0.08), isFirstCountTick ? 0.07 : 0.04),
-          "square",
-          volume * (isFirstCountTick ? 1.05 : 0.62)
+          Math.min(beatSeconds * (isFirstCountTick ? 0.055 : 0.045), isFirstCountTick ? 0.028 : 0.022),
+          volume * (isFirstCountTick ? 1.15 : 0.8),
+          0.0005
         );
-        if (isFirstCountTick) {
-          scheduleNoise(ctx, when, Math.min(beatSeconds * 0.07, 0.035), volume * 0.32, 0.001);
-        }
       } else if (kind === "number") {
         scheduleTone(ctx, 75, when, Math.min(beatSeconds * 0.14, 0.12), "sine", volume * 1.8);
       } else {
@@ -238,7 +238,7 @@ export async function scheduleSongAudio(midiData, speed, startAt = null, fromBea
   }
 
   const performanceStart = startAt == null
-    ? nowPerformance + (leadSeconds + prerollSeconds) * 1000
+    ? nowPerformance + leadSeconds * 1000
     : performance.now();
 
   return {
