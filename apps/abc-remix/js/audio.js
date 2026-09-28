@@ -129,19 +129,14 @@ export async function scheduleSongAudio(midiData, speed, startAt = null, fromBea
   const beatSeconds = 60 / midiData.tempo / speed;
   const tracks = midiData.tracks || [];
 
-  const SONG_OFFSET_BEATS = 4;
-
   const scheduleTrackNote = (note, start, duration, velocity, voice) => {
-    // The supplied MIDI has an 8-beat lead-in. The UI count-in is now
-    // 12 beats, so shift the actual song material forward by 4 beats.
     if (start < 8) return;
 
-    const shiftedStart = start + SONG_OFFSET_BEATS;
-    const shiftedEnd = shiftedStart + duration;
-    if (shiftedEnd <= fromBeat) return;
+    const end = start + duration;
+    if (end <= fromBeat) return;
 
-    const effectiveStart = Math.max(shiftedStart, fromBeat);
-    const effectiveDuration = Math.max(0.035, shiftedEnd - effectiveStart);
+    const effectiveStart = Math.max(start, fromBeat);
+    const effectiveDuration = Math.max(0.035, end - effectiveStart);
     const when = origin + (effectiveStart - fromBeat) * beatSeconds;
     const seconds = effectiveDuration * beatSeconds;
     const volume = Math.max(0.02, Math.min(0.22, (velocity ?? 100) / 127 * 0.14));
@@ -175,7 +170,7 @@ export async function scheduleSongAudio(midiData, speed, startAt = null, fromBea
   //
   // Keep the song's MIDI timing untouched and build the count-in explicitly.
   // This makes the audio land on the same 8-beat structure as the UI.
-  if (fromBeat < 12) {
+  if (fromBeat < 8) {
     drums?.notes?.forEach(n => {
       if (n.start >= 8) {
         scheduleTrackNote(n.note, n.start, n.duration, n.velocity, "drums");
@@ -188,9 +183,9 @@ export async function scheduleSongAudio(midiData, speed, startAt = null, fromBea
       { beat: 2, type: "number" },
       { beat: 3, type: "tick" },
       { beat: 4, type: "count" },
+      { beat: 5, type: "count" },
       { beat: 6, type: "count" },
-      { beat: 8, type: "count" },
-      { beat: 10, type: "count" }
+      { beat: 7, type: "count" }
     ];
 
     const hitVelocity = 112;
