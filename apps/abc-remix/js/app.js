@@ -511,6 +511,16 @@ pauseButton.addEventListener("click", () => playback.playing ? playback.pause() 
 $("#gameFullscreen").addEventListener("click", () => toggleFullscreen(gameScreen));
 $("#settingsFullscreen").addEventListener("click", () => toggleFullscreen(settingsScreen));
 
+$("#settingsHome").addEventListener("click", () => {
+  playback.stop();
+  location.href = "../../index.html";
+});
+
+$("#homeButton").addEventListener("click", () => {
+  playback.stop();
+  location.href = "../../index.html";
+});
+
 document.addEventListener("fullscreenchange", () => {
   const fullscreen = Boolean(document.fullscreenElement);
   document.body.classList.toggle("presentation", fullscreen);
