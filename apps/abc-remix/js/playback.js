@@ -122,7 +122,6 @@ export class PlaybackEngine {
     cancelAnimationFrame(this.rafId);
     clearTimeout(this.loopTimer);
     this.loopTimer = null;
-    stopAllAudio();
 
     this.positionBeat = 0;
     this.eventCursor = 0;
