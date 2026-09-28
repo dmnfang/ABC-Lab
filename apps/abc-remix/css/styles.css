@@ -1434,3 +1434,17 @@ html, body {
   .preview-card { min-height: 420px; }
   .game-screen { height: 100dvh; min-height: 100dvh; }
 }
+
+
+/* ABC Lab navigation */
+.header-left{display:flex;align-items:center;gap:12px;min-width:0}
+.home-btn{
+  height:34px;padding:0 12px;border-radius:10px;
+  background:var(--sand-100);border:1.5px solid var(--sand-300);
+  color:var(--text-secondary);font-size:12px;font-weight:800;white-space:nowrap;
+}
+.home-btn:hover{background:var(--sand-50);color:var(--text-primary)}
+.game-home-btn{flex:0 0 auto}
+@media (max-width:800px){
+  .game-home-btn{display:none}
+}
