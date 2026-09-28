@@ -57,10 +57,14 @@ function scheduleTone(ctx, frequency, when, duration, type, volume) {
   oscillator.stop(when + duration + 0.02);
 }
 
-function scheduleNoise(ctx, when, duration, volume) {
+function scheduleNoise(ctx, when, duration, volume, attack = 0.001) {
   if (!masterGain) return;
 
-  const buffer = ctx.createBuffer(1, Math.max(1, Math.floor(ctx.sampleRate * duration)), ctx.sampleRate);
+  const buffer = ctx.createBuffer(
+    1,
+    Math.max(1, Math.floor(ctx.sampleRate * duration)),
+    ctx.sampleRate
+  );
   const data = buffer.getChannelData(0);
 
   for (let i = 0; i < data.length; i += 1) {
@@ -75,7 +79,12 @@ function scheduleNoise(ctx, when, duration, volume) {
   filter.type = "highpass";
   filter.frequency.value = 1200;
 
-  gain.gain.setValueAtTime(Math.max(0.001, volume), when);
+  // A tiny attack followed by a fast decay gives the clap a clear
+  // transient instead of a soft, smeared burst.
+  const peak = Math.max(0.001, volume);
+  const attackEnd = when + Math.min(attack, duration * 0.2);
+  gain.gain.setValueAtTime(0.0001, when);
+  gain.gain.linearRampToValueAtTime(peak, attackEnd);
   gain.gain.exponentialRampToValueAtTime(0.001, when + duration);
 
   source.connect(filter);
@@ -135,11 +144,17 @@ export async function scheduleSongAudio(midiData, speed, startAt = null, fromBea
     } else if (voice === "bass") {
       scheduleTone(ctx, midiFreq(note), when, seconds, "sine", volume * 0.72);
     } else if (note === 36) {
-      scheduleTone(ctx, 75, when, Math.min(seconds, 0.16), "sine", volume * 1.35);
+      // Stronger low kick for the count-in. The source timing is unchanged.
+      const kickGain = start < 8 ? 1.85 : 1.35;
+      scheduleTone(ctx, 75, when, Math.min(seconds, 0.16), "sine", volume * kickGain);
     } else if (note === 40) {
-      scheduleNoise(ctx, when, Math.min(seconds, 0.12), volume * 0.8);
+      // The MIDI clap is intentionally made shorter and brighter so it reads
+      // as a crisp count-in clap on small speakers such as an iPad.
+      const clapDuration = start < 8 ? Math.min(seconds, 0.075) : Math.min(seconds, 0.12);
+      const clapGain = start < 8 ? 1.55 : 0.8;
+      scheduleNoise(ctx, when, clapDuration, volume * clapGain, 0.001);
     } else if (note === 54) {
-      scheduleNoise(ctx, when, Math.min(seconds, 0.055), volume * 0.55);
+      scheduleNoise(ctx, when, Math.min(seconds, 0.055), volume * 0.55, 0.001);
     }
   };
 
