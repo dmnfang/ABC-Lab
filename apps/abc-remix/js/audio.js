@@ -9,18 +9,21 @@ let masterGain = null;
 
 // One authoritative count-in timeline. Audio and visuals both use these cues.
 export const COUNT_IN_CUES = [
-  { beat: 0, kind: "number", value: "1" },
-  { beat: 0.5, kind: "tick", owner: "1" },
-  { beat: 2, kind: "number", value: "2" },
-  { beat: 2.5, kind: "tick", owner: "2" },
-  { beat: 3.5, kind: "number", value: "1" },
-  { beat: 4, kind: "tick", owner: "1" },
-  { beat: 4.5, kind: "number", value: "2" },
-  { beat: 5, kind: "tick", owner: "2" },
-  { beat: 5.5, kind: "number", value: "3" },
-  { beat: 6, kind: "tick", owner: "3" },
-  { beat: 6.5, kind: "number", value: "4" },
-  { beat: 7, kind: "tick", owner: "4" }
+  // One full silent beat before the count-in.
+  { beat: 1, kind: "number", value: "1" },
+  { beat: 1.5, kind: "tick", owner: "1" },
+  { beat: 3, kind: "number", value: "2" },
+  { beat: 3.5, kind: "tick", owner: "2" },
+
+  // A longer breath separates the pickup 1,2 from the 1,2,3,4 run.
+  { beat: 5, kind: "number", value: "1" },
+  { beat: 5.5, kind: "tick", owner: "1" },
+  { beat: 6, kind: "number", value: "2" },
+  { beat: 6.5, kind: "tick", owner: "2" },
+  { beat: 7, kind: "number", value: "3" },
+  { beat: 7.5, kind: "tick", owner: "3" },
+  { beat: 8, kind: "number", value: "4" },
+  { beat: 8.5, kind: "tick", owner: "4" }
 ];
 
 function getAudioContext() {
@@ -162,6 +165,8 @@ export async function scheduleSongAudio(midiData, speed, startAt = null, fromBea
   const origin = startAt ?? (nowContext + leadSeconds);
   const beatSeconds = 60 / midiData.tempo / speed;
   const tracks = midiData.tracks || [];
+
+  const SONG_START_OFFSET_BEATS = 1;
 
   const scheduleTrackNote = (note, start, duration, velocity, voice) => {
     if (start < 8) return;
