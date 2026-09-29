@@ -182,10 +182,10 @@ export async function scheduleSongAudio(midiData, speed, startAt = null, fromBea
       { beat: 1, type: "tick" },
       { beat: 2, type: "number" },
       { beat: 3, type: "tick" },
-      { beat: 5, type: "count" },
-      { beat: 6, type: "count" },
-      { beat: 7, type: "count" },
-      { beat: 8, type: "count" }
+      { beat: 4.5, type: "count" },
+      { beat: 5.5, type: "count" },
+      { beat: 6.5, type: "count" },
+      { beat: 7.5, type: "count" }
     ];
 
     const hitVelocity = 112;
