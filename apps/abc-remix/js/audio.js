@@ -7,25 +7,6 @@
 let audioContext = null;
 let masterGain = null;
 
-// One authoritative count-in timeline. Audio and visuals both use these cues.
-export const COUNT_IN_CUES = [
-  // One full silent beat before the count-in.
-  { beat: 1, kind: "number", value: "1" },
-  { beat: 1.5, kind: "tick", owner: "1" },
-  { beat: 3, kind: "number", value: "2" },
-  { beat: 3.5, kind: "tick", owner: "2" },
-
-  // A longer breath separates the pickup 1,2 from the 1,2,3,4 run.
-  { beat: 5, kind: "number", value: "1" },
-  { beat: 5.5, kind: "tick", owner: "1" },
-  { beat: 6, kind: "number", value: "2" },
-  { beat: 6.5, kind: "tick", owner: "2" },
-  { beat: 7, kind: "number", value: "3" },
-  { beat: 7.5, kind: "tick", owner: "3" },
-  { beat: 8, kind: "number", value: "4" },
-  { beat: 8.5, kind: "tick", owner: "4" }
-];
-
 function getAudioContext() {
   if (!audioContext) {
     const AudioCtx = window.AudioContext || window.webkitAudioContext;
@@ -44,24 +25,6 @@ async function ensureRunning() {
   if (ctx.state !== "running") {
     await ctx.resume();
   }
-  return ctx;
-}
-
-export async function primeAudio() {
-  const ctx = getAudioContext();
-
-  // Wait for the fresh context to actually finish resuming before any
-  // audible count-in events are scheduled.
-  await ensureRunning();
-
-  // Run a genuinely silent source through the destination once. This
-  // separates browser audio unlock from the first audible count-in hit.
-  const buffer = ctx.createBuffer(1, 1, ctx.sampleRate);
-  const source = ctx.createBufferSource();
-  source.buffer = buffer;
-  source.connect(masterGain);
-  source.start(0);
-
   return ctx;
 }
 
@@ -159,23 +122,20 @@ export async function scheduleSongAudio(midiData, speed, startAt = null, fromBea
   // here can produce a stale/offset clock on Safari/iPad after the audio
   // context has been recreated or resumed. We schedule audio from the same
   // moment we establish the visual start time.
-  const leadSeconds = 0.35;
+  const leadSeconds = 0.12;
   const nowPerformance = performance.now();
   const nowContext = ctx.currentTime;
   const origin = startAt ?? (nowContext + leadSeconds);
   const beatSeconds = 60 / midiData.tempo / speed;
   const tracks = midiData.tracks || [];
 
-  const SONG_START_OFFSET_BEATS = 1;
-
   const scheduleTrackNote = (note, start, duration, velocity, voice) => {
     if (start < 8) return;
 
-    const shiftedStart = start;
-    const end = shiftedStart + duration;
+    const end = start + duration;
     if (end <= fromBeat) return;
 
-    const effectiveStart = Math.max(shiftedStart, fromBeat);
+    const effectiveStart = Math.max(start, fromBeat);
     const effectiveDuration = Math.max(0.035, end - effectiveStart);
     const when = origin + (effectiveStart - fromBeat) * beatSeconds;
     const seconds = effectiveDuration * beatSeconds;
@@ -217,34 +177,33 @@ export async function scheduleSongAudio(midiData, speed, startAt = null, fromBea
       }
     });
 
+    const countInHits = [
+      { beat: 0, type: "number" },
+      { beat: 1, type: "tick" },
+      { beat: 2, type: "number" },
+      { beat: 3, type: "tick" },
+      { beat: 4, type: "count" },
+      { beat: 5, type: "count" },
+      { beat: 6, type: "count" },
+      { beat: 7, type: "count" }
+    ];
+
     const hitVelocity = 112;
-    COUNT_IN_CUES.forEach(({ beat, kind }) => {
+    countInHits.forEach(({ beat, type }) => {
       const when = origin + (beat - fromBeat) * beatSeconds;
       const volume = Math.max(
         0.02,
         Math.min(0.22, (hitVelocity / 127) * 0.14)
       );
 
-      if (kind === "tick") {
-        scheduleNoise(
-          ctx,
-          when,
-          Math.min(beatSeconds * 0.06, 0.03),
-          volume * 0.9,
-          0.001
-        );
+      if (type === "tick") {
+        scheduleNoise(ctx, when, Math.min(beatSeconds * 0.12, 0.055), volume * 0.72, 0.001);
+      } else if (type === "number") {
+        scheduleTone(ctx, 75, when, Math.min(beatSeconds * 0.14, 0.12), "sine", volume * 1.8);
       } else {
-        scheduleTone(
-          ctx,
-          75,
-          when,
-          Math.min(beatSeconds * 0.14, 0.12),
-          "sine",
-          volume * 1.8
-        );
+        scheduleNoise(ctx, when, Math.min(beatSeconds * 0.11, 0.075), volume * 1.55, 0.001);
       }
     });
-;
   } else {
     drums?.notes?.forEach(n => scheduleTrackNote(n.note, n.start, n.duration, n.velocity, "drums"));
   }
