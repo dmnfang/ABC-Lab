@@ -134,11 +134,11 @@ export async function scheduleSongAudio(midiData, speed, startAt = null, fromBea
     if (start < 8) return;
 
     const shiftedStart = start + SONG_OFFSET_BEATS;
-    const shiftedEnd = shiftedStart + duration;
-    if (shiftedEnd <= fromBeat) return;
+    const end = shiftedStart + duration;
+    if (end <= fromBeat) return;
 
     const effectiveStart = Math.max(shiftedStart, fromBeat);
-    const effectiveDuration = Math.max(0.035, shiftedEnd - effectiveStart);
+    const effectiveDuration = Math.max(0.035, end - effectiveStart);
     const when = origin + (effectiveStart - fromBeat) * beatSeconds;
     const seconds = effectiveDuration * beatSeconds;
     const volume = Math.max(0.02, Math.min(0.22, (velocity ?? 100) / 127 * 0.14));
