@@ -351,9 +351,9 @@ html, body {
   <div class="header-right">
     <div class="spread">
       <button class="pip active" data-jumble="85"></button>
+      <button class="pip" data-jumble="80"></button>
       <button class="pip" data-jumble="75"></button>
-      <button class="pip" data-jumble="65"></button>
-      <button class="pip" data-jumble="55"></button>
+      <button class="pip" data-jumble="70"></button>
     </div>
     <button id="fullscreenButton" class="settings-icon" aria-label="Fullscreen" title="Fullscreen">⛶</button>
     <button id="settingsButton" class="settings-icon" aria-label="Settings" title="Settings">⚙</button>
@@ -506,7 +506,7 @@ function renderCollage(){
   collage.innerHTML="";
   const n=state.letters.length;
   const {w,h,size,radius}=getRevealGeometry();
-  const spreadMap={85:.22,75:.38,65:.56,55:.74};
+  const spreadMap={85:.22,80:.34,75:.46,70:.58};
   const previewRadius=state.revealed
     ? radius
     : radius*(spreadMap[state.jumble] ?? .43);
