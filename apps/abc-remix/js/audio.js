@@ -48,8 +48,23 @@ async function ensureRunning() {
   return ctx;
 }
 
-export async function primeAudio() {
-  return ensureRunning();
+export function primeAudio() {
+  const ctx = getAudioContext();
+
+  // Unlock the context with a genuinely silent source during the Launch
+  // gesture. This keeps the first audible count-in hit separate from the
+  // browser's audio unlock step.
+  if (ctx.state !== "running") {
+    ctx.resume().catch(() => {});
+  }
+
+  const buffer = ctx.createBuffer(1, 1, ctx.sampleRate);
+  const source = ctx.createBufferSource();
+  source.buffer = buffer;
+  source.connect(masterGain);
+  source.start(0);
+
+  return ctx;
 }
 
 function midiFreq(note) {
@@ -146,20 +161,25 @@ export async function scheduleSongAudio(midiData, speed, startAt = null, fromBea
   // here can produce a stale/offset clock on Safari/iPad after the audio
   // context has been recreated or resumed. We schedule audio from the same
   // moment we establish the visual start time.
-  const leadSeconds = 0.12;
+  const leadSeconds = 0.35;
   const nowPerformance = performance.now();
   const nowContext = ctx.currentTime;
   const origin = startAt ?? (nowContext + leadSeconds);
   const beatSeconds = 60 / midiData.tempo / speed;
   const tracks = midiData.tracks || [];
 
+  const SONG_START_OFFSET_BEATS = 0.5;
+
   const scheduleTrackNote = (note, start, duration, velocity, voice) => {
     if (start < 8) return;
 
-    const end = start + duration;
+    // Leave a deliberate half-beat of air between the count-in and the ABC
+    // melody. Shift all musical notes after the count-in by the same amount.
+    const shiftedStart = start + SONG_START_OFFSET_BEATS;
+    const end = shiftedStart + duration;
     if (end <= fromBeat) return;
 
-    const effectiveStart = Math.max(start, fromBeat);
+    const effectiveStart = Math.max(shiftedStart, fromBeat);
     const effectiveDuration = Math.max(0.035, end - effectiveStart);
     const when = origin + (effectiveStart - fromBeat) * beatSeconds;
     const seconds = effectiveDuration * beatSeconds;
