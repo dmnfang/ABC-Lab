@@ -3,7 +3,7 @@
 import { SONGS } from "./songs.js";
 import { scheduleSongAudio, stopAllAudio } from "./audio.js";
 
-const COUNT_IN_BEATS = 8;
+const COUNT_IN_BEATS = 9;
 const GAP_MS = 4000;
 
 export class PlaybackEngine {
@@ -170,10 +170,10 @@ export class PlaybackEngine {
     let payload = { type: "clear", values: [] };
 
     if (this.positionBeat < COUNT_IN_BEATS) {
-      if (this.positionBeat >= 7) key = "seq-4";
-      else if (this.positionBeat >= 6) key = "seq-3";
-      else if (this.positionBeat >= 5) key = "seq-2";
-      else if (this.positionBeat >= 4) key = "seq-1";
+      if (this.positionBeat >= 8) key = "seq-4";
+      else if (this.positionBeat >= 7) key = "seq-3";
+      else if (this.positionBeat >= 6) key = "seq-2";
+      else if (this.positionBeat >= 5) key = "seq-1";
       else if (this.positionBeat >= 2) key = "single-2";
       else key = "single-1";
 
