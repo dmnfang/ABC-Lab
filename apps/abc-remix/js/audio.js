@@ -96,12 +96,13 @@ export const COUNT_IN_CUES = [
       if (kind === "tick") {
         // The first tick gets a stronger, slightly fuller transient so it is
         // reliably audible when Safari is starting the audio context fresh.
+        const isFirstCountTick = beat === 0.25;
         scheduleNoise(
           ctx,
           when,
-          Math.min(beatSeconds * 0.06, 0.03),
-          volume * 0.9,
-          0.001
+          Math.min(beatSeconds * (isFirstCountTick ? 0.055 : 0.045), isFirstCountTick ? 0.028 : 0.022),
+          volume * (isFirstCountTick ? 1.15 : 0.8),
+          0.0005
         );
       } else if (kind === "number") {
         scheduleTone(ctx, 75, when, Math.min(beatSeconds * 0.14, 0.12), "sine", volume * 1.8);
