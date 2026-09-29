@@ -128,15 +128,17 @@ export async function scheduleSongAudio(midiData, speed, startAt = null, fromBea
   const origin = startAt ?? (nowContext + leadSeconds);
   const beatSeconds = 60 / midiData.tempo / speed;
   const tracks = midiData.tracks || [];
+  const SONG_OFFSET_BEATS = 1;
 
   const scheduleTrackNote = (note, start, duration, velocity, voice) => {
     if (start < 8) return;
 
-    const end = start + duration;
-    if (end <= fromBeat) return;
+    const shiftedStart = start + SONG_OFFSET_BEATS;
+    const shiftedEnd = shiftedStart + duration;
+    if (shiftedEnd <= fromBeat) return;
 
-    const effectiveStart = Math.max(start, fromBeat);
-    const effectiveDuration = Math.max(0.035, end - effectiveStart);
+    const effectiveStart = Math.max(shiftedStart, fromBeat);
+    const effectiveDuration = Math.max(0.035, shiftedEnd - effectiveStart);
     const when = origin + (effectiveStart - fromBeat) * beatSeconds;
     const seconds = effectiveDuration * beatSeconds;
     const volume = Math.max(0.02, Math.min(0.22, (velocity ?? 100) / 127 * 0.14));
@@ -170,7 +172,7 @@ export async function scheduleSongAudio(midiData, speed, startAt = null, fromBea
   //
   // Keep the song's MIDI timing untouched and build the count-in explicitly.
   // This makes the audio land on the same 8-beat structure as the UI.
-  if (fromBeat < 8) {
+  if (fromBeat < 9) {
     drums?.notes?.forEach(n => {
       if (n.start >= 8) {
         scheduleTrackNote(n.note, n.start, n.duration, n.velocity, "drums");
@@ -182,10 +184,10 @@ export async function scheduleSongAudio(midiData, speed, startAt = null, fromBea
       { beat: 1, type: "tick" },
       { beat: 2, type: "number" },
       { beat: 3, type: "tick" },
-      { beat: 4.5, type: "count" },
-      { beat: 5.5, type: "count" },
-      { beat: 6.5, type: "count" },
-      { beat: 7.5, type: "count" }
+      { beat: 5, type: "count" },
+      { beat: 6, type: "count" },
+      { beat: 7, type: "count" },
+      { beat: 8, type: "count" }
     ];
 
     const hitVelocity = 112;
