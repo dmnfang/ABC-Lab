@@ -2,7 +2,7 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
   <meta name="theme-color" content="#F7F2E9" />
   <title>ABC Remix</title>
   <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -15,7 +15,7 @@
     <section id="settingsScreen" class="settings-screen">
       <header class="settings-header">
         <div class="header-left">
-          <button id="settingsHome" class="home-btn" type="button">← ABC Lab</button>
+          <button id="settingsHome" class="icon-btn home-icon-btn" type="button" aria-label="ABC Lab home" title="ABC Lab home"><svg class="lucide-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="m3 10 9-7 9 7"/><path d="M5 9v11h14V9"/><path d="M9 20v-6h6v6"/></svg></button>
           <h1>ABC Remix</h1>
         </div>
         <button id="settingsFullscreen" class="icon-btn" type="button" aria-label="Fullscreen" title="Fullscreen">
@@ -89,7 +89,6 @@
     <section id="gameScreen" class="game-screen hidden">
       <header class="game-header">
         <div class="game-title-group">
-          <button id="homeButton" class="home-btn game-home-btn" type="button">← ABC Lab</button>
           <button id="backButton" class="icon-btn" type="button" aria-label="Back to settings" title="Back to settings">
             <svg class="lucide-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="m12 19-7-7 7-7"/><path d="M19 12H5"/></svg>
           </button>
