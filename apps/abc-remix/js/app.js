@@ -1,7 +1,6 @@
 import { ALPHABET, originalSequence, randomSequence } from "./sequences.js";
 import { SONGS } from "./songs.js";
 import { PlaybackEngine } from "./playback.js";
-import { primeAudio } from "./audio.js";
 import { renderSongPreview, renderCustomEditor, renderGameChunk, renderEasyChunk, renderEasyChunkPreview, highlightEasyChunkLetter, revealChunkLetter, renderLyricScreen, revealLyricWord, renderMixedScreen, revealMixedEvent } from "./ui.js";
 
 const state = {
@@ -268,7 +267,7 @@ function renderCountIn(event) {
   countInStage.classList.add("visible");
 }
 
-async function launchGame() {
+function launchGame() {
   if (state.mode === "original") gameSequence = state.originalReversed ? [...ALPHABET].reverse() : originalSequence();
   else if (state.mode === "random") gameSequence = [...state.randomSequence];
   else gameSequence = [...state.customSequence];
@@ -294,12 +293,6 @@ async function launchGame() {
   settingsScreen.classList.add("hidden");
   gameScreen.classList.remove("hidden");
   playback.load({ alphabetSequence: gameSequence, songKey: state.songKey, speed: state.speed, loops: state.loops, midiData: midiData?.[state.songKey] ?? null });
-
-  // Prime the fresh AudioContext after load() has closed any previous one,
-  // and before playback starts scheduling the count-in.
-  if (midiData?.[state.songKey]) {
-    await primeAudio();
-  }
 
   playback.play();
 }
