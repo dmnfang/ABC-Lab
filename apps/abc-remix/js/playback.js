@@ -189,7 +189,7 @@ export class PlaybackEngine {
       payload = {
         type: key.startsWith("seq") ? "sequence" : "single",
         values: valuesByKey[key],
-        beat: key.startsWith("seq") ? 4 : key === "single-2" ? 2 : 0,
+        beat: key.startsWith("seq") ? 5 : key === "single-2" ? 2 : 0,
         animateFrom: key.startsWith("seq") ? Number(key.split("-")[1]) - 1 : 0
       };
     }
