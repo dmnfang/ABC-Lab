@@ -2,7 +2,7 @@
 <html lang="en">
 <head>
 <meta charset="utf-8">
-<meta name="viewport" content="width=device-width,initial-scale=1">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
 <title>Alphabet Jumble</title>
 <style>
 :root{
@@ -22,6 +22,7 @@ header{
 .brand-row{display:flex;align-items:center;gap:12px}
 .home-link{height:36px;padding:0 12px;border:1px solid var(--line);border-radius:10px;background:var(--panel);font-size:12px;font-weight:900;cursor:pointer;white-space:nowrap}
 .home-link:hover{background:var(--soft)}
+.home-icon{width:38px;padding:0;display:grid;place-items:center}.home-icon svg{width:19px;height:19px}
 .header-right{margin-left:auto;display:flex;align-items:center;gap:20px}
 .spread{display:flex;align-items:center;gap:10px}
 .pip{
@@ -193,6 +194,7 @@ header{
 html, body {
   width: 100%;
   min-height: 100%;
+  min-height: 100dvh;
   overflow: hidden;
 }
 .app {
@@ -345,7 +347,7 @@ html, body {
 
 <div id="playScreen" class="app" style="display:none">
 <header>
-  <div class="brand-row"><button id="homeButton" class="home-link" type="button">← ABC Lab</button><div class="brand">ALPHABET JUMBLE</div></div>
+  <div class="brand-row"><button id="homeButton" class="home-link home-icon" type="button" aria-label="ABC Lab home" title="ABC Lab home"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="m3 10 9-7 9 7"/><path d="M5 9v11h14V9"/><path d="M9 20v-6h6v6"/></svg></button><div class="brand">ALPHABET JUMBLE</div></div>
   <div class="header-right">
     <div class="spread">
       <button class="pip active" data-jumble="85"></button>
@@ -384,7 +386,7 @@ html, body {
 </div>
 
 <div id="settingsScreen" class="settings-screen active">
-<header><div class="brand-row"><button id="settingsHomeButton" class="home-link" type="button">← ABC Lab</button><div class="brand">ALPHABET JUMBLE</div></div></header>
+<header><div class="brand-row"><button id="settingsHomeButton" class="home-link home-icon" type="button" aria-label="ABC Lab home" title="ABC Lab home"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="m3 10 9-7 9 7"/><path d="M5 9v11h14V9"/><path d="M9 20v-6h6v6"/></svg></button><div class="brand">ALPHABET JUMBLE</div></div></header>
 <div class="settings-main">
   <h1 class="settings-title">Quiz Settings</h1>
   <p class="settings-sub">Choose the rules for the next quiz.</p>
