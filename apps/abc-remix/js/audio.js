@@ -48,16 +48,15 @@ async function ensureRunning() {
   return ctx;
 }
 
-export function primeAudio() {
+export async function primeAudio() {
   const ctx = getAudioContext();
 
-  // Unlock the context with a genuinely silent source during the Launch
-  // gesture. This keeps the first audible count-in hit separate from the
-  // browser's audio unlock step.
-  if (ctx.state !== "running") {
-    ctx.resume().catch(() => {});
-  }
+  // Wait for the fresh context to actually finish resuming before any
+  // audible count-in events are scheduled.
+  await ensureRunning();
 
+  // Run a genuinely silent source through the destination once. This
+  // separates browser audio unlock from the first audible count-in hit.
   const buffer = ctx.createBuffer(1, 1, ctx.sampleRate);
   const source = ctx.createBufferSource();
   source.buffer = buffer;
