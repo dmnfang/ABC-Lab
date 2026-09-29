@@ -7,33 +7,151 @@
 let audioContext = null;
 let masterGain = null;
 
-// One authoritative count-in timeline. Both audio scheduling and the visual
-// count-in use these exact beat positions.
+// One authoritative count-in timeline. Audio and visuals both use these cues.
 export const COUNT_IN_CUES = [
-  // Opening count: 1 + single tick, 2 + single tick.
   { beat: 0, kind: "number", value: "1" },
   { beat: 0.5, kind: "tick", owner: "1" },
-
   { beat: 2, kind: "number", value: "2" },
   { beat: 2.5, kind: "tick", owner: "2" },
-
-  // Main count: each number gets a double tick.
   { beat: 4, kind: "number", value: "1" },
   { beat: 4.25, kind: "tick", owner: "1" },
   { beat: 4.5, kind: "tick", owner: "1" },
-
   { beat: 5, kind: "number", value: "2" },
   { beat: 5.25, kind: "tick", owner: "2" },
   { beat: 5.5, kind: "tick", owner: "2" },
-
   { beat: 6, kind: "number", value: "3" },
   { beat: 6.25, kind: "tick", owner: "3" },
   { beat: 6.5, kind: "tick", owner: "3" },
-
   { beat: 7, kind: "number", value: "4" },
   { beat: 7.25, kind: "tick", owner: "4" },
   { beat: 7.5, kind: "tick", owner: "4" }
-]
+];
+
+function getAudioContext() {
+  if (!audioContext) {
+    const AudioCtx = window.AudioContext || window.webkitAudioContext;
+    if (!AudioCtx) throw new Error("Web Audio is not supported in this browser.");
+
+    audioContext = new AudioCtx({ latencyHint: "interactive" });
+    masterGain = audioContext.createGain();
+    masterGain.gain.value = 0.9;
+    masterGain.connect(audioContext.destination);
+  }
+  return audioContext;
+}
+
+async function ensureRunning() {
+  const ctx = getAudioContext();
+  if (ctx.state !== "running") {
+    await ctx.resume();
+  }
+  return ctx;
+}
+
+export async function primeAudio() {
+  return ensureRunning();
+}
+
+function midiFreq(note) {
+  return 440 * Math.pow(2, (note - 69) / 12);
+}
+
+function scheduleTone(ctx, frequency, when, duration, type, volume) {
+  if (!masterGain) return;
+
+  const oscillator = ctx.createOscillator();
+  const gain = ctx.createGain();
+
+  oscillator.type = type;
+  oscillator.frequency.setValueAtTime(frequency, when);
+
+  const attack = Math.min(0.012, duration * 0.15);
+  const release = Math.min(0.05, duration * 0.25);
+  const sustainEnd = Math.max(when + attack, when + duration - release);
+
+  gain.gain.setValueAtTime(0, when);
+  gain.gain.linearRampToValueAtTime(volume, when + attack);
+  gain.gain.setValueAtTime(volume, sustainEnd);
+  gain.gain.linearRampToValueAtTime(0, when + duration);
+
+  oscillator.connect(gain);
+  gain.connect(masterGain);
+
+  oscillator.start(when);
+  oscillator.stop(when + duration + 0.02);
+}
+
+function scheduleNoise(ctx, when, duration, volume, attack = 0.001) {
+  if (!masterGain) return;
+
+  const buffer = ctx.createBuffer(
+    1,
+    Math.max(1, Math.floor(ctx.sampleRate * duration)),
+    ctx.sampleRate
+  );
+  const data = buffer.getChannelData(0);
+
+  for (let i = 0; i < data.length; i += 1) {
+    data[i] = Math.random() * 2 - 1;
+  }
+
+  const source = ctx.createBufferSource();
+  const filter = ctx.createBiquadFilter();
+  const gain = ctx.createGain();
+
+  source.buffer = buffer;
+  filter.type = "highpass";
+  filter.frequency.value = 1200;
+
+  // A tiny attack followed by a fast decay gives the clap a clear
+  // transient instead of a soft, smeared burst.
+  const peak = Math.max(0.001, volume);
+  const attackEnd = when + Math.min(attack, duration * 0.2);
+  gain.gain.setValueAtTime(0.0001, when);
+  gain.gain.linearRampToValueAtTime(peak, attackEnd);
+  gain.gain.exponentialRampToValueAtTime(0.001, when + duration);
+
+  source.connect(filter);
+  filter.connect(gain);
+  gain.connect(masterGain);
+
+  source.start(when);
+  source.stop(when + duration + 0.01);
+}
+
+function getOutputTimestamp() {
+  const ctx = getAudioContext();
+
+  if (typeof ctx.getOutputTimestamp === "function") {
+    const timestamp = ctx.getOutputTimestamp();
+    if (
+      timestamp &&
+      Number.isFinite(timestamp.contextTime) &&
+      Number.isFinite(timestamp.performanceTime)
+    ) {
+      return timestamp;
+    }
+  }
+
+  return {
+    contextTime: ctx.currentTime,
+    performanceTime: performance.now()
+  };
+}
+
+export async function scheduleSongAudio(midiData, speed, startAt = null, fromBeat = 0) {
+  const ctx = await ensureRunning();
+
+  // Keep the visual clock on performance.now(). Using getOutputTimestamp()
+  // here can produce a stale/offset clock on Safari/iPad after the audio
+  // context has been recreated or resumed. We schedule audio from the same
+  // moment we establish the visual start time.
+  const leadSeconds = 0.12;
+  const nowPerformance = performance.now();
+  const nowContext = ctx.currentTime;
+  const origin = startAt ?? (nowContext + leadSeconds);
+  const beatSeconds = 60 / midiData.tempo / speed;
+  const tracks = midiData.tracks || [];
 
   const scheduleTrackNote = (note, start, duration, velocity, voice) => {
     if (start < 8) return;
@@ -72,7 +190,7 @@ export const COUNT_IN_CUES = [
   bass?.notes?.forEach(n => scheduleTrackNote(n.note, n.start, n.duration, n.velocity, "bass"));
   // The MIDI drum track is useful for the song itself, but its original
   // count-in pattern does not match the visual count-in:
-  // 1 + tick-tick, 2 + tick-tick, 1, 2, 3, 4 + tick-tick.
+  // 1 (tick), pause, 2 (tick), pause, 1, 2, 3, 4!
   //
   // Keep the song's MIDI timing untouched and build the count-in explicitly.
   // This makes the audio land on the same 8-beat structure as the UI.
@@ -83,10 +201,8 @@ export const COUNT_IN_CUES = [
       }
     });
 
-    const countInHits = COUNT_IN_CUES;
-
     const hitVelocity = 112;
-    countInHits.forEach(({ beat, kind }) => {
+    COUNT_IN_CUES.forEach(({ beat, kind }) => {
       const when = origin + (beat - fromBeat) * beatSeconds;
       const volume = Math.max(
         0.02,
@@ -94,22 +210,25 @@ export const COUNT_IN_CUES = [
       );
 
       if (kind === "tick") {
-        // The first tick gets a stronger, slightly fuller transient so it is
-        // reliably audible when Safari is starting the audio context fresh.
-        const isFirstCountTick = beat === 0.25;
         scheduleNoise(
           ctx,
           when,
-          Math.min(beatSeconds * (isFirstCountTick ? 0.055 : 0.045), isFirstCountTick ? 0.028 : 0.022),
-          volume * (isFirstCountTick ? 1.15 : 0.8),
-          0.0005
+          Math.min(beatSeconds * 0.06, 0.03),
+          volume * 0.9,
+          0.001
         );
-      } else if (kind === "number") {
-        scheduleTone(ctx, 75, when, Math.min(beatSeconds * 0.14, 0.12), "sine", volume * 1.8);
       } else {
-        scheduleNoise(ctx, when, Math.min(beatSeconds * 0.11, 0.075), volume * 1.55, 0.001);
+        scheduleTone(
+          ctx,
+          75,
+          when,
+          Math.min(beatSeconds * 0.14, 0.12),
+          "sine",
+          volume * 1.8
+        );
       }
     });
+;
   } else {
     drums?.notes?.forEach(n => scheduleTrackNote(n.note, n.start, n.duration, n.velocity, "drums"));
   }
