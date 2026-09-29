@@ -14,16 +14,12 @@ export const COUNT_IN_CUES = [
   { beat: 2, kind: "number", value: "2" },
   { beat: 2.5, kind: "tick", owner: "2" },
   { beat: 3.5, kind: "number", value: "1" },
-  { beat: 3.75, kind: "tick", owner: "1" },
   { beat: 4, kind: "tick", owner: "1" },
   { beat: 4.5, kind: "number", value: "2" },
-  { beat: 4.75, kind: "tick", owner: "2" },
   { beat: 5, kind: "tick", owner: "2" },
   { beat: 5.5, kind: "number", value: "3" },
-  { beat: 5.75, kind: "tick", owner: "3" },
   { beat: 6, kind: "tick", owner: "3" },
   { beat: 6.5, kind: "number", value: "4" },
-  { beat: 6.75, kind: "tick", owner: "4" },
   { beat: 7, kind: "tick", owner: "4" }
 ];
 
