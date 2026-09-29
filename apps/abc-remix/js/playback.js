@@ -3,7 +3,7 @@
 import { SONGS } from "./songs.js";
 import { COUNT_IN_CUES, scheduleSongAudio, stopAllAudio } from "./audio.js";
 
-const COUNT_IN_BEATS = 8;
+const COUNT_IN_BEATS = 9;
 const GAP_MS = 4000;
 
 export class PlaybackEngine {
