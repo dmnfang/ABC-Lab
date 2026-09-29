@@ -687,10 +687,23 @@ document.getElementById("settingsHomeButton").onclick=()=>location.href="../../i
 
 document.getElementById("fullscreenButton").onclick=async()=>{
   try{
-    if(!document.fullscreenElement){
-      await document.documentElement.requestFullscreen();
+    const isFullscreen=!!(
+      document.fullscreenElement ||
+      document.webkitFullscreenElement
+    );
+
+    if(isFullscreen){
+      if(document.exitFullscreen){
+        await document.exitFullscreen();
+      }else if(document.webkitExitFullscreen){
+        document.webkitExitFullscreen();
+      }
     }else{
-      await document.exitFullscreen();
+      if(document.documentElement.requestFullscreen){
+        await document.documentElement.requestFullscreen();
+      }else if(document.documentElement.webkitRequestFullscreen){
+        document.documentElement.webkitRequestFullscreen();
+      }
     }
   }catch(e){}
 };
