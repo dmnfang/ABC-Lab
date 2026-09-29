@@ -1448,3 +1448,14 @@ html, body {
 @media (max-width:800px){
   .game-home-btn{display:none}
 }
+
+
+/* iPad-safe viewport and compact navigation */
+html, body { min-height: 100dvh; }
+.app-shell { min-height: 100dvh; height: 100dvh; }
+.settings-screen, .game-screen { min-height: 100dvh; height: 100dvh; }
+.settings-header .home-icon-btn { flex: 0 0 auto; }
+@media (max-width: 900px) {
+  .settings-screen { padding-left: max(16px, env(safe-area-inset-left)); padding-right: max(16px, env(safe-area-inset-right)); padding-top: max(16px, env(safe-area-inset-top)); padding-bottom: max(16px, env(safe-area-inset-bottom)); }
+  .game-screen { padding-left: max(16px, env(safe-area-inset-left)); padding-right: max(16px, env(safe-area-inset-right)); padding-bottom: max(18px, env(safe-area-inset-bottom)); }
+}
