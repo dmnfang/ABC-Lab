@@ -50,7 +50,7 @@ function withSlotDurations(songEvents, screenStarts, durationBeats) {
 
 export const SONGS = {
   standard: {
-    name: "Standard", tempo: 100, durationBeats: 56, events: withSlotDurations(standardEvents, [8.5,12.5,16.5,20.5,24.5,28.5,32.5,36.5,40.5,44.5,48.5,52.5], 56.5),
+    name: "Standard", tempo: 100, durationBeats: 56.5, events: withSlotDurations(standardEvents, [8.5,12.5,16.5,20.5,24.5,28.5,32.5,36.5,40.5,44.5,48.5,52.5], 56.5),
     chunks: [
       [0,1,2,3], [4,5,6], [7,8,9,10], [11,12,13], [14,15,16,17], [18,19,20],
       [21,22], [23,24,25], [26,27,28,29], [30,31], [32,33,34,35], [36,37]
@@ -59,7 +59,7 @@ export const SONGS = {
     rows: [[[0],[1]], [[2],[3]], [[4],[5]], [[6],[7]], [[8],[9]], [[10],[11]]]
   },
   lmno: {
-    name: "LMNOP", tempo: 100, durationBeats: 56, events: withSlotDurations(lmnoEvents, [8.5,12.5,16.5,20.5,22.5,24.5,28.5,32.5,36.5,40.5,44.5,48.5,52.5,56.5], 56.5),
+    name: "LMNOP", tempo: 100, durationBeats: 56.5, events: withSlotDurations(lmnoEvents, [8.5,12.5,16.5,20.5,22.5,24.5,28.5,32.5,36.5,40.5,44.5,48.5,52.5,56.5], 56.5),
     chunks: [
       [0,1,2,3], [4,5,6], [7,8,9,10], [11,12,13,14], [15], [16,17,18], [19,20,21],
       [22,23], [24,25,26], [27,28,29,30], [31], [32,33,34,35], [36,37,38]
