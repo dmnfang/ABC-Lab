@@ -387,40 +387,40 @@ html, body {
 </div>
 
 <div id="settingsScreen" class="settings-screen active">
-<header><div class="brand-row"><button id="settingsHomeButton" class="home-link home-icon" type="button" aria-label="ABC Lab home" title="ABC Lab home"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="m3 10 9-7 9 7"/><path d="M5 9v11h14V9"/><path d="M9 20v-6h6v6"/></svg></button><div class="brand">ALPHABET JUMBLE</div></div></header>
-<div class="settings-main">
-  <h1 class="settings-title">Quiz Settings</h1>
-  <p class="settings-sub">Choose the rules for the next quiz.</p>
+<header class="settings-header">
+  <div class="brand-row"><button id="settingsHomeButton" class="home-link home-icon" type="button" aria-label="ABC Lab home" title="ABC Lab home"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="m3 10 9-7 9 7"/><path d="M5 9v11h14V9"/><path d="M9 20v-6h6v6"/></svg></button><div class="brand">ALPHABET JUMBLE</div></div>
+</header>
+<div class="settings-grid">
+  <section class="setting-panel">
+    <h2>Quiz Settings</h2>
+    <div class="control-section">
+      <label>Letter Case</label>
+      <div class="pill-group" role="group" aria-label="Letter case">
+        <button class="pill active" data-setting-case="upper" type="button"><span>ABC</span><span>Uppercase</span></button>
+        <button class="pill" data-setting-case="lower" type="button"><span>abc</span><span>Lowercase</span></button>
+        <button class="pill" data-setting-case="mixed" type="button"><span>Aa</span><span>Mixed case</span></button>
+      </div>
+    </div>
+    <div class="control-section">
+      <label>Letters per Jumble</label>
+      <div class="pill-group count-group" id="countToggles" role="group" aria-label="Letters per jumble"></div>
+      <p class="settings-note">Choose which puzzle sizes can appear.</p>
+    </div>
+  </section>
 
-  <div class="settings-grid">
-    <section>
-      <div class="setting-label">Letter case</div>
-      <div class="setting-card setting-options">
-        <button class="option-btn active" data-setting-case="upper"><span>ABC</span><span>Uppercase</span></button>
-        <button class="option-btn" data-setting-case="lower"><span>abc</span><span>Lowercase</span></button>
-        <button class="option-btn" data-setting-case="mixed"><span>Aa</span><span>Mixed case</span></button>
+  <section class="setting-panel setting-panel-right">
+    <h2>Quiz Length</h2>
+    <div class="control-section">
+      <label>Number of Questions</label>
+      <div class="pill-group question-group" role="group" aria-label="Number of questions">
+        <button class="pill active" data-questions="10" type="button">10 questions</button>
+        <button class="pill" data-questions="15" type="button">15 questions</button>
+        <button class="pill" data-questions="20" type="button">20 questions</button>
+        <button class="pill" data-questions="999" type="button">Unlimited</button>
       </div>
-
-      <div class="setting-label" style="margin-top:24px">Letters per jumble</div>
-      <div class="setting-card" style="padding:16px">
-        <div class="letter-counts" id="countToggles"></div>
-        <div class="note">Choose which puzzle sizes can appear.</div>
-      </div>
-    </section>
-
-    <section>
-      <div class="setting-label">Number of questions</div>
-      <div class="setting-card setting-options">
-        <button class="option-btn active" data-questions="10">10 questions</button>
-        <button class="option-btn" data-questions="15">15 questions</button>
-        <button class="option-btn" data-questions="20">20 questions</button>
-        <button class="option-btn" data-questions="999">Unlimited</button>
-      </div>
-      <div class="settings-actions">
-        <button id="startQuiz" class="play-btn">START QUIZ</button>
-      </div>
-    </section>
-  </div>
+    </div>
+    <button id="startQuiz" class="launch-button" type="button">Start Quiz</button>
+  </section>
 </div>
 </div>
 
