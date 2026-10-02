@@ -228,9 +228,10 @@ export async function scheduleSongAudio(midiData, speed, startAt = null, fromBea
     drums?.notes?.forEach(n => scheduleTrackNote(n.note, n.start, n.duration, n.velocity, "drums"));
   }
 
-  const performanceStart = startAt == null
-    ? getPerformanceTimeForContextTime(ctx, origin)
-    : getPerformanceTimeForContextTime(ctx, origin);
+  // Establish the visual clock from the exact audio scheduling origin.
+  // Do not use getOutputTimestamp() here. On a freshly resumed Safari/iPad
+  // context, its last-output sample can lag behind the newly scheduled audio.
+  const performanceStart = nowPerformance + (origin - nowContext) * 1000;
 
   return {
     contextStart: origin,
