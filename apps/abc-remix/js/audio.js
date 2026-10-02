@@ -8,30 +8,19 @@ let audioContext = null;
 let masterGain = null;
 const activeSources = new Set();
 
-// One authoritative count-in timeline. Audio and the visual count-in both use
-// these exact beat positions.
+// One authoritative 4/4 count-in timeline. The count-in is two complete
+// measures, followed by the alphabet on the downbeat of the next measure.
+// Audio and the visual count-in both use these exact beat positions.
 export const COUNT_IN_CUES = [
   { beat: 0, kind: "number", value: "1" },
-  { beat: 0.5, kind: "tick", owner: "1" },
-
-  { beat: 2, kind: "number", value: "2" },
-  { beat: 2.5, kind: "tick", owner: "2" },
+  { beat: 1, kind: "number", value: "2" },
+  { beat: 2, kind: "number", value: "3" },
+  { beat: 3, kind: "number", value: "4" },
 
   { beat: 4, kind: "number", value: "1" },
-  { beat: 4.25, kind: "tick", owner: "1" },
-  { beat: 4.5, kind: "tick", owner: "1" },
-
   { beat: 5, kind: "number", value: "2" },
-  { beat: 5.25, kind: "tick", owner: "2" },
-  { beat: 5.5, kind: "tick", owner: "2" },
-
   { beat: 6, kind: "number", value: "3" },
-  { beat: 6.25, kind: "tick", owner: "3" },
-  { beat: 6.5, kind: "tick", owner: "3" },
-
-  { beat: 7, kind: "number", value: "4" },
-  { beat: 7.25, kind: "tick", owner: "4" },
-  { beat: 7.5, kind: "tick", owner: "4" }
+  { beat: 7, kind: "number", value: "4" }
 ];
 
 export const COUNT_IN_BEATS = 8;
@@ -157,16 +146,16 @@ export async function scheduleSongAudio(midiData, speed, startAt = null, fromBea
   const origin = startAt ?? (nowContext + leadSeconds);
   const beatSeconds = 60 / midiData.tempo / speed;
   const tracks = midiData.tracks || [];
-  const SONG_OFFSET_BEATS = 0.5;
 
   const scheduleTrackNote = (note, start, duration, velocity, voice) => {
     if (start < 8) return;
 
-    const shiftedStart = start + SONG_OFFSET_BEATS;
-    const end = shiftedStart + duration;
+    // The supplied MIDI begins the alphabet on beat 8, exactly after the
+    // two-measure count-in. Do not add a transition offset here.
+    const end = start + duration;
     if (end <= fromBeat) return;
 
-    const effectiveStart = Math.max(shiftedStart, fromBeat);
+    const effectiveStart = Math.max(start, fromBeat);
     const effectiveDuration = Math.max(0.035, end - effectiveStart);
     const when = origin + (effectiveStart - fromBeat) * beatSeconds;
     const seconds = effectiveDuration * beatSeconds;
