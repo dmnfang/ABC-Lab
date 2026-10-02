@@ -1459,3 +1459,14 @@ html, body { min-height: 100dvh; }
   .settings-screen { padding-left: max(16px, env(safe-area-inset-left)); padding-right: max(16px, env(safe-area-inset-right)); padding-top: max(16px, env(safe-area-inset-top)); padding-bottom: max(16px, env(safe-area-inset-bottom)); }
   .game-screen { padding-left: max(16px, env(safe-area-inset-left)); padding-right: max(16px, env(safe-area-inset-right)); padding-bottom: max(18px, env(safe-area-inset-bottom)); }
 }
+
+
+/* Launch action lives with the final preview/settings decision. */
+.preview-card {
+  display: flex;
+  flex-direction: column;
+}
+.preview-launch-button {
+  margin-top: auto;
+  flex-shrink: 0;
+}
