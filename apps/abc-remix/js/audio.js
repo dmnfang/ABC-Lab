@@ -8,6 +8,34 @@ let audioContext = null;
 let masterGain = null;
 const activeSources = new Set();
 
+// One authoritative count-in timeline. Audio and the visual count-in both use
+// these exact beat positions.
+export const COUNT_IN_CUES = [
+  { beat: 0, kind: "number", value: "1" },
+  { beat: 0.5, kind: "tick", owner: "1" },
+
+  { beat: 2, kind: "number", value: "2" },
+  { beat: 2.5, kind: "tick", owner: "2" },
+
+  { beat: 4, kind: "number", value: "1" },
+  { beat: 4.25, kind: "tick", owner: "1" },
+  { beat: 4.5, kind: "tick", owner: "1" },
+
+  { beat: 5, kind: "number", value: "2" },
+  { beat: 5.25, kind: "tick", owner: "2" },
+  { beat: 5.5, kind: "tick", owner: "2" },
+
+  { beat: 6, kind: "number", value: "3" },
+  { beat: 6.25, kind: "tick", owner: "3" },
+  { beat: 6.5, kind: "tick", owner: "3" },
+
+  { beat: 7, kind: "number", value: "4" },
+  { beat: 7.25, kind: "tick", owner: "4" },
+  { beat: 7.5, kind: "tick", owner: "4" }
+];
+
+export const COUNT_IN_BEATS = 9;
+
 function getAudioContext() {
   if (!audioContext) {
     const AudioCtx = window.AudioContext || window.webkitAudioContext;
@@ -171,23 +199,14 @@ export async function scheduleSongAudio(midiData, speed, startAt = null, fromBea
   //
   // Keep the song's MIDI timing untouched and build the count-in explicitly.
   // This makes the audio land on the same 8-beat structure as the UI.
-  if (fromBeat < 9) {
+  if (fromBeat < COUNT_IN_BEATS) {
     drums?.notes?.forEach(n => {
       if (n.start >= 8) {
         scheduleTrackNote(n.note, n.start, n.duration, n.velocity, "drums");
       }
     });
 
-    const countInHits = [
-      { beat: 0, type: "number" },
-      { beat: 1, type: "tick" },
-      { beat: 2, type: "number" },
-      { beat: 3, type: "tick" },
-      { beat: 5, type: "count" },
-      { beat: 6, type: "count" },
-      { beat: 7, type: "count" },
-      { beat: 8, type: "count" }
-    ];
+    const countInHits = COUNT_IN_CUES;
 
     const hitVelocity = 112;
     countInHits.forEach(({ beat, type }) => {
