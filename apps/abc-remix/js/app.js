@@ -245,8 +245,11 @@ function renderCountIn(event) {
   }
   countInStage.innerHTML = "";
   const row = document.createElement("div");
-  row.className = `count-in-row ${event.type === "sequence" ? "count-in-sequence" : "count-in-single"}`;
-  event.values.forEach((value, index) => {
+  const isCountdown = event.type === "countdown";
+  row.className = `count-in-row ${isCountdown ? "count-in-countdown" : event.type === "sequence" ? "count-in-sequence" : "count-in-single"}`;
+
+  const values = isCountdown ? [event.value] : (event.values ?? []);
+  values.forEach((value, index) => {
     const text = document.createElement("div");
     text.className = "count-word";
     text.textContent = value;
