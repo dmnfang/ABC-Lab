@@ -6,6 +6,7 @@
 
 let audioContext = null;
 let masterGain = null;
+const activeSources = new Set();
 
 function getAudioContext() {
   if (!audioContext) {
@@ -53,6 +54,8 @@ function scheduleTone(ctx, frequency, when, duration, type, volume) {
   oscillator.connect(gain);
   gain.connect(masterGain);
 
+  activeSources.add(oscillator);
+  oscillator.addEventListener?.("ended", () => activeSources.delete(oscillator));
   oscillator.start(when);
   oscillator.stop(when + duration + 0.02);
 }
@@ -91,13 +94,13 @@ function scheduleNoise(ctx, when, duration, volume, attack = 0.001) {
   filter.connect(gain);
   gain.connect(masterGain);
 
+  activeSources.add(source);
+  source.addEventListener?.("ended", () => activeSources.delete(source));
   source.start(when);
   source.stop(when + duration + 0.01);
 }
 
-function getOutputTimestamp() {
-  const ctx = getAudioContext();
-
+function getPerformanceTimeForContextTime(ctx, contextTime) {
   if (typeof ctx.getOutputTimestamp === "function") {
     const timestamp = ctx.getOutputTimestamp();
     if (
@@ -105,23 +108,19 @@ function getOutputTimestamp() {
       Number.isFinite(timestamp.contextTime) &&
       Number.isFinite(timestamp.performanceTime)
     ) {
-      return timestamp;
+      return timestamp.performanceTime + (contextTime - timestamp.contextTime) * 1000;
     }
   }
 
-  return {
-    contextTime: ctx.currentTime,
-    performanceTime: performance.now()
-  };
+  return performance.now() + (contextTime - ctx.currentTime) * 1000;
 }
 
 export async function scheduleSongAudio(midiData, speed, startAt = null, fromBeat = 0) {
   const ctx = await ensureRunning();
 
-  // Keep the visual clock on performance.now(). Using getOutputTimestamp()
-  // here can produce a stale/offset clock on Safari/iPad after the audio
-  // context has been recreated or resumed. We schedule audio from the same
-  // moment we establish the visual start time.
+  // Audio is scheduled against AudioContext.currentTime. The visual clock is
+  // mapped to that same audio timeline below, so replaying never creates a
+  // second independent clock.
   const leadSeconds = 0.12;
   const nowPerformance = performance.now();
   const nowContext = ctx.currentTime;
@@ -211,8 +210,8 @@ export async function scheduleSongAudio(midiData, speed, startAt = null, fromBea
   }
 
   const performanceStart = startAt == null
-    ? nowPerformance + leadSeconds * 1000
-    : performance.now();
+    ? getPerformanceTimeForContextTime(ctx, origin)
+    : getPerformanceTimeForContextTime(ctx, origin);
 
   return {
     contextStart: origin,
@@ -225,14 +224,20 @@ export async function playMidiNote() {
 }
 
 export function stopAllAudio() {
-  if (!audioContext) return;
-
-  try {
-    audioContext.close();
-  } catch (error) {
-    console.warn("Unable to close audio context:", error);
+  for (const source of activeSources) {
+    try {
+      source.stop();
+    } catch {
+      // The source may already have ended.
+    }
+    try {
+      source.disconnect();
+    } catch {
+      // Ignore already-disconnected sources.
+    }
   }
+  activeSources.clear();
 
-  audioContext = null;
-  masterGain = null;
+  // Keep the AudioContext alive. Reusing one audio clock prevents replay
+  // timing from changing between launches/loops.
 }
