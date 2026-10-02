@@ -217,22 +217,56 @@ html,body{min-height:100dvh;overflow:hidden}
 <body>
 <div class="app">
 <header><div class="brand-row"><button class="icon home-icon" id="homeBtn" title="ABC Lab" aria-label="ABC Lab home"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="m3 10 9-7 9 7"/><path d="M5 9v11h14V9"/><path d="M9 20v-6h6v6"/></svg></button><div class="brand">ABC TRAIL</div></div><div class="header-controls"><button class="icon play-control" id="playBtn" title="Play" aria-label="Play">▶</button><button class="icon" id="nextBtn" title="Next" aria-label="Next" disabled>→</button><button class="icon" id="revealBtn" title="Reveal" aria-label="Reveal" disabled>◉</button></div><div class="header-actions"><button class="head-btn" id="settingsBtn">SETTINGS</button><button class="icon" id="fullBtn" title="Fullscreen">⛶</button></div></header>
-<section class="settings" id="settingsView"><div class="settings-card">
+<section class="settings" id="settingsView">
 <div class="settings-grid">
-<div class="setting"><h2>Trail Settings</h2><p class="panel-sub">Choose how the invisible trace feels.</p>
-<div class="label">TRACE SPEED</div><div class="segment" id="speed"><button data-v="0.7">SLOW</button><button class="active" data-v="1">NORMAL</button><button data-v="1.35">FAST</button><button data-v="1.8">VERY FAST</button></div>
-<div class="label">TRAIL LENGTH</div><div class="segment" id="trail"><button data-v="0">NONE</button><button data-v="1">SHORT</button><button class="active" data-v="2">MEDIUM</button><button data-v="3">LONG</button></div>
-<div class="label">LETTER CASE</div><div class="segment two" id="case"><button data-v="uppercase" class="active">UPPERCASE</button><button data-v="lowercase">LOWERCASE</button></div>
-<div class="label">LETTERS PER SEQUENCE</div><div class="segment six" id="count"><button data-v="1" class="active">1</button><button data-v="2">2</button><button data-v="3">3</button><button data-v="4">4</button><button data-v="5">5</button><button data-v="6">6</button></div>
-<p class="hint">The app draws this many different letters consecutively from the mastered-letter pool. Letters do not repeat within a sequence.</p>
-</div>
-<div class="setting"><h2>Letter Pool</h2><p class="panel-sub">Select the letters your students have mastered.</p>
+  <section class="setting-panel">
+    <h2>Trail Settings</h2>
+    <div class="control-section">
+      <label>Trace Speed</label>
+      <div class="pill-group" id="speed" role="group" aria-label="Trace speed">
+        <button class="pill" data-v="0.7">Slow</button>
+        <button class="pill active" data-v="1">Normal</button>
+        <button class="pill" data-v="1.35">Fast</button>
+        <button class="pill" data-v="1.8">Very Fast</button>
+      </div>
+    </div>
+    <div class="control-section">
+      <label>Trail Length</label>
+      <div class="pill-group" id="trail" role="group" aria-label="Trail length">
+        <button class="pill" data-v="0">None</button>
+        <button class="pill" data-v="1">Short</button>
+        <button class="pill active" data-v="2">Medium</button>
+        <button class="pill" data-v="3">Long</button>
+      </div>
+    </div>
+    <div class="control-section">
+      <label>Letter Case</label>
+      <div class="pill-group" id="case" role="group" aria-label="Letter case">
+        <button class="pill active" data-v="uppercase">Uppercase</button>
+        <button class="pill" data-v="lowercase">Lowercase</button>
+      </div>
+    </div>
+    <div class="control-section">
+      <label>Letters per Sequence</label>
+      <div class="pill-group count-group" id="count" role="group" aria-label="Letters per sequence">
+        <button class="pill active" data-v="1">1</button><button class="pill" data-v="2">2</button><button class="pill" data-v="3">3</button><button class="pill" data-v="4">4</button><button class="pill" data-v="5">5</button><button class="pill" data-v="6">6</button>
+      </div>
+      <p class="settings-note">Letters are selected from the mastered-letter pool and do not repeat within a sequence.</p>
+    </div>
+  </section>
 
-<div class="label">MASTERED LETTERS</div><div class="letters" id="letters"></div><div class="actions"><button class="mini" id="all">SELECT ALL</button><button class="mini" id="clear">CLEAR ALL</button></div>
-<button class="launch" id="start">START TRAIL</button>
-</div></div>
-</div></section>
-<section class="play" id="play" style="display:none">
+  <section class="setting-panel setting-panel-right">
+    <h2>Letter Pool</h2>
+    <p class="panel-sub">Select the letters your students have mastered.</p>
+    <div class="control-section pool-section">
+      <label>Mastered Letters</label>
+      <div class="letters" id="letters"></div>
+      <div class="actions"><button class="mini" id="all">Select All</button><button class="mini" id="clear">Clear All</button></div>
+    </div>
+    <button class="launch-button" id="start" type="button">Start Trail</button>
+  </section>
+</div>
+</section><section class="play" id="play" style="display:none">
 <div class="play-layout">
 <div class="stage"><div class="stage-top"><div class="badge" id="badge">LETTER 1 OF 1</div><div class="sequence" id="sequence"></div></div><div class="stage-main" id="stageMain"><svg id="svg" viewBox="0 0 100 100" preserveAspectRatio="xMidYMid meet"><g id="trailLayer"></g><g id="dotLayer"></g></svg><div class="answer" id="answer"><div class="answer-feedback" id="answerFeedback"></div><span id="answerLetter"></span></div><div class="prompt" id="prompt">GET READY...</div></div></div>
 <aside class="guess-rail"><div class="guess-title">YOUR GUESS</div><div class="guess-value" id="guessValue">?</div><div class="guess-grid" id="guessGrid"></div><button class="check-btn" id="checkBtn" disabled>CHECK</button></aside>
