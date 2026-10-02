@@ -149,8 +149,10 @@ export async function scheduleSongAudio(midiData, speed, startAt = null, fromBea
   // Audio is scheduled against AudioContext.currentTime. The visual clock is
   // mapped to that same audio timeline below, so replaying never creates a
   // second independent clock.
-  const leadSeconds = 0.12;
-  const nowPerformance = performance.now();
+  // Give the first-run scheduler enough look-ahead to finish creating every
+  // oscillator/noise node before beat zero reaches the audio output.
+  // This matters especially on a freshly-created Safari/iPad context.
+  const leadSeconds = 0.6;
   const nowContext = ctx.currentTime;
   const origin = startAt ?? (nowContext + leadSeconds);
   const beatSeconds = 60 / midiData.tempo / speed;
@@ -228,10 +230,12 @@ export async function scheduleSongAudio(midiData, speed, startAt = null, fromBea
     drums?.notes?.forEach(n => scheduleTrackNote(n.note, n.start, n.duration, n.velocity, "drums"));
   }
 
-  // Establish the visual clock from the exact audio scheduling origin.
-  // Do not use getOutputTimestamp() here. On a freshly resumed Safari/iPad
-  // context, its last-output sample can lag behind the newly scheduled audio.
-  const performanceStart = nowPerformance + (origin - nowContext) * 1000;
+  // Take the performance timestamp AFTER all nodes have been created and
+  // scheduled. On first launch, scheduling itself can take long enough to make
+  // a timestamp captured at the top of this function stale.
+  //
+  // Both clocks now point at the same future AudioContext origin.
+  const performanceStart = performance.now() + (origin - ctx.currentTime) * 1000;
 
   return {
     contextStart: origin,
