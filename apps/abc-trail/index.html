@@ -20,55 +20,86 @@ header{height:64px;flex:0 0 64px;background:var(--panel);border-bottom:1px solid
 @media(max-width:760px){
 html,body{min-height:100dvh;overflow:hidden}
 .app{height:100dvh;min-height:100dvh;overflow:hidden}
-.settings-grid{grid-template-columns:1fr}.letters{grid-template-columns:repeat(9,1fr)}.segment.six{grid-template-columns:repeat(3,1fr)}.play{padding:10px}.play-layout{grid-template-columns:1fr}.guess-rail{max-height:260px}.stage-top{grid-template-columns:1fr auto;gap:8px}.header-actions .head-btn{display:none}.header-actions .icon{display:grid}.header-controls{gap:4px}.header-controls .icon{width:38px;height:38px}.stage-main{margin:0 10px 10px}.app{height:100dvh;min-height:100dvh;overflow:hidden}.settings{align-items:flex-start;padding:24px 16px 28px}.settings-card{margin:auto 0}}
+.settings-grid{grid-template-columns:1fr;overflow-y:auto}
+.letters{grid-template-columns:repeat(9,1fr)}
+.segment.six{grid-template-columns:repeat(3,1fr)}
+.play{padding:10px}
+.play-layout{grid-template-columns:1fr}
+.guess-rail{max-height:260px}
+.stage-top{grid-template-columns:1fr auto;gap:8px}
+.header-actions .head-btn{display:none}
+.header-actions .icon{display:grid}
+.header-controls{gap:4px}
+.header-controls .icon{width:38px;height:38px}
+.stage-main{margin:0 10px 10px}
+.settings{align-items:flex-start;padding:16px}
+.setting{padding:22px}
+}
 .header-controls svg,.header-actions svg{width:20px;height:20px}
 /* Keep play controls out of the settings state. */
 #playScreen[style*="display: none"]{display:none!important}
 @media(max-width:760px){header{padding-left:max(16px,env(safe-area-inset-left));padding-right:max(16px,env(safe-area-inset-right))}}
 
-/* ABC Remix visual language */
+/* ABC Remix settings language */
 .settings{
   width:100%;
   height:100%;
   flex:1 1 auto;
   min-height:0;
+  overflow:auto;
   padding:24px 22px 22px;
+  display:flex;
   align-items:stretch;
+  justify-content:center;
 }
 .settings-card{
-  background:var(--panel);
-  border:2px solid var(--line);
-  border-radius:24px;
-  padding:28px 32px;
-}
-.settings-grid{
   width:min(1180px,100%);
   min-height:0;
-  flex:1 1 auto;
+  background:transparent;
+  border:0;
+  border-radius:0;
+  padding:0;
+}
+.settings-grid{
+  width:100%;
   height:100%;
+  min-height:0;
+  flex:1 1 auto;
+  display:grid;
+  grid-template-columns:1fr 1fr;
   gap:24px;
   align-items:stretch;
 }
 .setting{
+  min-width:0;
+  min-height:0;
+  background:transparent;
+  border:0;
+  border-radius:0;
   padding:28px 32px;
-  border-radius:24px;
+  display:flex;
+  flex-direction:column;
+  overflow:visible;
 }
 .setting h2{
   font-family:Fredoka,sans-serif;
   font-size:28px;
   line-height:1;
   font-weight:500;
+  margin:0 0 7px;
 }
 .panel-sub{
-  font-size:14px;
-  color:var(--text-secondary,var(--muted));
+  font-size:13px;
+  line-height:1.3;
+  color:var(--muted);
+  margin:0 0 20px;
 }
 .label{
+  font-family:Nunito,sans-serif;
   font-size:14px;
   line-height:1.2;
   font-weight:800;
-  letter-spacing:.02em;
-  color:var(--text-secondary,var(--muted));
+  letter-spacing:.01em;
   margin:24px 0 12px;
 }
 .segment{
@@ -81,17 +112,23 @@ html,body{min-height:100dvh;overflow:hidden}
   padding:0 20px;
   border:0;
   border-radius:9999px;
-  background:var(--sand-100,#ede6d4);
-  color:var(--ink);
+  background:#EDE6D4;
+  color:#353127;
+  font-family:Nunito,sans-serif;
+  font-size:16px;
+  line-height:1;
   font-weight:800;
+  letter-spacing:-.01em;
+  white-space:nowrap;
   transition:background .12s ease,color .12s ease,transform .12s ease;
 }
 .segment button:hover{transform:translateY(-1px)}
 .segment button.active{
-  background:var(--ink);
-  border-color:var(--ink);
+  background:#353127;
   color:#fff;
 }
+.segment.two{grid-template-columns:repeat(2,1fr)}
+.segment.two button{flex:0 0 auto}
 .segment.six{
   display:grid;
   grid-template-columns:repeat(6,minmax(0,1fr));
@@ -102,48 +139,76 @@ html,body{min-height:100dvh;overflow:hidden}
   padding:0;
 }
 .letters{
+  display:grid;
+  grid-template-columns:repeat(13,1fr);
   gap:8px;
 }
 .letter{
-  border:2px solid var(--line);
+  aspect-ratio:1;
+  border:0;
   border-radius:12px;
-  background:var(--panel);
+  background:#fff;
+  font-family:Nunito,sans-serif;
+  font-size:16px;
+  line-height:1;
   font-weight:800;
 }
 .letter.active{
-  background:var(--sand);
-  border-color:var(--sand);
+  background:#EAD0A4;
+  border:0;
 }
-.actions{gap:10px;margin-top:10px}
+.actions{
+  display:flex;
+  gap:10px;
+  margin-top:10px;
+}
 .mini{
+  height:42px;
+  padding:0 16px;
   border:0;
   border-radius:9999px;
-  background:var(--sand-100,#ede6d4);
-  padding:0 16px;
-  height:42px;
+  background:#EDE6D4;
+  color:#353127;
+  font-family:Nunito,sans-serif;
   font-size:12px;
+  line-height:1;
   font-weight:800;
+  white-space:nowrap;
 }
 .hint{
   font-size:13px;
   line-height:1.35;
   color:var(--muted);
-  margin-top:12px;
+  margin:12px 0 0;
 }
-.launch{
+#start.launch{
+  width:100%;
   height:76px;
+  margin-top:auto;
+  flex-shrink:0;
+  border:0;
   border-radius:18px;
-  margin-top:18px;
-  box-shadow:inset 0 -5px 0 #5f3c82;
+  background:#9B6BC7;
+  color:#fff;
+  font-family:Nunito,sans-serif;
+  font-size:17px;
+  line-height:1;
+  font-weight:900;
+  letter-spacing:0;
+  box-shadow:inset 0 -5px 0 #764A9C;
+}
+#start.launch:active{
+  transform:translateY(3px);
+  box-shadow:inset 0 -2px 0 #764A9C;
 }
 @media(max-height:760px) and (min-width:761px){
   .settings{padding:18px 22px}
-  .settings-grid{gap:18px}
   .setting{padding:22px 26px}
   .setting h2{font-size:25px}
+  .panel-sub{margin-bottom:14px}
   .label{margin-top:17px;margin-bottom:9px}
-  .segment button{height:44px;padding:0 16px}
-  .launch{height:64px;margin-top:12px}
+  .segment button{height:44px;padding:0 16px;font-size:15px}
+  .launch{height:64px}
 }
 </style>
 </head>
@@ -155,14 +220,15 @@ html,body{min-height:100dvh;overflow:hidden}
 <div class="setting"><h2>Trail Settings</h2><p class="panel-sub">Choose how the invisible trace feels.</p>
 <div class="label">TRACE SPEED</div><div class="segment" id="speed"><button data-v="0.7">SLOW</button><button class="active" data-v="1">NORMAL</button><button data-v="1.35">FAST</button><button data-v="1.8">VERY FAST</button></div>
 <div class="label">TRAIL LENGTH</div><div class="segment" id="trail"><button data-v="0">NONE</button><button data-v="1">SHORT</button><button class="active" data-v="2">MEDIUM</button><button data-v="3">LONG</button></div>
+<div class="label">LETTER CASE</div><div class="segment two" id="case"><button data-v="uppercase" class="active">UPPERCASE</button><button data-v="lowercase">LOWERCASE</button></div>
 <div class="label">LETTERS PER SEQUENCE</div><div class="segment six" id="count"><button data-v="1" class="active">1</button><button data-v="2">2</button><button data-v="3">3</button><button data-v="4">4</button><button data-v="5">5</button><button data-v="6">6</button></div>
 <p class="hint">The app draws this many different letters consecutively from the mastered-letter pool. Letters do not repeat within a sequence.</p>
 </div>
 <div class="setting"><h2>Letter Pool</h2><p class="panel-sub">Select the letters your students have mastered.</p>
-<div class="label">LETTER CASE</div><div class="segment two" id="case"><button data-v="uppercase" class="active">UPPERCASE</button><button data-v="lowercase">LOWERCASE</button></div>
+
 <div class="label">MASTERED LETTERS</div><div class="letters" id="letters"></div><div class="actions"><button class="mini" id="all">SELECT ALL</button><button class="mini" id="clear">CLEAR ALL</button></div>
-</div></div>
 <button class="launch" id="start">START TRAIL</button>
+</div></div>
 </div></section>
 <section class="play" id="play" style="display:none">
 <div class="play-layout">
