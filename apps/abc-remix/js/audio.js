@@ -8,22 +8,10 @@ let audioContext = null;
 let masterGain = null;
 const activeSources = new Set();
 
-// One authoritative 4/4 count-in timeline. The count-in is two complete
-// measures, followed by the alphabet on the downbeat of the next measure.
-// Audio and the visual count-in both use these exact beat positions.
-export const COUNT_IN_CUES = [
-  { beat: 0, kind: "number", value: "1" },
-  { beat: 1, kind: "number", value: "2" },
-  { beat: 2, kind: "number", value: "3" },
-  { beat: 3, kind: "number", value: "4" },
-
-  { beat: 4, kind: "number", value: "1" },
-  { beat: 5, kind: "number", value: "2" },
-  { beat: 6, kind: "number", value: "3" },
-  { beat: 7, kind: "number", value: "4" }
-];
-
-export const COUNT_IN_BEATS = 8;
+// The launch countdown is a UI sequence, not part of the music.
+// The actual song begins on its own MIDI timeline after the countdown.
+export const COUNT_IN_CUES = [];
+export const COUNT_IN_BEATS = 0;
 
 function getAudioContext() {
   if (!audioContext) {
@@ -190,34 +178,13 @@ export async function scheduleSongAudio(midiData, speed, startAt = null, fromBea
   //
   // Keep the song's MIDI timing untouched and build the count-in explicitly.
   // This makes the audio land on the same 8-beat structure as the UI.
-  if (fromBeat < COUNT_IN_BEATS) {
-    drums?.notes?.forEach(n => {
-      if (n.start >= 8) {
-        scheduleTrackNote(n.note, n.start, n.duration, n.velocity, "drums");
-      }
-    });
-
-    const countInHits = COUNT_IN_CUES;
-
-    const hitVelocity = 112;
-    countInHits.forEach(({ beat, kind }) => {
-      const when = origin + (beat - fromBeat) * beatSeconds;
-      const volume = Math.max(
-        0.02,
-        Math.min(0.22, (hitVelocity / 127) * 0.14)
-      );
-
-      if (kind === "tick") {
-        scheduleNoise(ctx, when, Math.min(beatSeconds * 0.12, 0.055), volume * 0.72, 0.001);
-      } else if (kind === "number") {
-        scheduleTone(ctx, 75, when, Math.min(beatSeconds * 0.14, 0.12), "sine", volume * 1.8);
-      } else {
-        scheduleNoise(ctx, when, Math.min(beatSeconds * 0.11, 0.075), volume * 1.55, 0.001);
-      }
-    });
-  } else {
-    drums?.notes?.forEach(n => scheduleTrackNote(n.note, n.start, n.duration, n.velocity, "drums"));
-  }
+  // The countdown is handled entirely by the UI. Schedule only the actual
+  // song MIDI, beginning at the supplied MIDI song start (beat 8).
+  drums?.notes?.forEach(n => {
+    if (n.start >= 8) {
+      scheduleTrackNote(n.note, n.start, n.duration, n.velocity, "drums");
+    }
+  });
 
   // Take the performance timestamp AFTER all nodes have been created and
   // scheduled. On first launch, scheduling itself can take long enough to make
