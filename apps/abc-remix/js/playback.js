@@ -287,9 +287,18 @@ export class PlaybackEngine {
     this.rafId = null;
 
     if (this.loopNumber >= this.loops) {
+      // A completed song is a terminal state, not a paused position. Reset the
+      // playback cursor so the next Play/Launch can only begin at beat zero.
       this.playing = false;
       this.paused = false;
       this.inGap = false;
+      this.gapRemainingMs = 0;
+      this.positionBeat = 0;
+      this.eventCursor = 0;
+      this.index = 0;
+      this.loopNumber = 0;
+      this.countKey = "";
+      this.onCountIn?.({ type: "clear", values: [] });
       this.onState?.("finished");
       this.onFinish?.();
       return;
