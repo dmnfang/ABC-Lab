@@ -209,16 +209,16 @@ export async function scheduleSongAudio(midiData, speed, startAt = null, fromBea
     const countInHits = COUNT_IN_CUES;
 
     const hitVelocity = 112;
-    countInHits.forEach(({ beat, type }) => {
+    countInHits.forEach(({ beat, kind }) => {
       const when = origin + (beat - fromBeat) * beatSeconds;
       const volume = Math.max(
         0.02,
         Math.min(0.22, (hitVelocity / 127) * 0.14)
       );
 
-      if (type === "tick") {
+      if (kind === "tick") {
         scheduleNoise(ctx, when, Math.min(beatSeconds * 0.12, 0.055), volume * 0.72, 0.001);
-      } else if (type === "number") {
+      } else if (kind === "number") {
         scheduleTone(ctx, 75, when, Math.min(beatSeconds * 0.14, 0.12), "sine", volume * 1.8);
       } else {
         scheduleNoise(ctx, when, Math.min(beatSeconds * 0.11, 0.075), volume * 1.55, 0.001);
