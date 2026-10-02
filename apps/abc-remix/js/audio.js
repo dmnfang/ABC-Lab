@@ -157,7 +157,7 @@ export async function scheduleSongAudio(midiData, speed, startAt = null, fromBea
   const origin = startAt ?? (nowContext + leadSeconds);
   const beatSeconds = 60 / midiData.tempo / speed;
   const tracks = midiData.tracks || [];
-  const SONG_OFFSET_BEATS = 0;
+  const SONG_OFFSET_BEATS = 0.5;
 
   const scheduleTrackNote = (note, start, duration, velocity, voice) => {
     if (start < 8) return;
