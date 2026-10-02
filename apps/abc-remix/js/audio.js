@@ -34,7 +34,7 @@ export const COUNT_IN_CUES = [
   { beat: 7.5, kind: "tick", owner: "4" }
 ];
 
-export const COUNT_IN_BEATS = 9;
+export const COUNT_IN_BEATS = 8;
 
 function getAudioContext() {
   if (!audioContext) {
@@ -155,7 +155,7 @@ export async function scheduleSongAudio(midiData, speed, startAt = null, fromBea
   const origin = startAt ?? (nowContext + leadSeconds);
   const beatSeconds = 60 / midiData.tempo / speed;
   const tracks = midiData.tracks || [];
-  const SONG_OFFSET_BEATS = 1;
+  const SONG_OFFSET_BEATS = 0;
 
   const scheduleTrackNote = (note, start, duration, velocity, voice) => {
     if (start < 8) return;
