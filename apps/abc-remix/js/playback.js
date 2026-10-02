@@ -1,9 +1,11 @@
 /* ABC Remix playback timing */
 
 import { SONGS } from "./songs.js";
-import { scheduleSongAudio, stopAllAudio, COUNT_IN_CUES, COUNT_IN_BEATS } from "./audio.js";
+import { scheduleSongAudio, stopAllAudio } from "./audio.js";
 
 const GAP_MS = 4000;
+const COUNTDOWN_MS = 3500;
+const COUNTDOWN_STEPS = ["3", "2", "1", "GO!"];
 
 export class PlaybackEngine {
   constructor({ onSlot, onCountIn, onTimeline, onState, onFinish } = {}) {
@@ -30,6 +32,8 @@ export class PlaybackEngine {
     this.eventCursor = 0;
     this.index = 0;
     this.countKey = "";
+    this.countdownTimer = null;
+    this.countdownToken = 0;
     this.phaseStartedAt = 0;
     this.loopTimer = null;
     this.rafId = null;
@@ -120,7 +124,9 @@ export class PlaybackEngine {
   async startLoop(session = this.sessionId) {
     cancelAnimationFrame(this.rafId);
     clearTimeout(this.loopTimer);
+    clearTimeout(this.countdownTimer);
     this.loopTimer = null;
+    this.countdownTimer = null;
     stopAllAudio();
 
     this.positionBeat = 0;
@@ -129,19 +135,62 @@ export class PlaybackEngine {
     this.inGap = false;
     this.gapRemainingMs = 0;
 
-    const audio = this.midiData
-      ? await scheduleSongAudio(this.midiData, this.speed)
-      : null;
+    const countdownToken = ++this.countdownToken;
+    this.onCountIn?.({ type: "countdown", value: "3", index: 0 });
 
-    // The user may have returned to settings or launched a new session while
-    // the audio context was being prepared. Never let the old run continue.
-    if (!this.playing || this.sessionId !== session) return;
+    const audioPromise = this.midiData
+      ? scheduleSongAudio(this.midiData, this.speed)
+      : Promise.resolve(null);
 
-    this.phaseStartedAt = audio?.performanceStart ?? performance.now();
-    this.countKey = "";
-    this.onState?.("loop-start");
-    this.renderTimelineState();
-    this.rafId = requestAnimationFrame(this.tick);
+    // Prepare the actual song audio while the visual countdown is running.
+    const audio = await audioPromise;
+
+    if (
+      !this.playing ||
+      this.sessionId !== session ||
+      this.countdownToken !== countdownToken
+    ) return;
+
+    this.runCountdown(session, countdownToken, audio);
+  }
+
+  runCountdown(session, countdownToken, audio) {
+    let index = 0;
+    const startedAt = performance.now();
+
+    const advance = () => {
+      if (
+        !this.playing ||
+        this.sessionId !== session ||
+        this.countdownToken !== countdownToken
+      ) return;
+
+      index += 1;
+
+      if (index >= COUNTDOWN_STEPS.length) {
+        this.onCountIn?.({ type: "clear", values: [] });
+
+        // The countdown has consumed no musical beats. The actual song clock
+        // starts now, so A is the first event of the song.
+        this.phaseStartedAt = audio?.performanceStart ?? performance.now();
+        this.onState?.("loop-start");
+        this.renderTimelineState();
+        this.rafId = requestAnimationFrame(this.tick);
+        return;
+      }
+
+      this.onCountIn?.({
+        type: "countdown",
+        value: COUNTDOWN_STEPS[index],
+        index
+      });
+
+      const elapsed = performance.now() - startedAt;
+      const nextAt = (index + 1) * 1000;
+      this.countdownTimer = setTimeout(advance, Math.max(0, nextAt - elapsed));
+    };
+
+    this.countdownTimer = setTimeout(advance, 1000);
   }
 
   tick(now) {
@@ -164,44 +213,6 @@ export class PlaybackEngine {
 
   renderTimelineState() {
     this.onTimeline?.(this.positionBeat, SONGS[this.songKey]);
-
-    let key = "clear";
-    let payload = { type: "clear", values: [] };
-
-    if (this.positionBeat < COUNT_IN_BEATS) {
-      const activeNumber = [...COUNT_IN_CUES]
-        .reverse()
-        .find(cue => cue.kind === "number" && cue.beat <= this.positionBeat);
-
-      if (activeNumber) {
-        const numberIndex = Number(activeNumber.value);
-
-        if (activeNumber.beat >= 4) {
-          const values = [];
-          for (let n = 1; n <= numberIndex; n += 1) values.push(String(n));
-          payload = {
-            type: "sequence",
-            values,
-            beat: activeNumber.beat,
-            animateFrom: Math.max(0, values.length - 1)
-          };
-          key = `seq-${numberIndex}`;
-        } else {
-          payload = {
-            type: "single",
-            values: [activeNumber.value],
-            beat: activeNumber.beat,
-            animateFrom: 0
-          };
-          key = `single-${activeNumber.value}`;
-        }
-      }
-    }
-
-    if (key !== this.countKey) {
-      this.countKey = key;
-      this.onCountIn?.(payload);
-    }
   }
 
   processEventsUpTo(beat) {
@@ -244,6 +255,8 @@ export class PlaybackEngine {
   restart() {
     cancelAnimationFrame(this.rafId);
     clearTimeout(this.loopTimer);
+    clearTimeout(this.countdownTimer);
+    this.countdownToken += 1;
     stopAllAudio();
 
     this.rafId = null;
@@ -265,6 +278,8 @@ export class PlaybackEngine {
     this.sessionId += 1;
     cancelAnimationFrame(this.rafId);
     clearTimeout(this.loopTimer);
+    clearTimeout(this.countdownTimer);
+    this.countdownToken += 1;
     stopAllAudio();
 
     this.rafId = null;
