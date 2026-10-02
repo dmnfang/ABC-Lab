@@ -4,7 +4,6 @@ import { SONGS } from "./songs.js";
 import { scheduleSongAudio, stopAllAudio } from "./audio.js";
 
 const GAP_MS = 4000;
-const COUNTDOWN_MS = 3500;
 const COUNTDOWN_STEPS = ["3", "2", "1", "GO!"];
 
 export class PlaybackEngine {
@@ -136,29 +135,20 @@ export class PlaybackEngine {
     this.gapRemainingMs = 0;
 
     const countdownToken = ++this.countdownToken;
-    this.onCountIn?.({ type: "countdown", value: "3", index: 0 });
-
-    const audioPromise = this.midiData
-      ? scheduleSongAudio(this.midiData, this.speed)
-      : Promise.resolve(null);
-
-    // Prepare the actual song audio while the visual countdown is running.
-    const audio = await audioPromise;
-
-    if (
-      !this.playing ||
-      this.sessionId !== session ||
-      this.countdownToken !== countdownToken
-    ) return;
-
-    this.runCountdown(session, countdownToken, audio);
+    this.runCountdown(session, countdownToken);
   }
 
-  runCountdown(session, countdownToken, audio) {
+  runCountdown(session, countdownToken) {
     let index = 0;
     const startedAt = performance.now();
 
-    const advance = () => {
+    this.onCountIn?.({
+      type: "countdown",
+      value: COUNTDOWN_STEPS[0],
+      index: 0
+    });
+
+    const advance = async () => {
       if (
         !this.playing ||
         this.sessionId !== session ||
@@ -168,10 +158,20 @@ export class PlaybackEngine {
       index += 1;
 
       if (index >= COUNTDOWN_STEPS.length) {
+        // Only create/schedule the music after GO has finished. This keeps the
+        // countdown completely independent from the song clock.
         this.onCountIn?.({ type: "clear", values: [] });
 
-        // The countdown has consumed no musical beats. The actual song clock
-        // starts now, so A is the first event of the song.
+        const audio = this.midiData
+          ? await scheduleSongAudio(this.midiData, this.speed)
+          : null;
+
+        if (
+          !this.playing ||
+          this.sessionId !== session ||
+          this.countdownToken !== countdownToken
+        ) return;
+
         this.phaseStartedAt = audio?.performanceStart ?? performance.now();
         this.onState?.("loop-start");
         this.renderTimelineState();
