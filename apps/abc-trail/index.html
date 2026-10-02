@@ -25,23 +25,142 @@ html,body{min-height:100dvh;overflow:hidden}
 /* Keep play controls out of the settings state. */
 #playScreen[style*="display: none"]{display:none!important}
 @media(max-width:760px){header{padding-left:max(16px,env(safe-area-inset-left));padding-right:max(16px,env(safe-area-inset-right))}}
+
+/* ABC Remix visual language */
+.settings{
+  width:100%;
+  height:100%;
+  flex:1 1 auto;
+  min-height:0;
+  padding:24px 22px 22px;
+  align-items:stretch;
+}
+.settings-card{
+  background:var(--panel);
+  border:2px solid var(--line);
+  border-radius:24px;
+  padding:28px 32px;
+}
+.settings-grid{
+  width:min(1180px,100%);
+  min-height:0;
+  flex:1 1 auto;
+  height:100%;
+  gap:24px;
+  align-items:stretch;
+}
+.setting{
+  padding:28px 32px;
+  border-radius:24px;
+}
+.setting h2{
+  font-family:Fredoka,sans-serif;
+  font-size:28px;
+  line-height:1;
+  font-weight:500;
+}
+.panel-sub{
+  font-size:14px;
+  color:var(--text-secondary,var(--muted));
+}
+.label{
+  font-size:14px;
+  line-height:1.2;
+  font-weight:800;
+  letter-spacing:.02em;
+  color:var(--text-secondary,var(--muted));
+  margin:24px 0 12px;
+}
+.segment{
+  display:flex;
+  gap:12px;
+  flex-wrap:wrap;
+}
+.segment button{
+  height:48px;
+  padding:0 20px;
+  border:0;
+  border-radius:9999px;
+  background:var(--sand-100,#ede6d4);
+  color:var(--ink);
+  font-weight:800;
+  transition:background .12s ease,color .12s ease,transform .12s ease;
+}
+.segment button:hover{transform:translateY(-1px)}
+.segment button.active{
+  background:var(--ink);
+  border-color:var(--ink);
+  color:#fff;
+}
+.segment.six{
+  display:grid;
+  grid-template-columns:repeat(6,minmax(0,1fr));
+  gap:8px;
+}
+.segment.six button{
+  min-width:0;
+  padding:0;
+}
+.letters{
+  gap:8px;
+}
+.letter{
+  border:2px solid var(--line);
+  border-radius:12px;
+  background:var(--panel);
+  font-weight:800;
+}
+.letter.active{
+  background:var(--sand);
+  border-color:var(--sand);
+}
+.actions{gap:10px;margin-top:10px}
+.mini{
+  border:0;
+  border-radius:9999px;
+  background:var(--sand-100,#ede6d4);
+  padding:0 16px;
+  height:42px;
+  font-size:12px;
+  font-weight:800;
+}
+.hint{
+  font-size:13px;
+  line-height:1.35;
+  color:var(--muted);
+  margin-top:12px;
+}
+.launch{
+  height:76px;
+  border-radius:18px;
+  margin-top:18px;
+  box-shadow:inset 0 -5px 0 #5f3c82;
+}
+@media(max-height:760px) and (min-width:761px){
+  .settings{padding:18px 22px}
+  .settings-grid{gap:18px}
+  .setting{padding:22px 26px}
+  .setting h2{font-size:25px}
+  .label{margin-top:17px;margin-bottom:9px}
+  .segment button{height:44px;padding:0 16px}
+  .launch{height:64px;margin-top:12px}
+}
 </style>
 </head>
 <body>
 <div class="app">
 <header><div class="brand">ABC TRAIL</div><div class="header-controls"><button class="icon play-control" id="playBtn" title="Play" aria-label="Play">▶</button><button class="icon" id="nextBtn" title="Next" aria-label="Next" disabled>→</button><button class="icon" id="revealBtn" title="Reveal" aria-label="Reveal" disabled>◉</button></div><div class="header-actions"><button class="icon" id="homeBtn" title="ABC Lab" aria-label="ABC Lab home"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="m3 10 9-7 9 7"/><path d="M5 9v11h14V9"/><path d="M9 20v-6h6v6"/></svg></button><button class="head-btn" id="settingsBtn">SETTINGS</button><button class="icon" id="fullBtn" title="Fullscreen">⛶</button></div></header>
 <section class="settings" id="settingsView"><div class="settings-card">
-<div class="eyebrow">INVISIBLE LETTER TRACING</div><h1>ABC Trail</h1><p class="sub">Watch the light move. Hold the letter in your head. Reveal it when you're ready.</p>
 <div class="settings-grid">
 <div class="setting"><h2>Trail Settings</h2><p class="panel-sub">Choose how the invisible trace feels.</p>
 <div class="label">TRACE SPEED</div><div class="segment" id="speed"><button data-v="0.7">SLOW</button><button class="active" data-v="1">NORMAL</button><button data-v="1.35">FAST</button><button data-v="1.8">VERY FAST</button></div>
 <div class="label">TRAIL LENGTH</div><div class="segment" id="trail"><button data-v="0">NONE</button><button data-v="1">SHORT</button><button class="active" data-v="2">MEDIUM</button><button data-v="3">LONG</button></div>
+<div class="label">LETTERS PER SEQUENCE</div><div class="segment six" id="count"><button data-v="1" class="active">1</button><button data-v="2">2</button><button data-v="3">3</button><button data-v="4">4</button><button data-v="5">5</button><button data-v="6">6</button></div>
+<p class="hint">The app draws this many different letters consecutively from the mastered-letter pool. Letters do not repeat within a sequence.</p>
 </div>
 <div class="setting"><h2>Letter Pool</h2><p class="panel-sub">Select the letters your students have mastered.</p>
 <div class="label">LETTER CASE</div><div class="segment two" id="case"><button data-v="uppercase" class="active">UPPERCASE</button><button data-v="lowercase">LOWERCASE</button></div>
 <div class="label">MASTERED LETTERS</div><div class="letters" id="letters"></div><div class="actions"><button class="mini" id="all">SELECT ALL</button><button class="mini" id="clear">CLEAR ALL</button></div>
-<div class="label">LETTERS PER SEQUENCE</div><div class="segment six" id="count"><button data-v="1" class="active">1</button><button data-v="2">2</button><button data-v="3">3</button><button data-v="4">4</button><button data-v="5">5</button><button data-v="6">6</button></div>
-<p class="hint">The app draws this many different letters consecutively from the mastered-letter pool. Letters do not repeat within a sequence.</p>
 </div></div>
 <button class="launch" id="start">START TRAIL</button>
 </div></section>
