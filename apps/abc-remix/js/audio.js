@@ -129,7 +129,7 @@ export async function scheduleSongAudio(midiData, speed, startAt = null, fromBea
   // Give the first-run scheduler enough look-ahead to finish creating every
   // oscillator/noise node before beat zero reaches the audio output.
   // This matters especially on a freshly-created Safari/iPad context.
-  const leadSeconds = 0.6;
+  const leadSeconds = 0.2;
   const nowContext = ctx.currentTime;
   const origin = startAt ?? (nowContext + leadSeconds);
   const beatSeconds = 60 / midiData.tempo / speed;
@@ -145,7 +145,11 @@ export async function scheduleSongAudio(midiData, speed, startAt = null, fromBea
 
     const effectiveStart = Math.max(start, fromBeat);
     const effectiveDuration = Math.max(0.035, end - effectiveStart);
-    const when = origin + (effectiveStart - fromBeat) * beatSeconds;
+    // The supplied MIDI keeps its original absolute positions, where the
+    // alphabet begins at beat 8. The UI countdown is outside that timeline,
+    // so beat 8 must land on the song clock's origin.
+    const songStartBeat = 8;
+    const when = origin + (effectiveStart - songStartBeat - fromBeat) * beatSeconds;
     const seconds = effectiveDuration * beatSeconds;
     const volume = Math.max(0.02, Math.min(0.22, (velocity ?? 100) / 127 * 0.14));
 
