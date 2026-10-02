@@ -1,7 +1,9 @@
 /* Exact visual screen choreography for ABC Remix. Audio timing remains driven by the supplied MIDI. */
-const letter = (display, letterIndex, startBeat, screen, duration = null) => ({ type: "letter", display, letterIndex, startBeat, screen, duration });
+const SONG_START_OFFSET = 0.5;
+const shiftSongBeat = beat => beat >= 8 ? beat + SONG_START_OFFSET : beat;
+const letter = (display, letterIndex, startBeat, screen, duration = null) => ({ type: "letter", display, letterIndex, startBeat: shiftSongBeat(startBeat), screen, duration });
 const lyric = (display, startBeat, screen, wordIndex = 0, fragment = null, word = display, append = false, duration = null) => ({
-  type: "lyric", display, startBeat, screen, wordIndex, fragment: fragment ?? display, word, append, duration
+  type: "lyric", display, startBeat: shiftSongBeat(startBeat), screen, wordIndex, fragment: fragment ?? display, word, append, duration
 });
 
 const standardEvents = [
@@ -48,21 +50,21 @@ function withSlotDurations(songEvents, screenStarts, durationBeats) {
 
 export const SONGS = {
   standard: {
-    name: "Standard", tempo: 100, durationBeats: 56, events: withSlotDurations(standardEvents, [8,12,16,20,24,28,32,36,40,44,48,52], 56),
+    name: "Standard", tempo: 100, durationBeats: 56, events: withSlotDurations(standardEvents, [8.5,12.5,16.5,20.5,24.5,28.5,32.5,36.5,40.5,44.5,48.5,52.5], 56.5),
     chunks: [
       [0,1,2,3], [4,5,6], [7,8,9,10], [11,12,13], [14,15,16,17], [18,19,20],
       [21,22], [23,24,25], [26,27,28,29], [30,31], [32,33,34,35], [36,37]
     ],
-    screenStarts: [8,12,16,20,24,28,32,36,40,44,48,52],
+    screenStarts: [8.5,12.5,16.5,20.5,24.5,28.5,32.5,36.5,40.5,44.5,48.5,52.5],
     rows: [[[0],[1]], [[2],[3]], [[4],[5]], [[6],[7]], [[8],[9]], [[10],[11]]]
   },
   lmno: {
-    name: "LMNOP", tempo: 100, durationBeats: 56, events: withSlotDurations(lmnoEvents, [8,12,16,20,22,24,28,32,36,40,44,48,52,56], 56),
+    name: "LMNOP", tempo: 100, durationBeats: 56, events: withSlotDurations(lmnoEvents, [8.5,12.5,16.5,20.5,22.5,24.5,28.5,32.5,36.5,40.5,44.5,48.5,52.5,56.5], 56.5),
     chunks: [
       [0,1,2,3], [4,5,6], [7,8,9,10], [11,12,13,14], [15], [16,17,18], [19,20,21],
       [22,23], [24,25,26], [27,28,29,30], [31], [32,33,34,35], [36,37,38]
     ],
-    screenStarts: [8,12,16,20,22,24,28,32,36,40,44,48,52,56],
+    screenStarts: [8.5,12.5,16.5,20.5,22.5,24.5,28.5,32.5,36.5,40.5,44.5,48.5,52.5,56.5],
     rows: [[[0],[1]], [[2],[3]], [[4],[5]], [[6],[7]], [[8],[9]], [[10],[11]], [[12],[13]]]
   }
 };
