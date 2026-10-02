@@ -108,7 +108,7 @@ export class PlaybackEngine {
 
       if (!this.playing || this.sessionId !== session) return;
 
-      this.phaseStartedAt = audio?.performanceStart ?? performance.now();
+      this.phaseStartedAt = (audio?.performanceStart ?? performance.now()) - (8 * this.beatMs());
       this.renderTimelineState();
       this.rafId = requestAnimationFrame(this.tick);
       return;
@@ -172,7 +172,8 @@ export class PlaybackEngine {
           this.countdownToken !== countdownToken
         ) return;
 
-        this.phaseStartedAt = audio?.performanceStart ?? performance.now();
+        const beatMs = this.beatMs();
+        this.phaseStartedAt = (audio?.performanceStart ?? performance.now()) - (8 * beatMs);
         this.onState?.("loop-start");
         this.renderTimelineState();
         this.rafId = requestAnimationFrame(this.tick);
