@@ -39,6 +39,7 @@ const letterCaseButtons = $("#letterCaseButtons");
 const speedOptions = [0.25, 0.50, 0.75, 1.00, 1.25, 1.50, 1.75, 2.00];
 const loopOptions = [1, 2, 3, 4, 5];
 let midiData = null;
+let midiReady = false;
 let gameSequence = [];
 let activeChunk = -1;
 let activeRow = null;
@@ -189,7 +190,7 @@ function renderModeContent() {
       renderModeContent();
     }
   });
-  launchButton.disabled = state.customSequence.every(letter => !letter);
+  launchButton.disabled = !midiReady || (state.mode === "custom" && state.customSequence.some(letter => !letter));
 }
 
 function freshRandom() {
@@ -268,6 +269,8 @@ function renderCountIn(event) {
 }
 
 function launchGame() {
+  // Never start the visual clock without the MIDI that supplies its audio clock.
+  if (!midiReady || !midiData?.[state.songKey]) return;
   if (state.mode === "original") gameSequence = state.originalReversed ? [...ALPHABET].reverse() : originalSequence();
   else if (state.mode === "random") gameSequence = [...state.randomSequence];
   else gameSequence = [...state.customSequence];
@@ -527,8 +530,12 @@ Promise.all([
   fetch("./data/lmno.json").then(r => r.json())
 ]).then(([standardMidi, lmnoMidi]) => {
   midiData = { standard: standardMidi, lmno: lmnoMidi };
+  midiReady = true;
+  updateButtons();
 }).catch(() => {
   midiData = null;
+  midiReady = false;
+  updateButtons();
 });
 
 $("#speedValue").textContent = formatSpeed(state.speed);
