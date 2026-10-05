@@ -195,7 +195,7 @@ export async function scheduleSongAudio(midiData, speed, startAt = null, fromBea
   // a timestamp captured at the top of this function stale.
   //
   // Both clocks now point at the same future AudioContext origin.
-  const performanceStart = performance.now() + (origin - ctx.currentTime) * 1000;
+  const performanceStart = getPerformanceTimeForContextTime(ctx, origin);
 
   return {
     contextStart: origin,
