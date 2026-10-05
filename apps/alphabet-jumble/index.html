@@ -27,11 +27,12 @@ header{
 .header-right{margin-left:auto;display:flex;align-items:center;gap:20px}
 .spread{display:flex;align-items:center;gap:10px}
 .pip{
-  width:11px;height:11px;border:0;border-radius:50%;padding:0;
-  background:#cfc8bd;cursor:pointer;transition:transform .15s,background .15s
+  width:36px;height:36px;border:1px solid var(--line);border-radius:10px;padding:0;
+  background:var(--panel);color:var(--ink);font-size:13px;font-weight:900;
+  cursor:pointer;transition:transform .15s,background .15s,border-color .15s,color .15s;
 }
-.pip:hover{transform:scale(1.18)}
-.pip.active{background:var(--grape);transform:scale(1.18)}
+.pip:hover{transform:translateY(-1px);background:var(--soft)}
+.pip.active{background:var(--grape);border-color:var(--grape);color:#fff}
 .settings-icon{
   width:38px;height:38px;border:1px solid var(--line);border-radius:11px;
   background:var(--panel);display:grid;place-items:center;cursor:pointer;font-size:18px
@@ -251,9 +252,11 @@ html, body {
   height: 100%;
 }
 .action-area {
-  flex: 0 0 82px;
-  height: 82px;
-  margin-top: 10px;
+  flex: 0 0 108px;
+  height: 108px;
+  margin-top: 12px;
+  padding: 16px 20px;
+  gap: 10px;
 }
 
 /* The reveal is sized from the actual canvas instead of a fixed 320px footprint. */
@@ -374,11 +377,10 @@ html, body {
 <header>
   <div class="brand-row"><button id="homeButton" class="home-link home-icon" type="button" aria-label="ABC Lab home" title="ABC Lab home"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="m3 10 9-7 9 7"/><path d="M5 9v11h14V9"/><path d="M9 20v-6h6v6"/></svg></button><div class="brand">ALPHABET JUMBLE</div></div>
   <div class="header-right">
-    <div class="spread">
-      <button class="pip active" data-jumble="85"></button>
-      <button class="pip" data-jumble="80"></button>
-      <button class="pip" data-jumble="75"></button>
-      <button class="pip" data-jumble="70"></button>
+    <div class="spread" aria-label="Jumble spread">
+      <button class="pip active" data-jumble="85" aria-label="Jumble level 1">1</button>
+      <button class="pip" data-jumble="80" aria-label="Jumble level 2">2</button>
+      <button class="pip" data-jumble="75" aria-label="Jumble level 3">3</button>
     </div>
     <button id="fullscreenButton" class="settings-icon" aria-label="Fullscreen" title="Fullscreen">⛶</button>
     <button id="settingsButton" class="settings-icon" aria-label="Settings" title="Settings">⚙</button>
@@ -521,7 +523,7 @@ function getRevealGeometry(){
   const margin=Math.max(12,Math.min(28,d*.035));
   const angleStep=Math.PI*2/n;
   const sin=Math.sin(angleStep/2);
-  const maxSize=Math.min(280,d*.48);
+  const maxSize=Math.min(520,d*.58);
   const size=Math.max(72,Math.min(maxSize,(d-2*margin)*sin/(1+sin)));
   const radius=Math.max(0,d/2-size/2-margin);
   return {w,h,size,radius};
