@@ -532,9 +532,9 @@ function getRevealGeometry(){
   const maxSize=Math.min(520,d*.58);
   const size=Math.max(96,maxSize);
   const margin=Math.max(12,Math.min(28,d*.035));
-  // The difficulty radius is based on the CENTER DOT of each letter.
-  // Letter size must not shrink the radial travel distance.
-  const radius=Math.max(0,d/2-margin);
+  // The radius is the distance traveled by each letter's center dot.
+  // Keep the revealed letters fully inside the collage.
+  const radius=Math.max(0,d/2-size/2-margin);
   return {w,h,size,radius};
 }
 
@@ -542,9 +542,12 @@ function renderCollage(){
   collage.innerHTML="";
   const n=state.letters.length;
   const {w,h,size,radius}=getRevealGeometry();
-  const previewRadius=state.revealed
-    ? radius
-    : radius*(1-state.jumble/100);
+  const separation={
+    85:0.35,
+    84:0.55,
+    83:0.75
+  }[state.jumble] ?? (1-state.jumble/100);
+  const previewRadius=radius*(state.revealed ? 1 : separation);
 
   state.letters.forEach((char,i)=>{
     const el=document.createElement("div");
