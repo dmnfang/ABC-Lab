@@ -544,7 +544,7 @@ function renderCollage(){
   // One consistent starting radius for every puzzle size.
   // The same center-dot geometry is used whether there are 2 or 8 letters.
   const startRadius=radius*.28;
-  const spreadStep=0.01;
+  const spreadStep=0.02;
   const previewRadius=state.revealed
     ? radius
     : startRadius + (state.jumbleStep * spreadStep * radius);
