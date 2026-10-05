@@ -301,6 +301,8 @@ html, body {
 }
 /* Responsive guess tray: all eight selections fit without horizontal scrolling. */
 .guess-tray{
+  position:relative;
+  z-index:2;
   display:grid;
   grid-template-columns:repeat(8,minmax(0,1fr));
   align-items:center;
