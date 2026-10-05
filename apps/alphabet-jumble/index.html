@@ -390,8 +390,8 @@ html, body {
   <div class="header-right">
     <div class="spread" aria-label="Jumble spread">
       <button class="pip active" data-jumble="85" aria-label="Jumble level 1">1</button>
-      <button class="pip" data-jumble="80" aria-label="Jumble level 2">2</button>
-      <button class="pip" data-jumble="75" aria-label="Jumble level 3">3</button>
+      <button class="pip" data-jumble="84" aria-label="Jumble level 2">2</button>
+      <button class="pip" data-jumble="83" aria-label="Jumble level 3">3</button>
     </div>
     <button id="fullscreenButton" class="settings-icon" aria-label="Fullscreen" title="Fullscreen">⛶</button>
     <button id="settingsButton" class="settings-icon" aria-label="Settings" title="Settings">⚙</button>
@@ -545,10 +545,9 @@ function renderCollage(){
   collage.innerHTML="";
   const n=state.letters.length;
   const {w,h,size,radius}=getRevealGeometry();
-  const spreadMap={85:.45,80:.68,75:.9};
   const previewRadius=state.revealed
     ? radius
-    : radius*(spreadMap[state.jumble] ?? .43);
+    : radius*(state.jumble/100);
 
   state.letters.forEach((char,i)=>{
     const el=document.createElement("div");
