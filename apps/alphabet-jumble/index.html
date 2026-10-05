@@ -532,7 +532,9 @@ function getRevealGeometry(){
   const maxSize=Math.min(520,d*.58);
   const size=Math.max(96,maxSize);
   const margin=Math.max(12,Math.min(28,d*.035));
-  const radius=Math.max(0,d/2-size/2-margin);
+  // The difficulty radius is based on the CENTER DOT of each letter.
+  // Letter size must not shrink the radial travel distance.
+  const radius=Math.max(0,d/2-margin);
   return {w,h,size,radius};
 }
 
