@@ -390,8 +390,8 @@ html, body {
   <div class="header-right">
     <div class="spread" aria-label="Jumble spread">
       <button class="pip active" data-jumble="85" aria-label="Jumble level 1">1</button>
-      <button class="pip" data-jumble="84" aria-label="Jumble level 2">2</button>
-      <button class="pip" data-jumble="83" aria-label="Jumble level 3">3</button>
+      <button class="pip" data-jumble="80" aria-label="Jumble level 2">2</button>
+      <button class="pip" data-jumble="75" aria-label="Jumble level 3">3</button>
     </div>
     <button id="fullscreenButton" class="settings-icon" aria-label="Fullscreen" title="Fullscreen">⛶</button>
     <button id="settingsButton" class="settings-icon" aria-label="Settings" title="Settings">⚙</button>
@@ -529,11 +529,14 @@ function getRevealGeometry(){
   const w=collage.clientWidth;
   const h=collage.clientHeight;
   const d=Math.max(1,Math.min(w,h));
-  const maxSize=Math.min(520,d*.58);
-  const size=Math.max(96,maxSize);
+  const n=Math.max(1,state.letters.length);
   const margin=Math.max(12,Math.min(28,d*.035));
-  // The radius is the distance traveled by each letter's center dot.
-  // Keep the revealed letters fully inside the collage.
+  const halfAngle=Math.PI/n;
+  const fitSize=(d-2*margin)*Math.sin(halfAngle)/(1+Math.sin(halfAngle));
+  const maxSize=Math.min(520,d*.58);
+  // Scale the original ring-fit size up slightly, while still reserving enough
+  // circumference for every letter to remain visually distinguishable.
+  const size=Math.max(96,Math.min(maxSize,fitSize*1.05));
   const radius=Math.max(0,d/2-size/2-margin);
   return {w,h,size,radius};
 }
@@ -542,12 +545,10 @@ function renderCollage(){
   collage.innerHTML="";
   const n=state.letters.length;
   const {w,h,size,radius}=getRevealGeometry();
-  const separation={
-    85:0.35,
-    84:0.55,
-    83:0.75
-  }[state.jumble] ?? (1-state.jumble/100);
-  const previewRadius=radius*(state.revealed ? 1 : separation);
+  const spreadMap={85:.45,80:.68,75:.9};
+  const previewRadius=state.revealed
+    ? radius
+    : radius*(spreadMap[state.jumble] ?? .43);
 
   state.letters.forEach((char,i)=>{
     const el=document.createElement("div");
