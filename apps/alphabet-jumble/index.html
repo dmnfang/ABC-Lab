@@ -25,14 +25,11 @@ header{
 .home-link:hover{background:var(--soft)}
 .home-icon{width:38px;padding:0;display:grid;place-items:center}.home-icon svg{width:19px;height:19px}
 .header-right{margin-left:auto;display:flex;align-items:center;gap:20px}
-.spread{display:flex;align-items:center;gap:10px}
-.pip{
-  width:36px;height:36px;border:1px solid var(--line);border-radius:10px;padding:0;
-  background:var(--panel);color:var(--ink);font-size:13px;font-weight:900;
-  cursor:pointer;transition:transform .15s,background .15s,border-color .15s,color .15s;
+.header-result{
+  position:absolute;left:50%;top:50%;transform:translate(-50%,-50%);
+  font-size:13px;font-weight:900;letter-spacing:.08em;text-align:center;
+  white-space:nowrap
 }
-.pip:hover{transform:translateY(-1px);background:var(--soft)}
-.pip.active{background:var(--grape);border-color:var(--grape);color:#fff}
 .settings-icon{
   width:38px;height:38px;border:1px solid var(--line);border-radius:11px;
   background:var(--panel);display:grid;place-items:center;cursor:pointer;font-size:18px
@@ -102,16 +99,16 @@ header{
 .letter-btn:hover{background:var(--soft);transform:translateY(-1px)}
 
 .action-area{
-  flex:0 0 92px;height:92px;box-sizing:border-box;
-  margin-top:auto;padding:10px 14px;
-  border:1px solid var(--line);border-radius:16px;background:var(--panel);
-  display:flex;flex-direction:column;align-items:center;justify-content:center;gap:7px
+  flex:0 0 72px;height:72px;box-sizing:border-box;
+  margin-top:auto;padding:8px 0;
+  display:flex;align-items:center;justify-content:center
 }
 .result{min-height:19px;text-align:center;color:var(--ink);font-size:12px;font-weight:900;letter-spacing:.03em}
 .result strong{color:var(--ink)}
 .actions{display:flex;justify-content:center;gap:9px}
 .primary,.secondary{
-  border:0;border-radius:10px;padding:10px 22px;font-weight:900;cursor:pointer
+  min-width:190px;height:52px;border:0;border-radius:12px;padding:0 24px;
+  font-weight:900;font-size:13px;cursor:pointer
 }
 .primary{background:var(--grape);color:#fff}.primary:hover{background:var(--grape2)}
 .secondary{background:var(--sand)}
@@ -182,10 +179,11 @@ header{
 }
 @media(max-width:700px){
   header{padding:0 16px}.brand{font-size:15px}
+  .header-result{font-size:11px}
   .play-main{grid-template-columns:1fr;height:auto;min-height:0;overflow:visible}
   .jumble-area{min-height:420px}
   .play-right{min-height:500px;overflow:visible}
-  .action-area{height:92px;min-height:92px}
+  .action-area{height:72px;min-height:72px}
   .settings-main{padding:30px 18px}
   .settings-grid{grid-template-columns:1fr}
   .settings-actions{justify-content:stretch}
@@ -252,11 +250,10 @@ html, body {
   height: 100%;
 }
 .action-area {
-  flex: 0 0 108px;
-  height: 108px;
+  flex: 0 0 72px;
+  height: 72px;
   margin-top: 12px;
-  padding: 16px 20px;
-  gap: 10px;
+  padding: 8px 0;
 }
 
 /* The reveal is sized from the actual canvas instead of a fixed 320px footprint. */
@@ -376,12 +373,8 @@ html, body {
 <div id="playScreen" class="app" style="display:none">
 <header>
   <div class="brand-row"><button id="homeButton" class="home-link home-icon" type="button" aria-label="ABC Lab home" title="ABC Lab home"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="m3 10 9-7 9 7"/><path d="M5 9v11h14V9"/><path d="M9 20v-6h6v6"/></svg></button><div class="brand">ALPHABET JUMBLE</div></div>
+  <div id="headerResult" class="header-result">SELECT LETTERS</div>
   <div class="header-right">
-    <div class="spread" aria-label="Jumble spread">
-      <button class="pip active" data-jumble="85" aria-label="Jumble level 1">1</button>
-      <button class="pip" data-jumble="80" aria-label="Jumble level 2">2</button>
-      <button class="pip" data-jumble="75" aria-label="Jumble level 3">3</button>
-    </div>
     <button id="fullscreenButton" class="settings-icon" aria-label="Fullscreen" title="Fullscreen">⛶</button>
     <button id="settingsButton" class="settings-icon" aria-label="Settings" title="Settings">⚙</button>
   </div>
@@ -402,7 +395,6 @@ html, body {
     </div>
     <div id="alphabet" class="alphabet"></div>
     <div class="action-area">
-      <div id="result" class="result">WHICH LETTERS?</div>
       <div class="actions">
         <button id="submit" class="primary">SUBMIT</button>
         <button id="next" class="secondary hidden">NEXT JUMBLE</button>
@@ -473,7 +465,7 @@ const settingsScreen=document.getElementById("settingsScreen");
 const collage=document.getElementById("collage");
 const alphabetEl=document.getElementById("alphabet");
 const guessTray=document.getElementById("guessTray");
-const resultEl=document.getElementById("result");
+const resultEl=document.getElementById("headerResult");
 const submitBtn=document.getElementById("submit");
 const nextBtn=document.getElementById("next");
 
@@ -523,8 +515,8 @@ function getRevealGeometry(){
   const margin=Math.max(12,Math.min(28,d*.035));
   const angleStep=Math.PI*2/n;
   const sin=Math.sin(angleStep/2);
-  const maxSize=Math.min(520,d*.58);
-  const size=Math.max(72,Math.min(maxSize,(d-2*margin)*sin/(1+sin)));
+  const maxSize=Math.min(760,d*.72);
+  const size=Math.max(96,Math.min(maxSize,d*.48));
   const radius=Math.max(0,d/2-size/2-margin);
   return {w,h,size,radius};
 }
