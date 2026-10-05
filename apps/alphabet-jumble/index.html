@@ -529,14 +529,9 @@ function getRevealGeometry(){
   const w=collage.clientWidth;
   const h=collage.clientHeight;
   const d=Math.max(1,Math.min(w,h));
-  const n=Math.max(1,state.letters.length);
-  const margin=Math.max(12,Math.min(28,d*.035));
-  const halfAngle=Math.PI/n;
-  const fitSize=(d-2*margin)*Math.sin(halfAngle)/(1+Math.sin(halfAngle));
   const maxSize=Math.min(520,d*.58);
-  // Scale the original ring-fit size up slightly, while still reserving enough
-  // circumference for every letter to remain visually distinguishable.
-  const size=Math.max(96,Math.min(maxSize,fitSize*1.05));
+  const size=Math.max(96,maxSize);
+  const margin=Math.max(12,Math.min(28,d*.035));
   const radius=Math.max(0,d/2-size/2-margin);
   return {w,h,size,radius};
 }
