@@ -547,7 +547,7 @@ function renderCollage(){
   const {w,h,size,radius}=getRevealGeometry();
   const previewRadius=state.revealed
     ? radius
-    : radius*(state.jumble/100);
+    : radius*(1-state.jumble/100);
 
   state.letters.forEach((char,i)=>{
     const el=document.createElement("div");
