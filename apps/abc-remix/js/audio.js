@@ -34,6 +34,10 @@ async function ensureRunning() {
   return ctx;
 }
 
+export async function prepareAudioClock() {
+  await ensureRunning();
+}
+
 function midiFreq(note) {
   return 440 * Math.pow(2, (note - 69) / 12);
 }
