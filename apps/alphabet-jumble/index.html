@@ -352,14 +352,23 @@ html, body {
 @media (max-height:760px) and (orientation:landscape){.guess-tray{height:70px;min-height:70px}.guess-chip{max-width:48px;font-size:27px}}
 @media (max-width:800px) and (orientation:portrait){.guess-tray{height:78px;min-height:78px;grid-template-columns:repeat(8,minmax(0,1fr));gap:4px;padding:7px}.guess-chip{max-width:48px;font-size:26px}}
 
-/* Settings layout aligned with ABC Remix */
-.settings-screen{display:flex;min-height:100dvh;flex-direction:column;padding:24px 22px 22px;gap:18px}
-.settings-screen > .settings-header{height:34px;min-height:34px;display:flex;align-items:center;justify-content:space-between;flex:0 0 34px}
-.settings-header .brand{font-family:Fredoka,sans-serif;font-size:24px;font-weight:600;letter-spacing:-.02em}
-.settings-header .home-icon{width:34px;height:34px;border-radius:10px;border:1.5px solid var(--line);background:var(--sand-50,#ede6d4)}
-.settings-header .home-icon svg{width:17px;height:17px}
-.settings-grid{min-height:0;flex:1;display:grid;grid-template-columns:1fr 1fr;gap:24px;align-items:stretch}
-.setting-panel{min-width:0;min-height:0;background:var(--panel);border:1.5px solid var(--line);border-radius:16px;padding:20px 22px;display:flex;flex-direction:column;overflow:hidden}
+/* Settings layout */
+.settings-screen{display:flex;min-height:100dvh;flex-direction:column;background:var(--bg)}
+.settings-screen > .settings-header{
+  height:66px;min-height:66px;padding:0 24px;
+  display:flex;align-items:center;justify-content:space-between;
+  border-bottom:1px solid var(--line);background:var(--panel);
+  flex:0 0 66px;
+}
+.settings-header .brand{font-family:inherit;font-size:17px;font-weight:900;letter-spacing:.085em}
+.settings-header .home-icon{width:38px;height:38px;border-radius:11px;border:1px solid var(--line);background:var(--panel)}
+.settings-header .home-icon svg{width:19px;height:19px}
+.settings-main{width:min(720px,100%);margin:auto;padding:42px 28px 54px}
+.settings-grid{min-height:0;width:100%;display:block}
+.setting-panel{
+  min-width:0;background:var(--panel);border:1.5px solid var(--line);border-radius:16px;
+  padding:24px;display:flex;flex-direction:column;overflow:hidden
+}
 .setting-panel h2{font-family:Fredoka,sans-serif;font-size:20px;line-height:1;margin:0 0 18px;font-weight:500}
 .control-section{flex-shrink:0;margin-top:20px}
 .setting-panel h2 + .control-section{margin-top:0}
@@ -369,13 +378,17 @@ html, body {
 .pill-group .pill.active{background:var(--grape);color:#fff}
 .pill-group .pill:hover{transform:translateY(-1px)}
 .count-group{display:grid;grid-template-columns:repeat(7,minmax(0,1fr));gap:8px}
-.count-group .pill,.count-group .count-toggle{width:100%;min-width:0;padding:0;height:34px;aspect-ratio:auto;border-radius:9999px;background:#ede6d4;color:var(--ink);font-size:12px;font-weight:800;border:0;display:inline-flex;align-items:center;justify-content:center}
-.count-group .pill.active,.count-group .count-toggle.active{background:var(--grape);color:#fff;border-color:var(--grape)}
-.question-group{gap:10px}
+.count-group .count-toggle{width:100%;min-width:0;padding:0;height:34px;aspect-ratio:auto;border-radius:9999px;background:#ede6d4;color:var(--ink);font-size:12px;font-weight:800;border:0;display:inline-flex;align-items:center;justify-content:center}
+.count-group .count-toggle.active{background:var(--grape);color:#fff;border-color:var(--grape)}
 .settings-note{font-size:11px;line-height:1.3;color:var(--muted);margin:10px 0 0}
-.setting-panel-right .launch-button{width:100%;height:54px;margin-top:auto;border-radius:13px;background:var(--grape);color:#fff;font-size:14px;font-weight:900;box-shadow:inset 0 -4px 0 var(--grape2)}
-@media(max-width:1000px){.settings-screen{padding:22px}.settings-grid{grid-template-columns:1fr}.setting-panel{min-height:420px}}
-@media(max-width:600px){.settings-screen{padding:16px;gap:16px}.settings-grid{gap:16px}.setting-panel{padding:18px}.settings-header .brand{font-size:20px}.count-group{grid-template-columns:repeat(4,minmax(0,1fr))}}
+.launch-button{width:100%;height:54px;margin-top:28px;border:0;border-radius:13px;background:var(--grape);color:#fff;font-size:14px;font-weight:900;box-shadow:inset 0 -4px 0 var(--grape2);cursor:pointer}
+@media(max-width:600px){
+  .settings-screen > .settings-header{height:58px;min-height:58px;flex-basis:58px;padding:0 14px}
+  .settings-header .brand{font-size:15px}
+  .settings-main{padding:28px 16px 40px}
+  .setting-panel{padding:18px}
+  .count-group{grid-template-columns:repeat(4,minmax(0,1fr))}
+}
 </style>
 </head>
 <body>
@@ -425,6 +438,7 @@ html, body {
 <header class="settings-header">
   <div class="brand-row"><button id="settingsHomeButton" class="home-link home-icon" type="button" aria-label="ABC Lab home" title="ABC Lab home"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="m3 10 9-7 9 7"/><path d="M5 9v11h14V9"/><path d="M9 20v-6h6v6"/></svg></button><div class="brand">ALPHABET JUMBLE</div></div>
 </header>
+<main class="settings-main">
 <div class="settings-grid">
   <section class="setting-panel">
     <h2>Quiz Settings</h2>
@@ -441,22 +455,10 @@ html, body {
       <div class="pill-group count-group" id="countToggles" role="group" aria-label="Letters per jumble"></div>
       <p class="settings-note">Choose which puzzle sizes can appear.</p>
     </div>
-  </section>
-
-  <section class="setting-panel setting-panel-right">
-    <h2>Quiz Length</h2>
-    <div class="control-section">
-      <label>Number of Questions</label>
-      <div class="pill-group question-group" role="group" aria-label="Number of questions">
-        <button class="pill active" data-questions="10" type="button">10 questions</button>
-        <button class="pill" data-questions="15" type="button">15 questions</button>
-        <button class="pill" data-questions="20" type="button">20 questions</button>
-        <button class="pill" data-questions="999" type="button">Unlimited</button>
-      </div>
-    </div>
     <button id="startQuiz" class="launch-button" type="button">Start Quiz</button>
   </section>
 </div>
+</main>
 </div>
 
 <script>
@@ -464,7 +466,7 @@ const alphabet="ABCDEFGHIJKLMNOPQRSTUVWXYZ".split("");
 
 const settings={
   caseMode:"upper",
-  questions:10,
+  questions:999,
   allowedCounts:new Set([3,4,5,6])
 };
 
@@ -684,13 +686,6 @@ function syncSettingsUI(){
     );
   });
 
-  document.querySelectorAll("[data-questions]").forEach(button=>{
-    button.classList.toggle(
-      "active",
-      +button.dataset.questions===settings.questions
-    );
-  });
-
   document.querySelectorAll(".count-toggle").forEach(button=>{
     button.classList.toggle(
       "active",
@@ -753,12 +748,6 @@ document.querySelectorAll("[data-setting-case]").forEach(button=>{
   };
 });
 
-document.querySelectorAll("[data-questions]").forEach(button=>{
-  button.onclick=()=>{
-    settings.questions=+button.dataset.questions;
-    syncSettingsUI();
-  };
-});
 
 const countToggles=document.getElementById("countToggles");
 
