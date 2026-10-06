@@ -497,6 +497,9 @@ function makePuzzle(){
   state.caseMode=settings.caseMode;
   state.bank="upper";
   state.jumbleStep=0;
+  document.querySelectorAll(".pip").forEach(pip=>{
+    pip.classList.toggle("active",pip.dataset.jumbleStep==="0");
+  });
   state.revealed=false;
   state.selected=[];
 
