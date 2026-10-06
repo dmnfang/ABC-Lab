@@ -1,7 +1,7 @@
 /* ABC Remix playback timing */
 
 import { SONGS } from "./songs.js";
-import { scheduleSongAudio, stopAllAudio } from "./audio.js";
+import { prepareAudioClock, scheduleSongAudio, stopAllAudio } from "./audio.js";
 
 const GAP_MS = 4000;
 const COUNTDOWN_STEPS = ["3", "2", "1", "GO!"];
@@ -135,7 +135,26 @@ export class PlaybackEngine {
     this.gapRemainingMs = 0;
 
     const countdownToken = ++this.countdownToken;
-    this.runCountdown(session, countdownToken);
+    prepareAudioClock()
+      .then(() => {
+        if (
+          !this.playing ||
+          this.sessionId !== session ||
+          this.countdownToken !== countdownToken
+        ) return;
+
+        this.runCountdown(session, countdownToken);
+      })
+      .catch(error => {
+        console.error("Unable to prepare audio clock", error);
+        if (
+          !this.playing ||
+          this.sessionId !== session ||
+          this.countdownToken !== countdownToken
+        ) return;
+
+        this.runCountdown(session, countdownToken);
+      });
   }
 
   runCountdown(session, countdownToken) {
