@@ -5,6 +5,9 @@
 <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
 <title>Alphabet Jumble</title>
 <link rel="stylesheet" href="../../css/clr.css">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Lexend:wght@400;500;600;700;800;900&display=swap" rel="stylesheet">
 <style>
 :root{
   --bg:#f7f1e7;--panel:#fffaf2;--ink:#28232a;--muted:#817a7e;
@@ -13,7 +16,7 @@
 }
 *{box-sizing:border-box}
 html,body{margin:0;min-height:100%;background:var(--bg);color:var(--ink)}
-body{font-family:Inter,ui-sans-serif,system-ui,-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif}
+body{font-family:Lexend,ui-sans-serif,system-ui,-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif}
 button{font:inherit;color:inherit}
 header{
   position:relative;
@@ -31,10 +34,11 @@ header{
   font-size:13px;font-weight:900;letter-spacing:.08em;text-align:center;
   white-space:nowrap;pointer-events:none
 }
-.spread{display:flex;align-items:center;gap:7px}
-.pip{width:34px;height:34px;border:1px solid var(--line);border-radius:9px;padding:0;background:var(--panel);color:var(--ink);font-size:12px;font-weight:900;cursor:pointer;display:grid;place-items:center;transition:transform .15s,background .15s,border-color .15s,color .15s}
-.pip:hover{transform:translateY(-1px);background:var(--soft)}
-.pip.active{background:var(--grape);border-color:var(--grape);color:#fff}
+.spread-stepper{display:flex;align-items:center;height:34px;border:1px solid var(--line);border-radius:9px;background:var(--panel);overflow:hidden}
+.spread-stepper button{width:32px;height:34px;border:0;background:transparent;font-size:18px;font-weight:900;line-height:1;cursor:pointer}
+.spread-stepper button:hover{background:var(--soft)}
+.spread-stepper button:disabled{opacity:.35;cursor:default}
+.spread-stepper span{min-width:48px;text-align:center;font-size:12px;font-weight:900}
 .settings-icon{
   width:38px;height:38px;border:1px solid var(--line);border-radius:11px;
   background:var(--panel);display:grid;place-items:center;cursor:pointer;font-size:18px
@@ -398,13 +402,7 @@ html, body {
   <div class="brand-row"><button id="homeButton" class="home-link home-icon" type="button" aria-label="ABC Lab home" title="ABC Lab home"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="m3 10 9-7 9 7"/><path d="M5 9v11h14V9"/><path d="M9 20v-6h6v6"/></svg></button><div class="brand">ALPHABET JUMBLE</div></div>
   <div id="headerResult" class="header-result">SELECT LETTERS</div>
   <div class="header-right">
-    <div class="spread" aria-label="Jumble spread">
-      <button class="pip active" data-jumble-step="0" aria-label="Jumble level 1">1</button>
-      <button class="pip" data-jumble-step="1" aria-label="Jumble level 2">2</button>
-      <button class="pip" data-jumble-step="2" aria-label="Jumble level 3">3</button>
-      <button class="pip" data-jumble-step="3" aria-label="Jumble level 4">4</button>
-      <button class="pip" data-jumble-step="4" aria-label="Jumble level 5">5</button>
-    </div>
+    <div class="spread-stepper" aria-label="Jumble spread"><button id="spreadDown" type="button" aria-label="Decrease spread">−</button><span id="spreadValue">0%</span><button id="spreadUp" type="button" aria-label="Increase spread">+</button></div>
 <button id="fullscreenButton" class="settings-icon" aria-label="Fullscreen" title="Fullscreen">⛶</button>
     <button id="settingsButton" class="settings-icon" aria-label="Settings" title="Settings">⚙</button>
   </div>
@@ -487,6 +485,10 @@ const guessTray=document.getElementById("guessTray");
 const resultEl=document.getElementById("headerResult");
 const submitBtn=document.getElementById("submit");
 const nextBtn=document.getElementById("next");
+const spreadDown=document.getElementById("spreadDown");
+const spreadUp=document.getElementById("spreadUp");
+const spreadValue=document.getElementById("spreadValue");
+function updateSpreadUI(){spreadValue.textContent=state.jumbleStep+"%";spreadDown.disabled=state.jumbleStep<=0;spreadUp.disabled=state.jumbleStep>=10}
 
 function shuffled(a){return [...a].sort(()=>Math.random()-.5)}
 
@@ -497,9 +499,7 @@ function makePuzzle(){
   state.caseMode=settings.caseMode;
   state.bank="upper";
   state.jumbleStep=0;
-  document.querySelectorAll(".pip").forEach(pip=>{
-    pip.classList.toggle("active",pip.dataset.jumbleStep==="0");
-  });
+  updateSpreadUI();
   state.revealed=false;
   state.selected=[];
 
@@ -551,7 +551,7 @@ function renderCollage(){
   // One consistent starting radius for every puzzle size.
   // The same center-dot geometry is used whether there are 2 or 8 letters.
   const startRadius=radius*.28;
-  const spreadStep=0.03;
+  const spreadStep=0.01;
   const previewRadius=state.revealed
     ? radius
     : startRadius + (state.jumbleStep * spreadStep * radius);
@@ -705,14 +705,8 @@ document.querySelectorAll("#caseBank button").forEach(button=>{
   };
 });
 
-document.querySelectorAll(".pip").forEach(pip=>{
-  pip.onclick=()=>{
-    if(state.revealed)return;
-    state.jumbleStep=Number(pip.dataset.jumbleStep);
-    document.querySelectorAll(".pip").forEach(p=>p.classList.toggle("active",p===pip));
-    renderCollage();
-  };
-});
+spreadDown.onclick=()=>{if(state.jumbleStep>0){state.jumbleStep--;updateSpreadUI();renderCollage()}};
+spreadUp.onclick=()=>{if(state.jumbleStep<10){state.jumbleStep++;updateSpreadUI();renderCollage()}};
 
 document.getElementById("settingsButton").onclick=openSettings;
 document.getElementById("homeButton").onclick=()=>location.href="../../index.html";
@@ -790,6 +784,7 @@ window.addEventListener("resize",()=>{
 });
 
 syncSettingsUI();
+updateSpreadUI();
 </script>
 </body>
 </html>
