@@ -36,7 +36,7 @@ const pauseButton = $("#pauseButton");
 const difficultyButtons = $("#difficultyButtons");
 const letterCaseButtons = $("#letterCaseButtons");
 
-const speedOptions = [0.25, 0.50, 0.75, 1.00, 1.25, 1.50, 1.75, 2.00, 2.50, 3.00, 3.50, 4.00];
+const speedOptions = [0.50, 1.00, 1.50, 2.00, 2.50, 3.00, 3.50, 4.00];
 const loopOptions = [1, 2, 3, 4, 5];
 let midiData = null;
 let midiReady = false;
