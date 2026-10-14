@@ -27,12 +27,7 @@ function createSlot({ label = null, className = "", onClick = null, title = "" }
   return slot;
 }
 
-function eventLabel(event, sequence, letterCase = "uppercase") {
-  if (event.type === "letter") return displayLetter(sequence[event.letterIndex] ?? "", letterCase);
-  return event.display;
-}
-
-export function renderSongPreview(container, sequence, song, compact = true, letterCase = "uppercase") {
+export function renderSongPreview(container, sequence, song, compact = true, letterCase = "uppercase", { clapLetters = new Set(), onToggleClap = null } = {}) {
   container.innerHTML = "";
   const layout = document.createElement("div");
   layout.className = `song-layout ${compact ? "compact" : ""}`;
@@ -55,10 +50,25 @@ export function renderSongPreview(container, sequence, song, compact = true, let
       item.chunk.forEach(eventIndex => {
         const event = song.events[eventIndex];
         if (event.type !== "letter") return;
-        groupEl.appendChild(createSlot({
-          label: eventLabel(event, sequence, letterCase),
-          className: ""
-        }));
+        const letter = sequence[event.letterIndex] ?? "";
+        const isClapCue = clapLetters.has(letter);
+        const displayedLetter = displayLetter(letter, letterCase);
+        const slot = createSlot({
+          label: isClapCue ? "👏" : displayedLetter,
+          className: isClapCue ? "clap-cue-slot" : "",
+          title: isClapCue
+            ? `Tap to restore ${displayedLetter}`
+            : `Tap to replace ${displayedLetter} with a clap cue`,
+          onClick: onToggleClap ? () => onToggleClap(letter) : null
+        });
+        const block = slot.querySelector(".wood-block");
+        if (block) {
+          block.setAttribute("aria-label", isClapCue
+            ? `Clap cue for ${displayedLetter}. Tap to restore letter.`
+            : `Letter ${displayedLetter}. Tap to replace with clap cue.`);
+          if (isClapCue) block.classList.add("clap-cue");
+        }
+        groupEl.appendChild(slot);
       });
       if (groupEl.children.length) row.appendChild(groupEl);
     });
@@ -67,73 +77,6 @@ export function renderSongPreview(container, sequence, song, compact = true, let
   }
   container.appendChild(layout);
 }
-export function renderCustomEditor(container, sequence, song, { onTopLetter, onTrayLetter, letterCase = "uppercase" }) {
-  container.innerHTML = "";
-  const editor = document.createElement("div");
-  editor.className = "custom-editor";
-
-  const songArea = document.createElement("div");
-  songArea.className = "custom-song-area";
-  const layout = document.createElement("div");
-  layout.className = "song-layout custom-layout";
-
-  // Build the custom editor from the same authoritative chunk list used by
-  // the song preview. Keep the row grouping from song.rows, but normalize the
-  // small array wrappers used by the row metadata so empty dashed slots are
-  // always rendered even when the custom sequence is completely blank.
-  song.rows.forEach(rowChunks => {
-    const row = document.createElement("div");
-    row.className = "song-row";
-    rowChunks.forEach(chunkRef => {
-      const chunkIndex = Array.isArray(chunkRef) ? chunkRef[0] : chunkRef;
-      const chunk = song.chunks[chunkIndex] ?? [];
-      const groupEl = document.createElement("div");
-      groupEl.className = "song-group";
-      chunk.forEach(eventIndex => {
-        const event = song.events[eventIndex];
-        if (event.type === "lyric") return;
-
-        const letterValue = sequence[event.letterIndex];
-        const slot = createSlot({
-          label: displayLetter(letterValue, letterCase),
-          className: "custom-slot",
-          title: letterValue ? `Return ${letterValue} to the letter bank` : "Empty song position"
-        });
-        if (letterValue) {
-          slot.querySelector(".wood-block").addEventListener("click", () => onTopLetter(event.letterIndex));
-        }
-        groupEl.appendChild(slot);
-      });
-      row.appendChild(groupEl);
-    });
-    layout.appendChild(row);
-  });
-  songArea.appendChild(layout);
-
-  const divider = document.createElement("div");
-  divider.className = "custom-divider";
-
-  const tray = document.createElement("div");
-  tray.className = "letter-tray";
-  ALPHABET.forEach(letter => {
-    const used = sequence.includes(letter);
-    const cell = document.createElement("div");
-    cell.className = `tray-cell${used ? " used" : ""}`;
-    if (used) {
-      cell.setAttribute("aria-hidden", "true");
-    } else {
-      const block = createWoodBlock(displayLetter(letter, letterCase), "tray-block");
-      block.title = `Add ${displayLetter(letter, letterCase)}`;
-      block.addEventListener("click", () => onTrayLetter(letter));
-      cell.appendChild(block);
-    }
-    tray.appendChild(cell);
-  });
-
-  editor.append(songArea, divider, tray);
-  container.appendChild(editor);
-}
-
 export function renderGameChunk(container, chunkLength, lyricChunk = false) {
   container.innerHTML = "";
   const row = document.createElement("div");
