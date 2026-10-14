@@ -1,5 +1,3 @@
-import { ALPHABET } from "./sequences.js";
-
 function displayLetter(letter, letterCase = "uppercase") {
   if (!letter) return "";
   return letterCase === "lowercase" ? letter.toLowerCase() : letter.toUpperCase();
