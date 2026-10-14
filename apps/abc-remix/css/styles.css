@@ -229,7 +229,8 @@ body.presentation .game-stage { padding-top: 2vh; padding-bottom: 3vh; }
   .settings-grid { gap: 18px; }
   .song-row { gap: 14px; }
   .preview-content .song-row { gap: 12px; }
-  .preview-content .song-group { gap: 6px; }  .game-screen { padding: 16px 20px 22px; }
+  .preview-content .song-group { gap: 6px; }
+  .game-screen { padding: 16px 20px 22px; }
   .game-header h1 { font-size: 24px; }
   .game-actions { gap: 6px; }
   .icon-btn { width: 44px; height: 44px; }
