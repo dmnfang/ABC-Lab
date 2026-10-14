@@ -144,6 +144,7 @@ h2 { margin: 0; font-size: 28px; line-height: 1; font-weight: 500; }
 .preview-content > .song-layout { flex: 1; justify-content: center; min-height: 0; }
 .preview-content .song-row { gap: 20px; min-height: 0; }
 .preview-content .song-group { gap: 10px; }
+.preview-content .song-slot .wood-block.clap-cue { font-size: 24px; }
 .preview-content .song-slot .wood-block { width: min(100%, 68px); border-width: 4px; }
 .preview-content .preview-song-row { grid-template-columns: 1fr 1fr; }
 
@@ -154,34 +155,6 @@ h2 { margin: 0; font-size: 28px; line-height: 1; font-weight: 500; }
 }
 .shuffle-symbol { display: inline-block; font-size: 21px; transform: rotate(-35deg); margin-right: 5px; }
 .random-board { flex: 1; min-height: 0; display: flex; align-items: center; }
-
-.custom-editor {
-  min-height: 0;
-  flex: 1 1 auto;
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  justify-content: flex-start;
-  overflow: visible;
-}
-.custom-song-area { flex: 0 0 auto; width: 100%; }
-.custom-layout { gap: 10px; }
-.custom-layout .song-row { gap: 20px; }
-.custom-layout .song-group { gap: 10px; }
-.custom-slot { border: 2px dashed var(--sand-300); border-radius: 15px; background: transparent; }
-.custom-slot .wood-block { width: calc(100% - 4px); border-width: 4px; }
-.custom-slot.filled { border-color: transparent; background: transparent; }
-.custom-divider { height: 1px; background: var(--sand-300); margin: 20px 0 18px; flex-shrink: 0; }
-.letter-tray {
-  display: grid; grid-template-columns: repeat(9, minmax(0, 1fr)); gap: 10px;
-  flex-shrink: 0; padding: 0 2px;
-}
-.tray-cell { aspect-ratio: 1; min-width: 0; display: grid; place-items: center; }
-.tray-cell .tray-block { width: 100%; font-size: clamp(15px, 1.25vw, 24px); border-width: 3px; border-radius: 13px; box-shadow: 0 5px 0 var(--wood-shadow), 0 7px 9px rgba(53,49,39,.07); }
-.tray-cell.used {
-  border: 2px dashed var(--sand-300); border-radius: 13px; background: transparent;
-}
-
 
 .game-screen { width: 100%; height: 100%; min-height: 100%; padding: 24px 34px 30px; display: flex; flex-direction: column; background: var(--surface-base); }
 .game-header { flex-shrink: 0; gap: 20px; position: relative; }
@@ -255,10 +228,8 @@ body.presentation .game-stage { padding-top: 2vh; padding-bottom: 3vh; }
   .settings-card { padding: 22px; }
   .settings-grid { gap: 18px; }
   .song-row { gap: 14px; }
-  .preview-content .song-row, .custom-layout .song-row { gap: 12px; }
-  .preview-content .song-group, .custom-layout .song-group { gap: 6px; }
-  .letter-tray { grid-template-columns: repeat(9, 1fr); gap: 6px; }
-  .game-screen { padding: 16px 20px 22px; }
+  .preview-content .song-row { gap: 12px; }
+  .preview-content .song-group { gap: 6px; }  .game-screen { padding: 16px 20px 22px; }
   .game-header h1 { font-size: 24px; }
   .game-actions { gap: 6px; }
   .icon-btn { width: 44px; height: 44px; }
@@ -384,10 +355,8 @@ body.presentation .game-stage { padding-top: 2vh; padding-bottom: 3vh; }
   aspect-ratio: auto;
 }
 .preview-content > .song-layout { flex: 0 0 auto; justify-content: center; }
-.preview-content .song-row,
-.custom-layout .song-row { gap: 20px; }
-.preview-content .song-group,
-.custom-layout .song-group { gap: 8px; }
+.preview-content .song-row { gap: 20px; }
+.preview-content .song-group { gap: 8px; }
 .preview-content .song-slot .wood-block {
   width: 48px;
   height: 48px;
@@ -404,51 +373,6 @@ body.presentation .game-stage { padding-top: 2vh; padding-bottom: 3vh; }
   justify-content: center;
   align-items: flex-start;
 }
-
-.custom-editor { align-items: center; }
-.custom-song-area { width: 100%; }
-.custom-layout { width: max-content; }
-.custom-slot {
-  width: 48px;
-  height: 48px;
-  flex: 0 0 48px;
-  aspect-ratio: auto;
-  border-radius: 11px;
-}
-.custom-slot .wood-block {
-  width: 48px;
-  height: 48px;
-  flex: 0 0 48px;
-  aspect-ratio: auto;
-  border-width: 3px;
-  border-radius: 11px;
-  font-size: 24px;
-}
-.custom-divider { width: 100%; margin: 18px 0 14px; }
-.letter-tray {
-  width: max-content;
-  max-width: 100%;
-  grid-template-columns: repeat(9, 48px);
-  gap: 8px;
-  padding: 0;
-  margin: 0 auto;
-}
-.tray-cell {
-  width: 48px;
-  height: 48px;
-  flex: 0 0 48px;
-  aspect-ratio: auto;
-}
-.tray-cell .tray-block {
-  width: 48px;
-  height: 48px;
-  aspect-ratio: auto;
-  font-size: 18px;
-  border-width: 3px;
-  border-radius: 11px;
-}
-.tray-cell.used { border-radius: 11px; }
-
 @media (max-width: 600px) {
   .settings-screen { padding: 16px; gap: 16px; }
   .settings-card { padding: 18px; }
@@ -457,12 +381,8 @@ body.presentation .game-stage { padding-top: 2vh; padding-bottom: 3vh; }
   .song-layout { gap: 10px; }
   .song-row,
   .song-row:nth-child(4),
-  .preview-content .song-row,
-  .custom-layout .song-row { gap: 12px; }
-  .preview-content .song-group,
-  .custom-layout .song-group { gap: 6px; }
-  .letter-tray { grid-template-columns: repeat(9, 48px); gap: 6px; }
-}
+  .preview-content .song-row { gap: 12px; }
+  .preview-content .song-group { gap: 6px; }}
 
 
 /* Musical word blocks */
