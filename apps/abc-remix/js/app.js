@@ -1,7 +1,7 @@
 import { ALPHABET, originalSequence, randomSequence } from "./sequences.js";
 import { SONGS } from "./songs.js";
 import { PlaybackEngine } from "./playback.js";
-import { renderSongPreview, renderCustomEditor, renderGameChunk, renderEasyChunk, renderEasyChunkPreview, highlightEasyChunkLetter, revealChunkLetter, renderLyricScreen, revealLyricWord, renderMixedScreen, revealMixedEvent } from "./ui.js";
+import { renderSongPreview, renderGameChunk, renderEasyChunk, renderEasyChunkPreview, highlightEasyChunkLetter, revealChunkLetter, renderLyricScreen, revealLyricWord, renderMixedScreen, revealMixedEvent } from "./ui.js";
 
 const state = {
   songKey: "standard",
@@ -11,7 +11,7 @@ const state = {
   difficulty: "easy",
   letterCase: "uppercase",
   randomSequence: randomSequence(),
-  customSequence: Array(26).fill(null),
+  clapLetters: new Set(),
   originalReversed: false
 };
 
@@ -101,9 +101,8 @@ function updatePreviewInfo() {
   const text = `${song.name} × ${modeLabel()} × ${caseLabel} × ${state.difficulty[0].toUpperCase() + state.difficulty.slice(1)} × ${formatSpeed(state.speed)} Speed × ${state.loops} ${state.loops === 1 ? "Loop" : "Loops"}`;
   const description = state.mode === "original"
     ? (state.originalReversed ? "The alphabet will be played in reverse order." : "The original alphabet order will be used.")
-    : state.mode === "random"
-      ? "The order of letters are randomized."
-      : "Tap letters from the bottom to customize your alphabet order.";
+    : "The order of letters is randomized.";
+  const previewInstruction = "Tap any letter in the preview to toggle a clap cue.";
 
   previewInfo.innerHTML = "";
   const summary = document.createElement("div");
@@ -114,7 +113,7 @@ function updatePreviewInfo() {
   const strong = document.createElement("strong");
   strong.textContent = text;
   const span = document.createElement("span");
-  span.textContent = description;
+  span.textContent = `${description} ${previewInstruction}`;
   copy.append(strong, span);
   summary.appendChild(copy);
 
@@ -136,16 +135,6 @@ function updatePreviewInfo() {
     shuffle.textContent = "Shuffle";
     shuffle.addEventListener("click", freshRandom);
     summary.appendChild(shuffle);
-  } else if (state.mode === "custom") {
-    const reset = document.createElement("button");
-    reset.type = "button";
-    reset.className = "preview-action reset-button";
-    reset.textContent = "Reset";
-    reset.addEventListener("click", () => {
-      state.customSequence = Array(26).fill(null);
-      renderModeContent();
-    });
-    summary.appendChild(reset);
   }
 
   previewInfo.appendChild(summary);
@@ -158,7 +147,7 @@ function renderModeContent() {
 
   if (state.mode === "original") {
     const sequence = state.originalReversed ? [...ALPHABET].reverse() : ALPHABET;
-    renderSongPreview(modeContent, sequence, song, true, state.letterCase);
+    renderSongPreview(modeContent, sequence, song, true, state.letterCase, { clapLetters: state.clapLetters, onToggleClap: toggleClapLetter });
     launchButton.disabled = false;
     return;
   }
@@ -166,31 +155,20 @@ function renderModeContent() {
   if (state.mode === "random") {
     const board = document.createElement("div");
     board.className = "preview-board random-board";
-    renderSongPreview(board, state.randomSequence, song, true, state.letterCase);
+    renderSongPreview(board, state.randomSequence, song, true, state.letterCase, { clapLetters: state.clapLetters, onToggleClap: toggleClapLetter });
     modeContent.appendChild(board);
     launchButton.disabled = false;
     return;
   }
 
-  renderCustomEditor(modeContent, state.customSequence, song, {
-    onTopLetter: index => {
-      state.customSequence[index] = null;
-      renderModeContent();
-    },
-    onTrayLetter: letter => {
-      if (state.customSequence.includes(letter)) return;
-      const emptyIndex = state.customSequence.findIndex(item => item === null);
-      if (emptyIndex === -1) return;
-      state.customSequence[emptyIndex] = letter;
-      renderModeContent();
-    },
-    letterCase: state.letterCase,
-    onReset: () => {
-      state.customSequence = Array(26).fill(null);
-      renderModeContent();
-    }
-  });
-  launchButton.disabled = !midiReady || (state.mode === "custom" && state.customSequence.some(letter => !letter));
+  launchButton.disabled = !midiReady;
+}
+
+function toggleClapLetter(letter) {
+  if (!letter) return;
+  if (state.clapLetters.has(letter)) state.clapLetters.delete(letter);
+  else state.clapLetters.add(letter);
+  renderModeContent();
 }
 
 function freshRandom() {
@@ -274,10 +252,10 @@ function renderCountIn(event) {
 function launchGame() {
   // Never start the visual clock without the MIDI that supplies its audio clock.
   if (!midiReady || !midiData?.[state.songKey]) return;
-  if (state.mode === "original") gameSequence = state.originalReversed ? [...ALPHABET].reverse() : originalSequence();
-  else if (state.mode === "random") gameSequence = [...state.randomSequence];
-  else gameSequence = [...state.customSequence];
-  if (state.mode === "custom" && state.customSequence.some(letter => !letter)) return;
+  const letterSequence = state.mode === "original"
+    ? (state.originalReversed ? [...ALPHABET].reverse() : originalSequence())
+    : [...state.randomSequence];
+  gameSequence = letterSequence.map(letter => state.clapLetters.has(letter) ? "👏" : letter);
 
   activeChunk = -1;
   activeRow = null;
@@ -489,12 +467,8 @@ letterCaseButtons.addEventListener("click", event => {
 $("#modeButtons").addEventListener("click", event => {
   const button = event.target.closest("[data-mode]");
   if (!button) return;
-  if (button.dataset.mode === "random") {
-    state.mode = "random";
-    state.randomSequence = randomSequence();
-  } else {
-    state.mode = button.dataset.mode;
-  }
+  state.mode = button.dataset.mode;
+  if (state.mode === "random") state.randomSequence = randomSequence();
   updateButtons();
   renderModeContent();
 });
