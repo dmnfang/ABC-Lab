@@ -1,3 +1,6 @@
-ABC Trail uses the Lexend web font from Google Fonts.
-Lexend is licensed under the SIL Open Font License.
+ABC Trail uses the Lexend typeface (SIL Open Font License 1.1).
 https://fonts.google.com/specimen/Lexend
+
+The letter-tracing paths in letters.js were derived from the shapes of the Lexend
+letters (Regular weight, via @fontsource/lexend 5.3.0). Lexend is licensed under the
+SIL Open Font License; see https://openfontlicense.org

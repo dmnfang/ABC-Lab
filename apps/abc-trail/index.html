@@ -1,400 +1,137 @@
 <!doctype html>
 <html lang="en">
 <head>
-<meta charset="utf-8">
-<meta name="viewport" content="width=device-width,initial-scale=1">
-<title>ABC Trail</title>
-<link rel="preconnect" href="https://fonts.googleapis.com">
-<link rel="stylesheet" href="../../css/clr.css">
-<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link href="https://fonts.googleapis.com/css2?family=Lexend:wght@400;500;600;700;800;900&display=swap" rel="stylesheet">
-<style>
-:root{--bg:#f4efe5;--panel:#fffdf8;--ink:#211c22;--muted:#8c806d;--line:#ddd2bf;--grape:#7653a4;--sand:#ead0a4;--trail:#4f8fd8;--white:#fffdf8}
-*{box-sizing:border-box}html,body{margin:0;width:100%;height:100%;min-height:100dvh;font-family:Lexend,Arial,sans-serif;color:var(--ink);background:var(--bg)}button{font:inherit;color:inherit}
-.app{height:100dvh;min-height:100dvh;display:flex;flex-direction:column;overflow:hidden}
-body:not(.trail-playing) .header-controls{visibility:hidden;pointer-events:none}
-.brand-row{display:flex;align-items:center;gap:10px}.home-icon{display:grid;place-items:center}.home-icon svg{width:20px;height:20px}
-header{height:64px;flex:0 0 64px;background:var(--panel);border-bottom:1px solid var(--line);display:grid;grid-template-columns:1fr auto 1fr;align-items:center;padding:0 34px;gap:12px;position:relative}.brand{font-family:Lexend,sans-serif;font-size:24px;font-weight:600;letter-spacing:-.02em}.header-controls{display:flex;align-items:center;justify-content:center;gap:10px}.header-actions{justify-self:end;display:flex;align-items:center;gap:10px}.icon,.head-btn{width:48px;height:48px;border:2px solid var(--line);border-radius:14px;background:var(--panel);cursor:pointer;font-weight:800}.head-btn{width:auto;padding:0 16px}.head-btn.primary{background:var(--grape);border-color:var(--grape);color:#fff}.play-control{background:var(--grape);border-color:var(--grape);color:#fff}.play-control:disabled{background:var(--grape);color:#fff;opacity:.42}.head-btn:disabled{opacity:.42;cursor:default}
-.settings{flex:1 1 auto;min-height:0;overflow:auto;padding:34px;display:flex;align-items:center;justify-content:center}.settings-card{min-height:0;width:min(1180px,100%);background:transparent;border:0;border-radius:0;padding:0}.eyebrow{font-family:Lexend,sans-serif;font-size:12px;font-weight:900;letter-spacing:.13em;color:var(--grape-dark);margin-bottom:8px}.settings-card h1{font-family:Lexend,sans-serif;font-size:38px;line-height:1;margin:0 0 9px;font-weight:600}.sub{margin:0 0 24px;color:var(--muted);font-size:16px}.settings-grid{display:grid;grid-template-columns:1fr 1fr;gap:24px}.setting{background:var(--panel);border:2px solid var(--line);border-radius:24px;padding:28px}.setting h2{font-family:Lexend,sans-serif;font-size:28px;margin:0 0 7px;font-weight:500}.panel-sub{font-size:13px;color:var(--muted);margin:0 0 20px}.label{font-size:11px;font-weight:900;letter-spacing:.12em;margin:18px 0 9px}.segment{display:grid;grid-template-columns:repeat(4,1fr);gap:8px}.segment.six{grid-template-columns:repeat(6,1fr)}.segment.two{grid-template-columns:repeat(2,1fr)}.segment button,.mini{border:2px solid var(--line);background:var(--panel);border-radius:14px;padding:11px 8px;font-weight:800;cursor:pointer}.segment button.active,.mini.active{background:var(--ink);border-color:var(--ink);color:#fff}.segment button:disabled{opacity:.35;cursor:not-allowed}.letters{display:grid;grid-template-columns:repeat(13,1fr);gap:6px}.letter{aspect-ratio:1;border:2px solid var(--line);border-radius:10px;background:var(--panel);font-weight:800;cursor:pointer}.letter.active{background:var(--sand);border-color:var(--sand)}.actions{display:flex;gap:8px;margin-top:9px}.mini{font-size:11px;padding:8px 10px}.launch{width:100%;height:58px;margin-top:20px;border:0;border-radius:16px;background:var(--grape);color:#fff;font-weight:900;letter-spacing:.02em;cursor:pointer;box-shadow:inset 0 -4px 0 var(--grape-dark)}.launch:disabled{opacity:.42;cursor:default}.hint{font-size:12px;color:var(--muted);margin:11px 0 0}
-.play{flex:1;min-height:0;padding:18px}.play-layout{display:grid;grid-template-columns:minmax(0,1fr) 300px;gap:14px;height:100%}.guess-rail{background:var(--panel);border:1px solid var(--line);border-radius:21px;padding:16px;display:flex;flex-direction:column;min-height:0}.guess-title{font-size:11px;font-weight:800;letter-spacing:.12em;color:var(--muted);margin-bottom:10px}.guess-value{height:58px;border:1px dashed var(--line);border-radius:13px;display:flex;align-items:center;justify-content:center;font-family:Lexend,Arial,sans-serif;font-size:28px;font-weight:700;margin-bottom:12px}.guess-value.has{border-style:solid;background:#f7f0e3;color:var(--grape);gap:6px;padding:6px;flex-wrap:wrap;overflow:auto}
-.guess-chip{width:44px;height:44px;border:0;border-radius:10px;background:var(--sand);color:var(--ink);font-family:Lexend,Arial,sans-serif;font-size:22px;font-weight:700;cursor:pointer;flex:0 0 auto;position:relative;z-index:5;pointer-events:auto;touch-action:manipulation}
-.guess-chip:hover{background:var(--sand-deep);transform:translateY(-1px)}.guess-grid{display:grid;grid-template-columns:repeat(5,1fr);gap:6px;overflow:auto}.guess-letter{aspect-ratio:1;border:1px solid var(--line);border-radius:9px;background:var(--panel);font-weight:800;cursor:pointer}.guess-letter:hover{border-color:var(--grape)}.guess-letter.selected{background:var(--sand);border-color:var(--sand)}.check-btn{margin-top:auto;height:46px;border:0;border-radius:12px;background:var(--grape);color:#fff;font-weight:800;cursor:pointer}.check-btn:disabled{opacity:.35;cursor:default}.stage{min-width:0}.stage-main{margin:0 18px 18px}.answer{z-index:3}.prompt{z-index:4}.stage{width:100%;height:100%;min-width:0;min-height:0;background:var(--panel);border:1px solid var(--line);border-radius:21px;display:flex;flex-direction:column;overflow:hidden}.stage-top{height:58px;flex:0 0 58px;display:grid;grid-template-columns:1fr auto;align-items:center;padding:0 18px;gap:16px}.badge{font-size:11px;font-weight:800;letter-spacing:.12em;color:var(--muted)}.sequence{justify-self:end;display:flex;gap:6px}.seq-dot{width:8px;height:8px;border-radius:50%;background:var(--line)}.seq-dot.active{background:var(--grape)}.seq-dot.done{background:var(--sand)}.stage-main{flex:1;min-height:0;position:relative;display:flex;align-items:center;justify-content:center;margin:0 18px 18px;border-radius:16px;overflow:hidden}.stage-main svg{width:100%;height:100%;overflow:visible}.trail-segment{fill:none;stroke:var(--trail);stroke-linecap:round;filter:drop-shadow(0 0 5px rgba(79,143,216,.42))}.trail-dot{fill:#fff;stroke:var(--trail);stroke-width:.55;filter:drop-shadow(0 0 5px rgba(79,143,216,.68))}.prompt{position:absolute;bottom:16px;left:0;right:0;text-align:center;font-size:14px;font-weight:800;letter-spacing:.06em;color:var(--muted)}.answer{position:absolute;inset:0;display:flex;align-items:center;justify-content:center;pointer-events:none;opacity:0;transform:scale(.92);z-index:3}.answer-feedback{position:absolute;top:18px;left:0;right:0;text-align:center;font-size:14px;font-weight:800;letter-spacing:.09em;color:var(--muted)}.answer-feedback.correct{color:var(--grape)}.answer-feedback.wrong{color:#9a5d54}.answer.show{animation:bloom .45s ease-out forwards}@keyframes bloom{to{opacity:1;transform:scale(1)}}.answer span{font-family:Lexend,Arial,sans-serif;font-size:min(58vh,460px);font-weight:600;color:var(--grape);line-height:.8;white-space:nowrap;display:block;max-width:calc(100% - 36px);text-align:center}
-@media(max-height:760px) and (min-width:761px){.settings{padding:20px 28px}.settings-card h1{font-size:34px}.sub{margin-bottom:16px}.setting{padding:22px}.setting h2{font-size:25px}.label{margin-top:13px}.launch{margin-top:14px}}
-@media(max-width:900px){.play-layout{grid-template-columns:minmax(0,1fr) 250px}.guess-grid{grid-template-columns:repeat(5,1fr)}}
-@media(max-width:760px){
-html,body{min-height:100dvh;overflow:hidden}
-.app{height:100dvh;min-height:100dvh;overflow:hidden}
-.settings-grid{grid-template-columns:1fr;overflow-y:auto}
-.letters{grid-template-columns:repeat(9,1fr)}
-.segment.six{grid-template-columns:repeat(3,1fr)}
-.play{padding:10px}
-.play-layout{grid-template-columns:1fr}
-.guess-rail{max-height:260px}
-.stage-top{grid-template-columns:1fr auto;gap:8px}
-.header-actions .head-btn{display:none}
-.header-actions .icon{display:grid}
-.header-controls{gap:4px}
-.header-controls .icon{width:38px;height:38px}
-.stage-main{margin:0 10px 10px}
-.settings{align-items:flex-start;padding:16px}
-.setting{padding:22px}
-}
-.header-controls svg,.header-actions svg{width:20px;height:20px}
-/* Keep play controls out of the settings state. */
-#playScreen[style*="display: none"]{display:none!important}
-@media(max-width:760px){header{padding-left:max(16px,env(safe-area-inset-left));padding-right:max(16px,env(safe-area-inset-right))}}
-
-/* ABC Remix settings language */
-.settings{
-  width:100%;
-  height:100%;
-  flex:1 1 auto;
-  min-height:0;
-  overflow:auto;
-  padding:24px 22px 22px;
-  display:flex;
-  align-items:stretch;
-  justify-content:center;
-}
-.settings-card{
-  width:min(1180px,100%);
-  min-height:0;
-  background:transparent;
-  border:0;
-  border-radius:0;
-  padding:0;
-}
-.settings-grid{
-  width:100%;
-  height:100%;
-  min-height:0;
-  flex:1 1 auto;
-  display:grid;
-  grid-template-columns:1fr 1fr;
-  gap:24px;
-  align-items:stretch;
-}
-.setting{
-  min-width:0;
-  min-height:0;
-  background:transparent;
-  border:0;
-  border-radius:0;
-  padding:28px 32px;
-  display:flex;
-  flex-direction:column;
-  overflow:visible;
-}
-.setting h2{
-  font-family:Lexend,sans-serif;
-  font-size:28px;
-  line-height:1;
-  font-weight:500;
-  margin:0 0 7px;
-}
-.panel-sub{
-  font-size:13px;
-  line-height:1.3;
-  color:var(--muted);
-  margin:0 0 20px;
-}
-.label{
-  font-family:Lexend,sans-serif;
-  font-size:14px;
-  line-height:1.2;
-  font-weight:800;
-  letter-spacing:.01em;
-  margin:24px 0 12px;
-}
-.segment{
-  display:flex;
-  gap:12px;
-  flex-wrap:wrap;
-}
-.segment button{
-  height:48px;
-  padding:0 20px;
-  border:0;
-  border-radius:9999px;
-  background:#EDE6D4;
-  color:#353127;
-  font-family:Lexend,sans-serif;
-  font-size:16px;
-  line-height:1;
-  font-weight:800;
-  letter-spacing:-.01em;
-  white-space:nowrap;
-  transition:background .12s ease,color .12s ease,transform .12s ease;
-}
-.segment button:hover{transform:translateY(-1px)}
-.segment button.active{
-  background:#353127;
-  color:#fff;
-}
-.segment.two{grid-template-columns:repeat(2,1fr)}
-.segment.two button{flex:0 0 auto}
-.segment.six{
-  display:grid;
-  grid-template-columns:repeat(6,minmax(0,1fr));
-  gap:8px;
-}
-.segment.six button{
-  min-width:0;
-  padding:0;
-}
-.letters{
-  display:grid;
-  grid-template-columns:repeat(13,1fr);
-  gap:8px;
-}
-.letter{
-  aspect-ratio:1;
-  border:0;
-  border-radius:12px;
-  background:#fff;
-  font-family:Lexend,sans-serif;
-  font-size:16px;
-  line-height:1;
-  font-weight:800;
-}
-.letter.active{
-  background:#EAD0A4;
-  border:0;
-}
-.actions{
-  display:flex;
-  gap:10px;
-  margin-top:10px;
-}
-.mini{
-  height:42px;
-  padding:0 16px;
-  border:0;
-  border-radius:9999px;
-  background:#EDE6D4;
-  color:#353127;
-  font-family:Lexend,sans-serif;
-  font-size:12px;
-  line-height:1;
-  font-weight:800;
-  white-space:nowrap;
-}
-.hint{
-  font-size:13px;
-  line-height:1.35;
-  color:var(--muted);
-  margin:12px 0 0;
-}
-#start.launch{
-  width:100%;
-  height:76px;
-  margin-top:auto;
-  flex-shrink:0;
-  border:0;
-  border-radius:18px;
-  background:#9B6BC7;
-  color:#fff;
-  font-family:Lexend,sans-serif;
-  font-size:17px;
-  line-height:1;
-  font-weight:900;
-  letter-spacing:0;
-  box-shadow:inset 0 -5px 0 #764A9C;
-}
-#start.launch:active{
-  transform:translateY(3px);
-  box-shadow:inset 0 -2px 0 #764A9C;
-}
-@media(max-height:760px) and (min-width:761px){
-  .settings{padding:18px 22px}
-  .setting{padding:22px 26px}
-  .setting h2{font-size:25px}
-  .panel-sub{margin-bottom:14px}
-  .label{margin-top:17px;margin-bottom:9px}
-  .segment button{height:44px;padding:0 16px;font-size:15px}
-  .launch{height:64px}
-}
-/* Settings layout aligned with ABC Remix */
-.settings{flex:1 1 auto;min-height:0;overflow:hidden;padding:0 34px 34px;display:flex;align-items:stretch;justify-content:center}
-.settings-grid{width:min(1180px,100%);min-height:0;display:grid;grid-template-columns:1fr 1fr;gap:24px;align-items:stretch}
-.setting-panel{min-width:0;min-height:0;background:var(--panel);border:1.5px solid var(--line);border-radius:16px;padding:20px 22px;display:flex;flex-direction:column;overflow:hidden}
-.setting-panel h2{font-family:Lexend,sans-serif;font-size:20px;line-height:1;margin:0 0 18px;font-weight:500}
-.panel-sub{font-size:11px;color:var(--muted);margin:-8px 0 18px}
-.control-section{flex-shrink:0;margin-top:20px}
-.setting-panel h2 + .control-section{margin-top:0}
-.control-section > label{display:block;margin-bottom:8px;font-size:12px;line-height:1.2;font-weight:700;color:var(--muted);letter-spacing:.02em}
-.pill-group{display:flex;gap:10px;flex-wrap:wrap}
-.pill-group .pill{height:34px;padding:0 14px;border-radius:9999px;background:var(--sand);color:var(--ink);font-size:12px;font-weight:800;border:0;display:inline-flex;align-items:center;justify-content:center}
-.pill-group .pill.active{background:var(--grape);color:#fff}
-.pill-group .pill:hover{transform:translateY(-1px)}
-.count-group{display:grid;grid-template-columns:repeat(6,minmax(0,1fr));gap:8px}
-.count-group .pill{width:100%;min-width:0;padding:0}
-.settings-note{font-size:11px;line-height:1.3;color:var(--muted);margin:10px 0 0}
-.pool-section{min-height:0;display:flex;flex-direction:column}
-.setting-panel .letters{display:grid;grid-template-columns:repeat(13,minmax(0,1fr));gap:6px;min-height:0}
-.setting-panel .letter{position:static;width:auto;height:auto;aspect-ratio:1;transform:none;font-size:16px;color:var(--ink);background:var(--panel);border:1px solid var(--line);border-radius:10px;display:grid;place-items:center;cursor:pointer;pointer-events:auto;user-select:none;transition:none}
-.setting-panel .letter.active{background:var(--sand);border-color:var(--sand)}
-.setting-panel .actions{display:flex;gap:8px;margin-top:9px}
-.setting-panel .mini{height:30px;border:1px solid var(--line);border-radius:9999px;background:var(--panel);padding:0 12px;font-size:11px;font-weight:800;cursor:pointer}
-.setting-panel .mini:hover{background:var(--sand-50,#f7f2e9)}
-.setting-panel-right .launch-button{width:100%;height:54px;margin-top:auto;border:0;border-radius:13px;background:var(--grape);color:#fff;font-size:14px;font-weight:900;box-shadow:inset 0 -4px 0 var(--grape-dark,#5d3e82);cursor:pointer}
-@media(max-width:1000px){.settings{padding:0 22px 22px}.settings-grid{grid-template-columns:1fr}.setting-panel{min-height:420px}}
-@media(max-width:600px){.settings{padding:0 16px 16px}.settings-grid{gap:16px}.setting-panel{padding:18px}.setting-panel .letters{grid-template-columns:repeat(9,minmax(0,1fr))}}
-</style>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+  <meta name="theme-color" content="#F7F2E9">
+  <title>ABC Trail</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Fredoka:wght@400;500;600;700&family=Lexend:wght@500;600;700&family=Nunito:wght@400;500;600;700;800;900&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="../../assets/css/tokens.css?v=7">
+  <link rel="stylesheet" href="../../assets/css/base.css?v=7">
+  <link rel="stylesheet" href="./trail.css?v=7">
 </head>
-<body>
-<div class="app">
-<header><div class="brand-row"><button class="icon home-icon" id="homeBtn" title="ABC Lab" aria-label="ABC Lab home"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="m3 10 9-7 9 7"/><path d="M5 9v11h14V9"/><path d="M9 20v-6h6v6"/></svg></button><div class="brand">ABC TRAIL</div></div><div class="header-controls"><button class="icon play-control" id="playBtn" title="Play" aria-label="Play">▶</button><button class="icon" id="nextBtn" title="Next" aria-label="Next" disabled>→</button><button class="icon" id="revealBtn" title="Reveal" aria-label="Reveal" disabled>◉</button></div><div class="header-actions"><button class="head-btn" id="settingsBtn">SETTINGS</button><button class="icon" id="fullBtn" title="Fullscreen">⛶</button></div></header>
-<section class="settings" id="settingsView">
-<div class="settings-grid">
-  <section class="setting-panel">
-    <h2>Trail Settings</h2>
-    <div class="control-section">
-      <label>Trace Speed</label>
-      <div class="pill-group" id="speed" role="group" aria-label="Trace speed">
-        <button class="pill" data-v="0.7">Slow</button>
-        <button class="pill active" data-v="1">Normal</button>
-        <button class="pill" data-v="1.35">Fast</button>
-        <button class="pill" data-v="1.8">Very Fast</button>
-      </div>
-    </div>
-    <div class="control-section">
-      <label>Trail Length</label>
-      <div class="pill-group" id="trail" role="group" aria-label="Trail length">
-        <button class="pill" data-v="0">None</button>
-        <button class="pill" data-v="1">Short</button>
-        <button class="pill active" data-v="2">Medium</button>
-        <button class="pill" data-v="3">Long</button>
-      </div>
-    </div>
-    <div class="control-section">
-      <label>Letter Case</label>
-      <div class="pill-group" id="case" role="group" aria-label="Letter case">
-        <button class="pill active" data-v="uppercase">Uppercase</button>
-        <button class="pill" data-v="lowercase">Lowercase</button>
-      </div>
-    </div>
-    <div class="control-section">
-      <label>Letters per Sequence</label>
-      <div class="pill-group count-group" id="count" role="group" aria-label="Letters per sequence">
-        <button class="pill active" data-v="1">1</button><button class="pill" data-v="2">2</button><button class="pill" data-v="3">3</button><button class="pill" data-v="4">4</button><button class="pill" data-v="5">5</button><button class="pill" data-v="6">6</button>
-      </div>
-      <p class="settings-note">Letters are selected from the mastered-letter pool and do not repeat within a sequence.</p>
-    </div>
-  </section>
+<body data-game="trail">
 
-  <section class="setting-panel setting-panel-right">
-    <h2>Letter Pool</h2>
-    <p class="panel-sub">Select the letters your students have mastered.</p>
-    <div class="control-section pool-section">
-      <label>Mastered Letters</label>
-      <div class="letters" id="letters"></div>
-      <div class="actions"><button class="mini" id="all">Select All</button><button class="mini" id="clear">Clear All</button></div>
-    </div>
-    <button class="launch-button" id="start" type="button">Start Trail</button>
-  </section>
-</div>
-</section><section class="play" id="play" style="display:none">
-<div class="play-layout">
-<div class="stage"><div class="stage-top"><div class="badge" id="badge">LETTER 1 OF 1</div><div class="sequence" id="sequence"></div></div><div class="stage-main" id="stageMain"><svg id="svg" viewBox="0 0 100 100" preserveAspectRatio="xMidYMid meet"><g id="trailLayer"></g><g id="dotLayer"></g></svg><div class="answer" id="answer"><div class="answer-feedback" id="answerFeedback"></div><span id="answerLetter"></span></div><div class="prompt" id="prompt">GET READY...</div></div></div>
-<aside class="guess-rail"><div class="guess-title">YOUR GUESS</div><div class="guess-value" id="guessValue">?</div><div class="guess-grid" id="guessGrid"></div><button class="check-btn" id="checkBtn" disabled>CHECK</button></aside>
-</div>
-</section>
-</div>
-<script>
-const UPPERCASE_LETTERS='ABCDEFGHIJKLMNOPQRSTUVWXYZ'.split('');
-const LOWERCASE_LETTERS='abcdefghijklmnopqrstuvwxyz'.split('');
-let LETTERS=UPPERCASE_LETTERS;
-const PATHS={
-A:['M25 78 L50 20','M50 20 L75 78','M35 57 L65 57'],
-B:['M36 78 L36 20','M36 20 C57 19 64 27 64 37 C64 46 56 50 36 50','M36 50 C58 50 67 57 67 65 C67 74 58 78 36 78'],
-C:['M72 28 C65 21 58 19 50 19 C32 19 24 31 24 49 C24 67 32 79 50 79 C58 79 66 77 72 70'],
-D:['M34 78 L34 20','M34 20 C59 19 74 29 74 49 C74 69 59 79 34 78'],
-E:['M70 20 L31 20 L31 78 L72 78','M31 49 L64 49'],
-F:['M70 20 L31 20 L31 78','M31 49 L64 49'],
-G:['M72 29 C66 22 58 19 49 19 C32 19 24 31 24 49 C24 67 33 79 50 79 C59 79 67 76 72 70 L72 52 L51 52'],
-H:['M29 20 L29 78','M71 20 L71 78','M29 49 L71 49'],
-I:['M32 20 L68 20','M50 20 L50 78','M32 78 L68 78'],
-J:['M70 20 L70 64 C70 74 62 79 50 79 C38 79 30 73 30 63'],
-K:['M31 20 L31 78','M70 20 L31 50 L72 78'],
-L:['M31 20 L31 78 L72 78'],
-M:['M27 78 L27 20 L50 53 L73 20 L73 78'],
-N:['M29 78 L29 20 L71 78 L71 20'],
-O:['M50 19 C33 19 24 31 24 49 C24 67 33 79 50 79 C67 79 76 67 76 49 C76 31 67 19 50 19'],
-P:['M32 78 L32 20 L56 20 C68 20 73 27 73 36 C73 45 68 51 56 51 L32 51'],
-Q:['M50 19 C33 19 24 31 24 49 C24 67 33 79 50 79 C67 79 76 67 76 49 C76 31 67 19 50 19','M60 65 L75 80'],
-R:['M32 78 L32 20 L56 20 C68 20 73 27 73 36 C73 45 68 51 56 51 L32 51','M52 51 L74 78'],
-S:['M71 27 C65 21 58 19 49 19 C37 19 29 24 29 33 C29 43 38 47 51 51 C63 55 71 59 71 67 C71 75 63 79 50 79 C40 79 32 76 27 70'],
-T:['M26 20 L74 20','M50 20 L50 78'],
-U:['M29 20 L29 60 C29 72 37 79 50 79 C63 79 71 72 71 60 L71 20'],
-V:['M26 20 L50 78 L74 20'],
-W:['M22 20 L34 78 L50 40 L66 78 L78 20'],
-X:['M28 20 L72 78','M72 20 L28 78'],
-Y:['M27 20 L50 49 L73 20','M50 49 L50 78'],
-Z:['M28 20 L72 20 L28 78 L73 78'],
+  <!-- Settings -->
+  <main id="settingsScreen" class="app-shell screen">
+    <header class="app-header">
+      <div class="header-left">
+        <a class="icon-btn" href="../../index.html" data-icon="house" aria-label="ABC Lab home" title="ABC Lab home"></a>
+        <h1 class="brand-name">ABC Trail</h1>
+      </div>
+      <div class="header-actions">
+        <button id="settingsFullscreen" class="icon-btn" type="button" aria-label="Fullscreen" title="Fullscreen"></button>
+      </div>
+    </header>
 
-a:['M67 58 C63 52 58 49 51 49 C41 49 35 56 35 65 C35 74 41 80 51 80 C59 80 65 75 67 69','M67 49 L67 80'],
-b:['M31 20 L31 80','M31 58 C35 52 41 49 48 49 C59 49 66 55 66 65 C66 75 59 80 48 80 C41 80 35 77 31 72'],
-c:['M67 54 C63 50 58 48 51 48 C41 48 35 55 35 64 C35 74 42 80 52 80 C58 80 63 78 67 74'],
-d:['M69 20 L69 80','M69 58 C65 52 59 49 52 49 C41 49 34 56 34 65 C34 74 41 80 52 80 C59 80 65 77 69 72'],
-e:['M67 69 C64 76 58 80 50 80 C41 80 35 74 35 64 C35 55 42 49 51 49 C61 49 67 55 67 65 L36 65'],
-f:['M65 34 C65 25 60 20 53 20 C46 20 42 25 42 34 L42 80','M33 44 L58 44'],
-g:['M67 58 C63 52 58 49 51 49 C41 49 35 56 35 65 C35 74 41 80 51 80 C59 80 65 75 67 69 L67 76 C67 87 60 90 51 90 C45 90 40 88 37 84'],
-h:['M31 20 L31 80','M31 58 C35 52 40 49 46 49 C55 49 61 55 61 65 L61 80'],
-i:['M44 50 L44 80','M44 38 L44 38'],
-j:['M57 50 L57 80 C57 87 53 90 47 90','M57 38 L57 38'],
-k:['M32 20 L32 80','M32 61 L63 49','M48 55 L65 80'],
-l:['M46 20 L46 80'],
-m:['M30 80 L30 50','M30 58 C34 52 39 49 44 49 C50 49 53 53 53 60 L53 80','M53 58 C57 52 62 49 67 49 C73 49 76 53 76 60 L76 80'],
-n:['M31 80 L31 50','M31 58 C35 52 40 49 46 49 C55 49 61 55 61 65 L61 80'],
-o:['M51 49 C41 49 35 55 35 65 C35 75 41 80 51 80 C61 80 67 75 67 65 C67 55 61 49 51 49'],
-p:['M32 90 L32 50','M32 58 C36 52 42 49 49 49 C60 49 67 56 67 65 C67 75 60 80 49 80 C42 80 36 77 32 72'],
-q:['M68 90 L68 50','M68 58 C64 52 58 49 51 49 C41 49 35 56 35 65 C35 74 42 80 52 80 C59 80 65 77 68 72'],
-r:['M34 80 L34 50','M34 59 C38 52 44 49 52 49 C58 49 62 52 65 56'],
-s:['M66 54 C62 50 57 48 51 48 C42 48 36 52 36 58 C36 64 42 66 51 68 C60 70 66 73 66 78 C66 84 60 88 51 88 C44 88 38 85 34 81'],
-t:['M50 30 L50 72 C50 78 54 80 60 80','M38 48 L62 48'],
-u:['M34 50 L34 68 C34 76 40 80 47 80 C54 80 60 76 60 68 L60 50','M60 50 L60 80'],
-v:['M34 50 L50 80 L66 50'],
-w:['M27 50 L36 80 L50 58 L64 80 L73 50'],
-x:['M35 50 L67 80','M67 50 L35 80'],
-y:['M34 50 L50 72 L66 50','M50 72 L50 84 C50 88 47 90 42 90'],
-z:['M34 50 L68 50 L34 80 L68 80']
-};
-const S={speed:1,trail:2,count:1,case:'uppercase',selected:new Set(UPPERCASE_LETTERS),current:null,playing:false,revealed:false,guesses:[],token:0};
-function getLetterSet(){return S.case==='lowercase'?LOWERCASE_LETTERS:UPPERCASE_LETTERS}
-function setLetterCase(value){S.case=value;LETTERS=getLetterSet();S.selected=new Set(LETTERS);renderLetters();renderGuessGrid();refreshCountOptions()}
-const $=id=>document.getElementById(id);
-function setActive(id,v){document.querySelectorAll('#'+id+' button').forEach(b=>b.classList.toggle('active',b.dataset.v===String(v)))}
-function renderLetters(){const w=$('letters');w.innerHTML='';LETTERS.forEach(x=>{const b=document.createElement('button');b.className='letter'+(S.selected.has(x)?' active':'');b.textContent=x;b.onclick=()=>{if(S.selected.has(x)){if(S.selected.size===1)return;S.selected.delete(x)}else S.selected.add(x);renderLetters()};w.append(b)})}
-function renderGuessGrid(){const w=$('guessGrid');w.innerHTML='';LETTERS.forEach(x=>{const b=document.createElement('button');b.className='guess-letter'+(S.guesses.includes(x)?' selected':'');b.textContent=x;b.onclick=()=>selectGuess(x);w.append(b)})}
-function selectGuess(x){if(S.playing||S.revealed||S.guesses.length>=sequence.length)return;S.guesses.push(x);renderGuessValue();renderGuessGrid();$('checkBtn').disabled=S.guesses.length!==sequence.length}
-function renderGuessValue(){const w=$('guessValue');w.innerHTML='';if(!S.guesses.length){w.textContent='?';w.classList.remove('has');return}w.classList.add('has');S.guesses.forEach((x,i)=>{const b=document.createElement('button');b.className='guess-chip';b.type='button';b.textContent=x;b.title='Remove '+x;b.addEventListener('click',event=>{event.preventDefault();event.stopPropagation();if(S.playing||S.revealed)return;S.guesses.splice(i,1);renderGuessValue();renderGuessGrid();$('checkBtn').disabled=S.guesses.length!==sequence.length});w.append(b)})}
-function resetGuess(){S.guesses=[];renderGuessValue();$('checkBtn').disabled=true;$('answerFeedback').textContent='';$('answerFeedback').className='answer-feedback';renderGuessGrid()}
-function pathLength(d){const p=document.createElementNS('http://www.w3.org/2000/svg','path');p.setAttribute('d',d);$('trailLayer').append(p);const n=p.getTotalLength();p.remove();return n}
-function clearDrawingOnly(){S.token++;$('trailLayer').innerHTML='';$('dotLayer').innerHTML='';$('answer').classList.remove('show');$('answerLetter').textContent=''}
-function clearStage(){clearDrawingOnly();S.revealed=false;resetGuess();$('prompt').textContent='';$('playBtn').disabled=false;$('revealBtn').disabled=true;$('nextBtn').disabled=true}
-function makeSequence(){const pool=[...S.selected];if(!pool.length)return [];const shuffled=[...pool];for(let i=shuffled.length-1;i>0;i--){const j=Math.floor(Math.random()*(i+1));[shuffled[i],shuffled[j]]=[shuffled[j],shuffled[i]]}return shuffled.slice(0,Math.min(S.count,pool.length))}
-let sequence=[],index=0;
-function renderSequence(){const w=$('sequence');w.innerHTML='';sequence.forEach((_,i)=>{const d=document.createElement('span');d.className='seq-dot'+(i===index?' active':i<index?' done':'');w.append(d)})}
-function setupSequence(){S.current=sequence[0]||null;$('answerLetter').textContent='';$('badge').textContent=`${sequence.length} LETTER${sequence.length===1?'':'S'} READY`;$('prompt').textContent='PRESS PLAY';renderSequence();clearDrawingOnly();resetGuess();$('playBtn').disabled=false;$('revealBtn').disabled=true;$('nextBtn').disabled=true}
-function createPath(d){const p=document.createElementNS('http://www.w3.org/2000/svg','path');p.setAttribute('d',d);p.setAttribute('fill','none');p.setAttribute('stroke','none');$('trailLayer').append(p);return p}
-function addSeg(x1,y1,x2,y2,opacity,width){const l=document.createElementNS('http://www.w3.org/2000/svg','line');l.setAttribute('x1',x1);l.setAttribute('y1',y1);l.setAttribute('x2',x2);l.setAttribute('y2',y2);l.setAttribute('opacity',opacity);l.setAttribute('stroke-width',width);l.classList.add('trail-segment');$('dotLayer').append(l);return l}
-function addDot(x,y){const c=document.createElementNS('http://www.w3.org/2000/svg','circle');c.setAttribute('cx',x);c.setAttribute('cy',y);c.setAttribute('r','2.35');c.classList.add('trail-dot');$('dotLayer').append(c);return c}
-async function animateLetter(letter,token){const paths=PATHS[letter]||[];const trailFraction=[0,.055,.105,.17][S.trail];for(const d of paths){if(token!==S.token)return false;const p=createPath(d),len=p.getTotalLength();const speedUnitsPerSecond=70*S.speed;const duration=Math.max(220,(len/speedUnitsPerSecond)*1000);const start=performance.now();let samples=[],last=0;await new Promise(resolve=>{const frame=now=>{if(token!==S.token){resolve();return}const t=Math.min(1,(now-start)/duration);const pt=p.getPointAtLength(len*t);if(now-last>24||t===1){samples.push({x:pt.x,y:pt.y});last=now;const cutoff=len*trailFraction;let back=0,keep=0;for(let i=samples.length-1;i>0;i--){const a=samples[i],b=samples[i-1];back+=Math.hypot(a.x-b.x,a.y-b.y);if(back>cutoff){keep=i;break}}if(S.trail===0)samples=samples.slice(-1);else if(keep)samples=samples.slice(keep);$('dotLayer').innerHTML='';for(let i=0;i<samples.length-1;i++){const a=samples[i],b=samples[i+1];const age=i/(samples.length-1||1);addSeg(a.x,a.y,b.x,b.y,0.10+age*.55,9+age*9)}addDot(pt.x,pt.y)}if(t<1)requestAnimationFrame(frame);else resolve()};requestAnimationFrame(frame)});}return token===S.token}
-async function animate(){if(S.playing||!sequence.length)return;S.playing=true;S.revealed=false;S.guesses=[];S.token++;const token=S.token;$('trailLayer').innerHTML='';$('dotLayer').innerHTML='';$('answer').classList.remove('show');$('answerLetter').textContent='';$('answerFeedback').textContent='';$('answerFeedback').className='answer-feedback';resetGuess();$('prompt').textContent='WATCH THE TRAIL';$('playBtn').disabled=true;$('revealBtn').disabled=true;$('nextBtn').disabled=true;renderSequence();
-for(let i=0;i<sequence.length;i++){if(token!==S.token)return;index=i;$('badge').textContent=`LETTER ${i+1} OF ${sequence.length}`;renderSequence();$('trailLayer').innerHTML='';$('dotLayer').innerHTML='';const ok=await animateLetter(sequence[i],token);if(!ok)return;if(i<sequence.length-1){await new Promise(r=>setTimeout(r,420));}}
-if(token!==S.token)return;S.playing=false;$('prompt').textContent='WHAT LETTERS?';$('revealBtn').disabled=false;$('playBtn').disabled=false;$('nextBtn').disabled=false;index=sequence.length-1;renderSequence()}
-function fitAnswer(){const el=$('answerLetter');if(!el.textContent)return;let size=Math.min(58*window.innerHeight/100,460);el.style.fontSize=size+'px';const maxW=Math.max(120,$('stageMain')?.clientWidth||900)-36;let guard=0;while(el.scrollWidth>maxW && size>40 && guard++<30){size*=0.9;el.style.fontSize=size+'px'}}
-window.addEventListener('resize',()=>{if(S.revealed)fitAnswer()});
-function reveal(){if(S.playing||S.revealed)return;S.revealed=true;$('trailLayer').innerHTML='';$('dotLayer').innerHTML='';$('answerLetter').textContent=sequence.join('');fitAnswer();$('answerFeedback').textContent='ANSWER';$('answerFeedback').className='answer-feedback';$('answer').classList.remove('show');void $('answer').offsetWidth;$('answer').classList.add('show');$('prompt').textContent='';$('revealBtn').disabled=true;$('nextBtn').disabled=false}
-function checkGuess(){if(S.playing||S.guesses.length!==sequence.length)return;$('trailLayer').innerHTML='';$('dotLayer').innerHTML='';const guess=S.guesses.join('');const answer=sequence.join('');const correct=guess===answer;$('answerFeedback').textContent=correct?'CORRECT':'NOT QUITE';$('answerFeedback').className='answer-feedback '+(correct?'correct':'wrong');$('answerLetter').textContent=answer;fitAnswer();S.revealed=true;$('answer').classList.remove('show');void $('answer').offsetWidth;$('answer').classList.add('show');$('prompt').textContent='';$('revealBtn').disabled=true;$('nextBtn').disabled=false;$('checkBtn').disabled=true}
-function next(){if(S.playing)return;sequence=makeSequence();index=0;setupSequence()}
-function start(){if(!S.selected.size)return;sequence=makeSequence();index=0;$('settingsView').style.display='none';$('play').style.display='block';document.body.classList.add('trail-playing');setupSequence()}
-$('homeBtn').onclick=()=>location.href='../../index.html';$('start').onclick=start;$('playBtn').onclick=animate;$('revealBtn').onclick=reveal;$('nextBtn').onclick=next;$('checkBtn').onclick=checkGuess;$('settingsBtn').onclick=()=>{S.token++;S.playing=false;$('play').style.display='none';$('settingsView').style.display='flex';document.body.classList.remove('trail-playing');clearStage()};$('fullBtn').onclick=()=>document.fullscreenElement?document.exitFullscreen():document.documentElement.requestFullscreen();
-$('all').onclick=()=>{S.selected=new Set(LETTERS);renderLetters();refreshCountOptions()};$('clear').onclick=()=>{S.selected.clear();renderLetters();refreshCountOptions()};
-document.querySelectorAll('#speed button').forEach(b=>b.onclick=()=>{S.speed=+b.dataset.v;setActive('speed',S.speed)});document.querySelectorAll('#trail button').forEach(b=>b.onclick=()=>{S.trail=+b.dataset.v;setActive('trail',S.trail)});function refreshCountOptions(){const max=S.selected.size;document.querySelectorAll('#count button').forEach(b=>{const v=+b.dataset.v;b.disabled=v>max;if(v>max)b.classList.remove('active')});if(S.count>max){S.count=Math.max(1,max);setActive('count',S.count)}}
-document.querySelectorAll('#case button').forEach(b=>b.onclick=()=>{setActive('case',b.dataset.v);setLetterCase(b.dataset.v)});
-document.querySelectorAll('#count button').forEach(b=>b.onclick=()=>{S.count=+b.dataset.v;setActive('count',S.count)});
-renderLetters();renderGuessGrid();refreshCountOptions();
-</script>
-</body></html>
+    <div class="settings-main">
+      <section class="panel panel--card">
+        <h2 class="panel-title">Trail Settings</h2>
+
+        <div class="control-section">
+          <div class="settings-label">Trace Speed</div>
+          <div class="toggle-group" id="speed" role="group" aria-label="Trace speed">
+            <button class="toggle-pill" data-v="0.7" type="button">Slow</button>
+            <button class="toggle-pill active" data-v="1" type="button">Normal</button>
+            <button class="toggle-pill" data-v="1.35" type="button">Fast</button>
+            <button class="toggle-pill" data-v="1.8" type="button">Very Fast</button>
+          </div>
+        </div>
+
+        <div class="control-section">
+          <div class="settings-label">Trail Length</div>
+          <div class="toggle-group" id="trail" role="group" aria-label="Trail length">
+            <button class="toggle-pill" data-v="0" type="button">None</button>
+            <button class="toggle-pill" data-v="1" type="button">Short</button>
+            <button class="toggle-pill active" data-v="2" type="button">Medium</button>
+            <button class="toggle-pill" data-v="3" type="button">Long</button>
+          </div>
+        </div>
+
+        <div class="control-section">
+          <div class="settings-label">Letter Case</div>
+          <div class="toggle-group" id="case" role="group" aria-label="Letter case">
+            <button class="toggle-pill active" data-v="uppercase" type="button"><span class="pill-sample">ABC</span>Uppercase</button>
+            <button class="toggle-pill" data-v="lowercase" type="button"><span class="pill-sample">abc</span>Lowercase</button>
+          </div>
+        </div>
+
+        <div class="control-section">
+          <div class="settings-label">Letters per Sequence</div>
+          <p class="settings-note">Letters come from the mastered-letter pool and never repeat within a sequence.</p>
+          <div class="toggle-group" id="count" role="group" aria-label="Letters per sequence">
+            <button class="toggle-pill-circle active" data-v="1" type="button">1</button>
+            <button class="toggle-pill-circle" data-v="2" type="button">2</button>
+            <button class="toggle-pill-circle" data-v="3" type="button">3</button>
+            <button class="toggle-pill-circle" data-v="4" type="button">4</button>
+            <button class="toggle-pill-circle" data-v="5" type="button">5</button>
+            <button class="toggle-pill-circle" data-v="6" type="button">6</button>
+          </div>
+        </div>
+      </section>
+
+      <section class="panel panel--card">
+        <h2 class="panel-title">Letter Pool</h2>
+        <p class="settings-note">Select the letters your students have mastered.</p>
+        <div id="pool" class="pool"></div>
+        <div class="pool-actions">
+          <button id="selectAll" class="btn" type="button">Select All</button>
+          <button id="clearAll" class="btn" type="button">Clear All</button>
+        </div>
+        <button id="startTrail" class="launch-btn" type="button">Start Trail</button>
+      </section>
+    </div>
+  </main>
+
+  <!-- Play -->
+  <main id="playScreen" class="app-shell screen" hidden>
+    <header class="app-header play-header">
+      <div class="header-left">
+        <a class="icon-btn" href="../../index.html" data-icon="house" aria-label="ABC Lab home" title="ABC Lab home"></a>
+        <h1 class="brand-name">ABC Trail</h1>
+        <div id="sequence" class="pips" aria-label="Letters in this round"></div>
+      </div>
+
+      <div class="header-center">
+        <button id="playBtn" class="header-btn header-btn--accent" type="button"></button>
+        <button id="revealBtn" class="header-btn" type="button" disabled><span data-icon="eye"></span>Reveal</button>
+        <button id="nextBtn" class="header-btn" type="button" disabled><span data-icon="skip-forward"></span>Next</button>
+      </div>
+
+      <div class="header-actions">
+        <button id="settingsBtn" class="icon-btn" type="button" data-icon="gear" aria-label="Settings" title="Settings"></button>
+        <button id="playFullscreen" class="icon-btn" type="button" aria-label="Fullscreen" title="Fullscreen"></button>
+      </div>
+    </header>
+
+    <div class="play-main">
+      <section class="panel panel--card stage-panel">
+        <div class="stage-main" id="stageMain">
+          <svg id="svg" viewBox="0 0 100 100" preserveAspectRatio="xMidYMid meet">
+            <g id="stageShift">
+              <g id="trailLayer"></g>
+              <g id="dotLayer"></g>
+            </g>
+          </svg>
+          <div class="answer" id="answer">
+            <span id="answerLetter"></span>
+          </div>
+        </div>
+      </section>
+
+      <aside class="panel panel--card guess-panel">
+        <div class="guess-head">
+          <span class="settings-label">Your guess</span>
+          <span id="guessCount" class="guess-count"></span>
+        </div>
+        <div id="guessGrid" class="guess-grid"></div>
+        <button id="checkBtn" class="launch-btn" type="button" disabled>Check</button>
+      </aside>
+    </div>
+  </main>
+
+  <script type="module" src="./trail.js?v=7"></script>
+</body>
+</html>

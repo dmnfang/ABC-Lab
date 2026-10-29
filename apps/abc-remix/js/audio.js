@@ -8,10 +8,13 @@ let audioContext = null;
 let masterGain = null;
 const activeSources = new Set();
 
-// The launch countdown is a UI sequence, not part of the music.
-// The actual song begins on its own MIDI timeline after the countdown.
-export const COUNT_IN_CUES = [];
-export const COUNT_IN_BEATS = 0;
+// MIDI beat where the alphabet starts. Everything before it is silent count-in,
+// so this beat is the reference point when the song is scheduled.
+export const SONG_START_BEAT = 8;
+
+// The MIDI's hi-hat ticks on every off-beat, which pulls attention from the melody in class.
+// 0 = off. 0.55 was the original loudness; try 0.15 for a faint tick.
+const HI_HAT_LEVEL = 0;
 
 function getAudioContext() {
   if (!audioContext) {
@@ -137,10 +140,11 @@ export async function scheduleSongAudio(midiData, speed, startAt = null, fromBea
   const nowContext = ctx.currentTime;
   const origin = startAt ?? (nowContext + leadSeconds);
   const beatSeconds = 60 / midiData.tempo / speed;
+  const refBeat = Math.max(fromBeat, SONG_START_BEAT);
   const tracks = midiData.tracks || [];
 
   const scheduleTrackNote = (note, start, duration, velocity, voice) => {
-    if (start < 8) return;
+    if (start < SONG_START_BEAT) return;
 
     // The supplied MIDI begins the alphabet on beat 8, exactly after the
     // two-measure count-in. Do not add a transition offset here.
@@ -149,11 +153,9 @@ export async function scheduleSongAudio(midiData, speed, startAt = null, fromBea
 
     const effectiveStart = Math.max(start, fromBeat);
     const effectiveDuration = Math.max(0.035, end - effectiveStart);
-    // The supplied MIDI keeps its original absolute positions, where the
-    // alphabet begins at beat 8. The UI countdown is outside that timeline,
-    // so beat 8 must land on the song clock's origin.
-    const songStartBeat = 8;
-    const when = origin + (effectiveStart - songStartBeat - fromBeat) * beatSeconds;
+    // `origin` is the moment the song resumes from `fromBeat` (or from the song start on a
+    // fresh play), so every note is placed relative to that reference beat.
+    const when = origin + (effectiveStart - refBeat) * beatSeconds;
     const seconds = effectiveDuration * beatSeconds;
     const volume = Math.max(0.02, Math.min(0.22, (velocity ?? 100) / 127 * 0.14));
 
@@ -163,16 +165,16 @@ export async function scheduleSongAudio(midiData, speed, startAt = null, fromBea
       scheduleTone(ctx, midiFreq(note), when, seconds, "sine", volume * 0.72);
     } else if (note === 36) {
       // Stronger low kick for the count-in. The source timing is unchanged.
-      const kickGain = start < 8 ? 1.85 : 1.35;
+      const kickGain = 1.35;
       scheduleTone(ctx, 75, when, Math.min(seconds, 0.16), "sine", volume * kickGain);
     } else if (note === 40) {
       // The MIDI clap is intentionally made shorter and brighter so it reads
       // as a crisp count-in clap on small speakers such as an iPad.
-      const clapDuration = start < 8 ? Math.min(seconds, 0.075) : Math.min(seconds, 0.12);
-      const clapGain = start < 8 ? 1.55 : 0.8;
+      const clapDuration = Math.min(seconds, 0.12);
+      const clapGain = 0.8;
       scheduleNoise(ctx, when, clapDuration, volume * clapGain, 0.001);
-    } else if (note === 54) {
-      scheduleNoise(ctx, when, Math.min(seconds, 0.055), volume * 0.55, 0.001);
+    } else if (note === 54 && HI_HAT_LEVEL > 0) {
+      scheduleNoise(ctx, when, Math.min(seconds, 0.055), volume * HI_HAT_LEVEL, 0.001);
     }
   };
 
@@ -189,7 +191,7 @@ export async function scheduleSongAudio(midiData, speed, startAt = null, fromBea
   // The countdown is handled entirely by the UI. Schedule only the actual
   // song MIDI, beginning at the supplied MIDI song start (beat 8).
   drums?.notes?.forEach(n => {
-    if (n.start >= 8) {
+    if (n.start >= SONG_START_BEAT) {
       scheduleTrackNote(n.note, n.start, n.duration, n.velocity, "drums");
     }
   });
@@ -205,10 +207,6 @@ export async function scheduleSongAudio(midiData, speed, startAt = null, fromBea
     contextStart: origin,
     performanceStart
   };
-}
-
-export async function playMidiNote() {
-  await ensureRunning();
 }
 
 export function stopAllAudio() {

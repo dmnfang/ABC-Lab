@@ -110,8 +110,6 @@ export function renderLyricScreen(container, words, screenIndex = null, songKey 
     ghost.textContent = word;
     const live = document.createElement("span");
     live.className = "lyric-live";
-    slot.style.width = `${Math.max(1, word.length)}ch`;
-    slot.style.minWidth = `${Math.max(1, word.length)}ch`;
     slot.append(ghost, live);
     row.appendChild(slot);
   });
@@ -244,15 +242,6 @@ export function highlightEasyChunkLetter(row, position) {
   block.classList.remove("letter-jiggle");
   void block.offsetWidth;
   block.classList.add("letter-jiggle");
-}
-
-// Kept for compatibility with older callers.
-export function renderEasyLetterBoard(container, sequence) {
-  return renderEasyChunk(container, sequence);
-}
-
-export function jiggleEasyLetter(board, position) {
-  highlightEasyChunkLetter(board, position);
 }
 
 export function revealChunkLetter(row, position, label, type = "letter", letterCase = "uppercase") {

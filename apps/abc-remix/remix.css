@@ -1,0 +1,278 @@
+/* remix.css: ABC Remix only.
+   Requires tokens.css + base.css; <body data-game="remix"> supplies --accent*. */
+
+.screen { padding: 20px; gap: 12px; }
+.header-left { display: flex; align-items: center; gap: 12px; min-width: 0; }
+.pill-sample { font-family: var(--font-card); font-weight: 700; }
+.loop-text { margin-left: 12px; font-size: 14px; font-weight: 800; color: var(--text-secondary); white-space: nowrap; }
+
+/* ---- Alphabet block (settings preview and gameplay share it) ----------- */
+.wood-block {
+  width: 100%;
+  aspect-ratio: 1;
+  min-width: 0;
+  border-radius: 15px;
+  background: var(--sand-50);
+  border: 4px solid var(--sand-300);
+  color: var(--text-primary);
+  font-family: var(--font-card);
+  font-size: clamp(22px, 2vw, 34px);
+  font-weight: 700;
+  display: grid;
+  place-items: center;
+  box-shadow: 0 7px 0 var(--sand-500), 0 9px 10px rgba(53, 49, 39, 0.08);
+  transition: transform 0.12s ease, box-shadow 0.12s ease, background 0.12s ease;
+}
+.wood-block:active { transform: translateY(3px); box-shadow: 0 4px 0 var(--sand-500), 0 6px 8px rgba(53, 49, 39, 0.08); }
+
+/* ---- Settings --------------------------------------------------------- */
+.settings-main {
+  flex: 1;
+  min-height: 0;
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
+  gap: 12px;
+  overflow-y: auto;
+}
+.settings-main .panel { padding: 24px; gap: 20px; min-height: min-content; }
+.control-section { display: flex; flex-direction: column; gap: 8px; flex-shrink: 0; }
+.settings-main .launch-btn { margin-top: auto; }
+
+.preview-info { flex-shrink: 0; }
+.preview-summary {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 16px;
+  padding: 12px 16px;
+  border-radius: var(--r-md);
+  background: var(--surface-inset);
+}
+.preview-summary-copy { min-width: 0; display: flex; flex-direction: column; gap: 2px; }
+.preview-summary strong { font-size: 14px; line-height: 20px; font-weight: 800; }
+.preview-summary span { font-size: 14px; line-height: 20px; color: var(--text-secondary); }
+.preview-action {
+  flex: 0 0 auto;
+  height: 40px;
+  padding: 0 20px;
+  border-radius: var(--r-pill);
+  background: var(--surface-panel);
+  color: var(--text-primary);
+  font-size: 16px;
+  font-weight: 800;
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+}
+.preview-action .icon { width: 20px; height: 20px; }
+.preview-action.active { background: var(--text-primary); color: var(--text-inverse); }
+
+.preview-content { flex: 1; min-height: 0; display: flex; align-items: center; justify-content: center; overflow: hidden; }
+.song-layout { display: flex; flex-direction: column; align-items: center; gap: 8px; max-width: 100%; }
+.song-row { display: flex; align-items: center; justify-content: center; gap: 20px; }
+.song-group { display: flex; gap: 8px; }
+.song-slot { width: 48px; height: 48px; flex: 0 0 48px; display: grid; place-items: center; }
+.song-slot .wood-block { width: 48px; height: 48px; border-width: 3px; border-radius: 11px; font-size: 26px; }
+.song-slot .wood-block.clap-cue { font-size: 24px; }
+
+/* ---- Game ------------------------------------------------------------- */
+.stage-panel { flex: 1; min-height: 0; padding: 0; gap: 0; }
+.game-body {
+  flex: 1;
+  min-height: 0;
+  position: relative;
+  margin: 16px;
+  display: grid;
+  grid-template-rows: minmax(0, 1fr) 68px;
+}
+.chunk-stage { position: relative; z-index: 2; min-height: 0; width: 100%; display: flex; justify-content: center; align-items: center; }
+
+/* Hard and Easy: big blocks, sized from the four-letter case so 2 and 3 letter screens match. */
+.chunk-row {
+  --play-gap: clamp(10px, 1.2vw, 26px);
+  width: 100%;
+  display: grid;
+  grid-template-columns: repeat(var(--chunk-count), calc((100% - (3 * var(--play-gap))) / 4));
+  justify-content: center;
+  gap: var(--play-gap);
+}
+.chunk-slot { width: 100%; aspect-ratio: 1; min-width: 0; display: grid; place-items: center; }
+.chunk-slot .wood-block,
+.mixed-song-slot .wood-block {
+  width: 100%;
+  height: 100%;
+  border-radius: clamp(18px, 1.5vw, 32px);
+  border-width: clamp(4px, 0.35vw, 7px);
+  font-size: clamp(96px, 13vw, 240px);
+  box-shadow: 0 clamp(10px, 0.8vw, 18px) 0 var(--sand-500), 0 clamp(18px, 1.4vw, 30px) 35px rgba(53, 49, 39, 0.13);
+}
+.chunk-slot .wood-block { animation: blockPop 0.34s cubic-bezier(0.2, 0.9, 0.2, 1); }
+.chunk-slot.current .wood-block {
+  transform: translateY(clamp(-12px, -0.8vw, -6px));
+  box-shadow: 0 clamp(14px, 1vw, 22px) 0 var(--sand-500), 0 clamp(24px, 1.8vw, 38px) 42px rgba(53, 49, 39, 0.18);
+}
+
+/* Easy: the whole chunk is visible; the called letter lights up. */
+.easy-chunk-slot .wood-block {
+  animation: none;
+  transition: background 0.14s ease, border-color 0.14s ease, box-shadow 0.14s ease, transform 0.14s ease;
+}
+.easy-chunk-slot.called .wood-block,
+.mixed-song-slot.called .wood-block {
+  background: var(--accent-subtle);
+  border-color: var(--accent);
+  color: var(--accent-strong);
+  box-shadow: 0 clamp(10px, 0.8vw, 18px) 0 var(--accent-strong), 0 clamp(18px, 1.4vw, 30px) 35px rgba(0, 0, 0, 0.1);
+}
+.wood-block.letter-jiggle { animation: letterJiggle 0.34s cubic-bezier(0.2, 0.9, 0.2, 1); }
+
+/* Easy: a small shelf shows the next chunk just before it arrives (space is always reserved). */
+.easy-preview-stage {
+  min-height: 0;
+  width: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 2px 0 8px;
+  position: relative;
+  z-index: 3;
+  visibility: hidden;
+  opacity: 0;
+  pointer-events: none;
+}
+.easy-preview-stage.has-preview { visibility: visible; opacity: 1; }
+.easy-next-preview {
+  width: max-content;
+  max-width: 100%;
+  display: grid;
+  grid-template-columns: repeat(var(--chunk-count), 50px);
+  justify-content: center;
+  gap: 6px;
+  margin: 0 auto;
+}
+.easy-preview-stage.has-preview .easy-next-preview { animation: previewShelfPop 0.24s cubic-bezier(0.2, 0.9, 0.2, 1); }
+.easy-next-preview .chunk-slot { width: 50px; height: 50px; }
+.easy-next-preview .wood-block {
+  width: 50px;
+  height: 50px;
+  font-size: 32px;
+  border-width: 4px;
+  border-radius: 14px;
+  box-shadow: 0 5px 0 var(--sand-500), 0 8px 14px rgba(53, 49, 39, 0.08);
+  animation: none;
+}
+
+/* Lyric screens: each word's slot is as wide as the finished word, so fragments never shift anything. */
+.lyric-row {
+  --lyric-count: 1;
+  display: grid;
+  grid-template-columns: repeat(var(--lyric-count), max-content);
+  width: max-content;
+  max-width: 96%;
+  margin: 0 auto;
+  justify-content: center;
+  align-items: baseline;
+  column-gap: clamp(36px, 4vw, 82px);
+}
+.lyric-row[data-song="lmno"][data-screen="9"],
+.lyric-row[data-song="lmno"][data-screen="11"] { column-gap: clamp(48px, 5vw, 100px); }
+.lyric-row[data-song="standard"][data-screen="10"] { column-gap: clamp(30px, 3vw, 60px); }
+.lyric-row[data-song="lmno"][data-screen="12"] { column-gap: clamp(44px, 4.5vw, 90px); }
+.lyric-word {
+  position: relative;
+  display: block;
+  text-align: left;
+  white-space: nowrap;
+  color: var(--text-primary);
+  font-family: var(--font-card);
+  font-size: clamp(82px, 9vw, 190px);
+  font-weight: 600;
+  line-height: 1;
+}
+.lyric-row.lyric-count-4 .lyric-word { font-size: clamp(70px, 8.2vw, 178px); }
+.lyric-ghost { display: inline-block; visibility: hidden; white-space: nowrap; }
+.lyric-live { position: absolute; inset: 0; display: flex; align-items: baseline; justify-content: flex-start; white-space: nowrap; overflow: visible; }
+.lyric-part { display: inline-block; white-space: nowrap; }
+.lyric-pop { animation: lyricFall 0.28s cubic-bezier(0.2, 0.9, 0.2, 1); }
+
+/* Mixed screens (Y / and / Z): two blocks with the sung word between them. */
+.mixed-song-row {
+  width: max-content;
+  max-width: 96%;
+  margin: 0 auto;
+  display: grid;
+  grid-template-columns: max-content max-content max-content;
+  align-items: center;
+  justify-content: center;
+  column-gap: clamp(34px, 4vw, 80px);
+}
+.mixed-song-slot { display: grid; place-items: center; }
+.mixed-song-slot .wood-block { width: clamp(180px, 20vw, 330px); height: clamp(180px, 20vw, 330px); }
+.mixed-song-slot[data-event-type="lyric"] { width: clamp(90px, 8vw, 150px); }
+.mixed-lyric-text {
+  color: var(--text-primary);
+  font-family: var(--font-card);
+  font-weight: 600;
+  white-space: nowrap;
+  font-size: clamp(30px, 5vw, 86px);
+  animation: lyricFall 0.28s cubic-bezier(0.2, 0.9, 0.2, 1);
+}
+.mixed-inline-lyric { width: 100%; text-align: center; font-size: clamp(52px, 6vw, 108px); }
+
+/* Count-in (3, 2, 1, GO!) and the four-beat pause between loops */
+.count-in-stage { position: absolute; inset: 0; z-index: 30; display: flex; align-items: center; justify-content: center; pointer-events: none; }
+.count-in-stage:not(.visible) { opacity: 0; }
+.count-in-row { width: 100%; display: flex; align-items: baseline; justify-content: center; gap: clamp(24px, 4vw, 64px); }
+.count-word {
+  color: var(--text-primary);
+  font-family: var(--font-card);
+  font-size: clamp(108px, 13vw, 240px);
+  font-weight: 600;
+  line-height: 1;
+  white-space: nowrap;
+  opacity: 0;
+  transform: translateY(-24px) scale(0.94);
+}
+.count-word.count-pop { animation: lyricFall 0.28s cubic-bezier(0.2, 0.9, 0.2, 1) forwards; }
+.loop-gap-dots { display: flex; align-items: center; justify-content: center; gap: 28px; }
+.loop-gap-dot {
+  width: 28px;
+  height: 28px;
+  border-radius: 50%;
+  background: var(--accent);
+  opacity: 0;
+  transform: scale(0.65);
+  animation: gapDotPop 0.28s cubic-bezier(0.2, 0.9, 0.2, 1) forwards;
+}
+.loop-gap-dot:nth-child(2) { animation-delay: 1s; }
+.loop-gap-dot:nth-child(3) { animation-delay: 2s; }
+.loop-gap-dot:nth-child(4) { animation-delay: 3s; }
+
+@keyframes blockPop {
+  0% { opacity: 0; transform: translateY(28px) scale(0.72) rotate(-3deg); }
+  70% { opacity: 1; transform: translateY(-5px) scale(1.04) rotate(0.5deg); }
+  100% { opacity: 1; transform: translateY(0) scale(1) rotate(0); }
+}
+@keyframes lyricFall {
+  0% { opacity: 0; transform: translateY(-24px) scale(0.94); }
+  100% { opacity: 1; transform: translateY(0) scale(1); }
+}
+@keyframes letterJiggle {
+  0% { transform: translateY(0) rotate(0deg) scale(1); }
+  25% { transform: translateY(-7px) rotate(-2deg) scale(1.045); }
+  50% { transform: translateY(2px) rotate(2deg) scale(1.02); }
+  75% { transform: translateY(-2px) rotate(-1deg) scale(1.01); }
+  100% { transform: translateY(0) rotate(0deg) scale(1); }
+}
+@keyframes gapDotPop { to { opacity: 1; transform: scale(1); } }
+@keyframes previewShelfPop {
+  0% { opacity: 0; transform: translateY(8px) scale(0.94); }
+  100% { opacity: 1; transform: translateY(0) scale(1); }
+}
+
+/* ---- Portrait / narrow: stack the settings and let the page scroll ----- */
+@media (max-aspect-ratio: 1/1) {
+  html, body { height: auto; min-height: var(--app-h, 100dvh); overflow: auto; }
+  #settingsScreen { height: auto; min-height: var(--app-h, 100dvh); overflow: visible; }
+  .settings-main { grid-template-columns: 1fr; }
+}

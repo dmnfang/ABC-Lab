@@ -1,6 +1,8 @@
 import { ALPHABET, originalSequence, randomSequence } from "./sequences.js";
 import { SONGS } from "./songs.js";
 import { PlaybackEngine } from "./playback.js";
+import { initViewport, initFullscreen, hydrateIcons } from "../../../assets/js/shared.js";
+import { icon } from "../../../assets/js/icons.js";
 import { renderSongPreview, renderGameChunk, renderEasyChunk, renderEasyChunkPreview, highlightEasyChunkLetter, revealChunkLetter, renderLyricScreen, revealLyricWord, renderMixedScreen, revealMixedEvent } from "./ui.js";
 
 const state = {
@@ -16,13 +18,6 @@ const state = {
 };
 
 const $ = selector => document.querySelector(selector);
-const icon = (name, size = 18) => {
-  const paths = {
-    shuffle: '<path d="M3 6h2.5a4 4 0 0 1 3.2 1.6l6.6 8.8A4 4 0 0 0 18.5 18H21"/><path d="m19 15 2 3-2 3"/><path d="M3 18h2.5a4 4 0 0 0 3.2-1.6l1.1-1.5"/><path d="M16.5 6H18.5A4 4 0 0 1 21 7"/><path d="m19 4 2 3-2 3"/>',
-    reset: '<path d="M3 12a9 9 0 1 0 3-6.7"/><path d="M3 4v5h5"/>'
-  };
-  return `<svg class="lucide-icon" width="${size}" height="${size}" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">${paths[name] || ''}</svg>`;
-};
 const settingsScreen = $("#settingsScreen");
 const gameScreen = $("#gameScreen");
 const modeContent = $("#modeContent");
@@ -58,11 +53,10 @@ function buildSpeedButtons() {
   speedOptions.forEach(value => {
     const button = document.createElement("button");
     button.type = "button";
-    button.className = `speed-pill${value === state.speed ? " active" : ""}`;
+    button.className = `toggle-pill${value === state.speed ? " active" : ""}`;
     button.textContent = formatSpeed(value);
     button.addEventListener("click", () => {
       state.speed = value;
-      $("#speedValue").textContent = formatSpeed(value);
       buildSpeedButtons();
       playback.setSpeed(value);
       renderModeContent();
@@ -77,7 +71,7 @@ function buildLoopButtons() {
   loopOptions.forEach(value => {
     const button = document.createElement("button");
     button.type = "button";
-    button.className = `pill${value === state.loops ? " active" : ""}`;
+    button.className = `toggle-pill-circle${value === state.loops ? " active" : ""}`;
     button.textContent = String(value);
     button.addEventListener("click", () => {
       state.loops = value;
@@ -120,8 +114,8 @@ function updatePreviewInfo() {
   if (state.mode === "original") {
     const reverse = document.createElement("button");
     reverse.type = "button";
-    reverse.className = `preview-action reverse-button${state.originalReversed ? " active" : ""}`;
-    reverse.textContent = "Reverse";
+    reverse.className = `preview-action${state.originalReversed ? " active" : ""}`;
+    reverse.innerHTML = `${icon("arrow-counter-clockwise")}Reverse`;
     reverse.setAttribute("aria-pressed", String(state.originalReversed));
     reverse.addEventListener("click", () => {
       state.originalReversed = !state.originalReversed;
@@ -131,8 +125,8 @@ function updatePreviewInfo() {
   } else if (state.mode === "random") {
     const shuffle = document.createElement("button");
     shuffle.type = "button";
-    shuffle.className = "preview-action shuffle-button";
-    shuffle.textContent = "Shuffle";
+    shuffle.className = "preview-action";
+    shuffle.innerHTML = `${icon("shuffle")}Shuffle`;
     shuffle.addEventListener("click", freshRandom);
     summary.appendChild(shuffle);
   }
@@ -181,10 +175,33 @@ function buildProgressDots() {
   const song = currentSong();
   song.chunks.forEach((_, index) => {
     const dot = document.createElement("span");
-    dot.className = "progress-dot";
+    dot.className = "seq-dot";
     dot.dataset.chunk = String(index);
     progressDots.appendChild(dot);
   });
+}
+
+// Pips: coming up = sand, current screen = outline, earlier screens = solid. `null` clears them.
+function setProgress(screenIndex) {
+  document.querySelectorAll("#progressDots .seq-dot").forEach(dot => {
+    const at = Number(dot.dataset.chunk);
+    dot.classList.toggle("active", screenIndex !== null && at === screenIndex);
+    dot.classList.toggle("done", screenIndex === "all" || (typeof screenIndex === "number" && at < screenIndex));
+  });
+}
+
+// One place that empties the stage; the same few lines used to be pasted in five spots.
+function resetStage({ keepCountIn = false } = {}) {
+  activeChunk = -1;
+  activeRow = null;
+  activeLyricRow = null;
+  activeMixedRow = null;
+  activeEasyBoard = null;
+  easyPreviewScreen = -1;
+  chunkStage.innerHTML = "";
+  easyPreviewStage.innerHTML = "";
+  easyPreviewStage.classList.remove("has-preview");
+  if (!keepCountIn) countInStage.innerHTML = "";
 }
 
 function renderCountIn(event) {
@@ -195,20 +212,9 @@ function renderCountIn(event) {
     return;
   }
   if (event.type === "gap") {
-    // The previous loop's final lyric/chunk must be removed before the pause
-    // dots appear. countInStage is layered over the game body, so leaving the
-    // old content mounted makes the dots visually overlap it.
-    activeChunk = -1;
-    activeRow = null;
-    activeLyricRow = null;
-    activeMixedRow = null;
-    activeEasyBoard = null;
-    easyPreviewScreen = -1;
-    chunkStage.innerHTML = "";
-    if (easyPreviewStage) {
-      easyPreviewStage.innerHTML = "";
-      easyPreviewStage.classList.remove("has-preview");
-    }
+    // The previous loop's last screen must go before the pause dots appear.
+    resetStage({ keepCountIn: true });
+    setProgress("all");
     countInStage.innerHTML = "";
     const dots = document.createElement("div");
     dots.className = "loop-gap-dots";
@@ -257,66 +263,32 @@ function launchGame() {
     : [...state.randomSequence];
   gameSequence = letterSequence.map(letter => state.clapLetters.has(letter) ? "👏" : letter);
 
-  activeChunk = -1;
-  activeRow = null;
-  activeLyricRow = null;
-  activeMixedRow = null;
-  activeEasyBoard = null;
-  easyPreviewScreen = -1;
-  chunkStage.innerHTML = "";
-  if (easyPreviewStage) {
-    easyPreviewStage.innerHTML = "";
-    easyPreviewStage.classList.remove("has-preview");
-  }
-  if (countInStage) countInStage.innerHTML = "";
-  const badge = $("#loopBadge");
-  if (badge) badge.textContent = `Loop 1 of ${state.loops}`;
+  resetStage();
+  updateLoopBadge(1);
   pauseButton.disabled = false;
   buildProgressDots();
-  $("#gameTitle").textContent = `${currentSong().name} × ${modeLabel()}`;
-  settingsScreen.classList.add("hidden");
-  gameScreen.classList.remove("hidden");
+  settingsScreen.hidden = true;
+  gameScreen.hidden = false;
   playback.load({ alphabetSequence: gameSequence, songKey: state.songKey, speed: state.speed, loops: state.loops, midiData: midiData?.[state.songKey] ?? null });
 
   playback.play();
 }
 
 function resetGameVisuals() {
-  activeChunk = -1;
-  activeRow = null;
-  activeLyricRow = null;
-  activeMixedRow = null;
-  activeEasyBoard = null;
-  easyPreviewScreen = -1;
-  chunkStage.innerHTML = "";
-  if (easyPreviewStage) {
-    easyPreviewStage.innerHTML = "";
-    easyPreviewStage.classList.remove("has-preview");
-  }
-  if (countInStage) countInStage.innerHTML = "";
+  resetStage();
   buildProgressDots();
 }
 
 function returnToSettings() {
   playback.stop();
-  gameScreen.classList.add("hidden");
-  settingsScreen.classList.remove("hidden");
-  if (document.fullscreenElement) document.exitFullscreen?.();
+  gameScreen.hidden = true;
+  settingsScreen.hidden = false;
 }
 
-async function toggleFullscreen(target = gameScreen) {
-  try {
-    if (!document.fullscreenElement) {
-      await target.requestFullscreen?.();
-    } else if (document.fullscreenElement === target) {
-      await document.exitFullscreen?.();
-    } else {
-      await document.exitFullscreen?.();
-      await target.requestFullscreen?.();
-    }
-  } catch (error) {
-    console.warn("Fullscreen toggle failed", error);
-  }
+function updateLoopBadge(loopNumber, text = null) {
+  const badge = $("#loopBadge");
+  badge.hidden = state.loops <= 1;
+  badge.textContent = text ?? `Loop ${Math.max(1, loopNumber)} of ${state.loops}`;
 }
 
 function getLetterLabelsForScreen(song, screenIndex) {
@@ -329,7 +301,7 @@ function getLetterLabelsForScreen(song, screenIndex) {
 }
 
 function maybeShowEasyLookahead(positionBeat) {
-  if (state.difficulty !== "easy" || !gameScreen || gameScreen.classList.contains("hidden")) return;
+  if (state.difficulty !== "easy" || gameScreen.hidden) return;
   const song = currentSong();
   const currentScreen = activeChunk;
   if (currentScreen < 0) return;
@@ -340,11 +312,9 @@ function maybeShowEasyLookahead(positionBeat) {
   if (nextStart == null || positionBeat < nextStart - lookaheadBeats || positionBeat >= nextStart) return;
   const labels = getLetterLabelsForScreen(song, nextScreen);
   if (!labels.length) return;
-  if (easyPreviewStage) {
-    easyPreviewStage.innerHTML = "";
-    easyPreviewStage.classList.add("has-preview");
-    renderEasyChunkPreview(easyPreviewStage, labels, state.letterCase);
-  }
+  easyPreviewStage.innerHTML = "";
+  easyPreviewStage.classList.add("has-preview");
+  renderEasyChunkPreview(easyPreviewStage, labels, state.letterCase);
   easyPreviewScreen = nextScreen;
 }
 
@@ -356,10 +326,8 @@ const playback = new PlaybackEngine({
 
     if (screenIndex !== activeChunk) {
       activeChunk = screenIndex;
-      if (easyPreviewStage) {
-        easyPreviewStage.innerHTML = "";
-        easyPreviewStage.classList.remove("has-preview");
-      }
+      easyPreviewStage.innerHTML = "";
+      easyPreviewStage.classList.remove("has-preview");
       easyPreviewScreen = -1;
       activeRow = null;
       activeLyricRow = null;
@@ -386,11 +354,7 @@ const playback = new PlaybackEngine({
         const chunk = song.chunks[screenIndex];
         activeRow = renderGameChunk(chunkStage, chunk.length, false);
       }
-      document.querySelectorAll(".progress-dot").forEach(dot => dot.classList.remove("active", "done"));
-      document.querySelector(`.progress-dot[data-chunk="${screenIndex}"]`)?.classList.add("active");
-      document.querySelectorAll(".progress-dot").forEach(dot => {
-        if (Number(dot.dataset.chunk) < screenIndex) dot.classList.add("done");
-      });
+      setProgress(screenIndex);
     }
 
     if (activeMixedRow) {
@@ -417,34 +381,18 @@ const playback = new PlaybackEngine({
   onCountIn: renderCountIn,
   onTimeline: positionBeat => maybeShowEasyLookahead(positionBeat),
   onState: stateName => {
-    const playIcon = pauseButton.querySelector(".play-icon");
-    const pauseIcon = pauseButton.querySelector(".pause-icon");
     const playing = stateName === "playing";
     const finished = stateName === "finished";
     if (stateName === "loop-start" || stateName === "ready") {
-      activeChunk = -1;
-      activeRow = null;
-      activeLyricRow = null;
-      activeEasyBoard = null;
-      easyPreviewScreen = -1;
-      chunkStage.innerHTML = "";
-      if (easyPreviewStage) {
-        easyPreviewStage.innerHTML = "";
-        easyPreviewStage.classList.remove("has-preview");
-      }
-      if (countInStage) countInStage.innerHTML = "";
+      resetStage();
+      setProgress(null);
     }
+    if (finished) setProgress("all");
     pauseButton.disabled = finished;
-    playIcon.classList.toggle("hidden", playing);
-    pauseIcon.classList.toggle("hidden", !playing);
+    pauseButton.innerHTML = icon(playing ? "pause" : "play");
     pauseButton.setAttribute("aria-label", playing ? "Pause" : finished ? "Finished" : "Play");
-    pauseButton.title = playing ? "Pause" : finished ? "Use Replay to start again" : "Play";
-    const badge = $("#loopBadge");
-    if (badge) {
-      if (stateName === "gap") badge.textContent = "4 second pause";
-      else if (stateName === "finished") badge.textContent = "Finished";
-      else badge.textContent = `Loop ${Math.max(1, playback.loopNumber)} of ${playback.loops}`;
-    }
+    pauseButton.title = playing ? "Pause" : finished ? "Use Restart to play again" : "Play";
+    updateLoopBadge(playback.loopNumber, finished ? "Finished" : null);
   }
 });
 
@@ -489,18 +437,6 @@ $("#restartButton").addEventListener("click", () => {
   playback.play();
 });
 pauseButton.addEventListener("click", () => playback.playing ? playback.pause() : playback.play());
-$("#gameFullscreen").addEventListener("click", () => toggleFullscreen(gameScreen));
-$("#settingsFullscreen").addEventListener("click", () => toggleFullscreen(settingsScreen));
-
-$("#settingsHome").addEventListener("click", () => {
-  playback.stop();
-  location.href = "../../index.html";
-});
-
-document.addEventListener("fullscreenchange", () => {
-  const fullscreen = Boolean(document.fullscreenElement);
-  document.body.classList.toggle("presentation", fullscreen);
-});
 
 Promise.all([
   fetch("./data/standard.json").then(r => r.json()),
@@ -515,7 +451,11 @@ Promise.all([
   updateButtons();
 });
 
-$("#speedValue").textContent = formatSpeed(state.speed);
+initViewport();
+initFullscreen($("#settingsFullscreen"));
+initFullscreen($("#gameFullscreen"));
+hydrateIcons();
+pauseButton.innerHTML = icon("play");
 buildSpeedButtons();
 buildLoopButtons();
 updateButtons();

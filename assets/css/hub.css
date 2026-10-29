@@ -1,0 +1,126 @@
+/* hub.css: the ABC Lab home screen. Requires tokens.css + base.css. */
+
+.hub {
+  gap: 12px;
+  padding: 20px;
+}
+
+.game-grid {
+  flex: 1;
+  min-height: 0;
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  grid-auto-rows: minmax(0, 1fr);
+  gap: 16px;
+  scrollbar-width: none;
+  -ms-overflow-style: none;
+}
+.game-grid::-webkit-scrollbar { display: none; }
+
+.game-card {
+  min-width: 0;
+  min-height: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+  padding: 16px;
+  background: var(--surface-card);
+  border: 2px solid var(--stroke-default);
+  border-radius: var(--r-lg);
+  transition: border-color 0.15s;
+}
+.game-card:active { opacity: 0.85; }
+@media (hover: hover) {
+  .game-card:hover { border-color: var(--accent); }
+}
+
+.game-art {
+  flex: 1 1 0;
+  min-height: 120px;
+  container-type: size;
+  display: grid;
+  place-items: center;
+  position: relative;
+  overflow: hidden;
+  background: var(--accent-subtle);
+  border-radius: var(--r-md);
+}
+
+.game-text { display: flex; flex-direction: column; gap: 4px; }
+
+.game-title {
+  font-family: var(--font-display);
+  font-size: 28px;
+  line-height: 32px;
+  font-weight: 500;
+}
+
+.game-desc {
+  font-size: 16px;
+  line-height: 24px;
+  color: var(--text-secondary);
+}
+
+/* ---- Card art (sizes scale with the art box via cqmin) ---------------- */
+.art-blocks {
+  display: flex;
+  gap: 4cqmin;
+  transform: rotate(-3deg);
+}
+.art-block {
+  width: 26cqmin;
+  height: 26cqmin;
+  display: grid;
+  place-items: center;
+  background: var(--sand-50);
+  border: 2px solid var(--sand-300);
+  border-radius: var(--r-md);
+  box-shadow: 0 4px 0 var(--sand-500);
+  font-family: var(--font-card);
+  font-weight: 600;
+  font-size: 16cqmin;
+  line-height: 1;
+  color: var(--text-primary);
+}
+.art-block:nth-child(2) { transform: translateY(-8cqmin); }
+.art-block:nth-child(3) { transform: translateY(6cqmin); }
+
+.art-scatter { position: relative; width: 80cqmin; height: 70cqmin; }
+.art-scatter span {
+  position: absolute;
+  font-family: var(--font-card);
+  font-weight: 600;
+  font-size: 30cqmin;
+  line-height: 1;
+  color: var(--accent-strong);
+}
+.art-scatter span:nth-child(1) { left: 4%;  top: 4%;  transform: rotate(-16deg); }
+.art-scatter span:nth-child(2) { left: 38%; top: 30%; transform: rotate(11deg); }
+.art-scatter span:nth-child(3) { left: 66%; top: 0;   transform: rotate(19deg); }
+.art-scatter span:nth-child(4) { left: 8%;  top: 58%; transform: rotate(-7deg); }
+
+.art-trail { width: 90cqmin; height: auto; overflow: visible; }
+.art-trail path {
+  fill: none;
+  stroke: var(--accent);
+  stroke-width: 10;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+  stroke-dasharray: 1 16;
+}
+.art-trail circle {
+  fill: var(--surface-card);
+  stroke: var(--accent-strong);
+  stroke-width: 3;
+  filter: drop-shadow(0 0 6px var(--accent));
+}
+
+/* ---- Small screens: stack the cards and scroll inside the panel ------- */
+@media (max-width: 800px) {
+  .game-grid {
+    grid-template-columns: 1fr;
+    grid-auto-rows: auto;
+    overflow-y: auto;
+  }
+  .game-card { min-height: 360px; }
+}

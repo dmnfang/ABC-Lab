@@ -1,7 +1,7 @@
 /* ABC Remix playback timing */
 
 import { SONGS } from "./songs.js";
-import { prepareAudioClock, scheduleSongAudio, stopAllAudio } from "./audio.js";
+import { prepareAudioClock, scheduleSongAudio, stopAllAudio, SONG_START_BEAT } from "./audio.js";
 
 const GAP_MS = 4000;
 const COUNTDOWN_STEPS = ["3", "2", "1", "GO!"];
@@ -40,6 +40,9 @@ export class PlaybackEngine {
     // Every new load/stop gets a new session. Async audio setup from an
     // older session is then unable to restart playback in the new session.
     this.sessionId = 0;
+
+    // idle | countdown | music | gap: what a pause has to put back on resume.
+    this.phase = "idle";
 
     this.tick = this.tick.bind(this);
   }
@@ -102,13 +105,21 @@ export class PlaybackEngine {
       this.playing = true;
       this.onState?.("playing");
 
+      // Paused during the 3-2-1: simply count in again from the top.
+      if (this.phase === "countdown") {
+        await this.startLoop(session);
+        return;
+      }
+
+      // Resume the audio and the visual clock from the SAME beat.
+      const resumeBeat = Math.max(this.positionBeat, SONG_START_BEAT);
       const audio = this.midiData
-        ? await scheduleSongAudio(this.midiData, this.speed, null, this.positionBeat)
+        ? await scheduleSongAudio(this.midiData, this.speed, null, resumeBeat)
         : null;
 
-      if (!this.playing || this.sessionId !== session) return;
+      if (!this.playing || this.sessionId !== session) { stopAllAudio(); return; }
 
-      this.phaseStartedAt = (audio?.performanceStart ?? performance.now()) - (8 * this.beatMs());
+      this.phaseStartedAt = (audio?.performanceStart ?? performance.now()) - (resumeBeat * this.beatMs());
       this.renderTimelineState();
       this.rafId = requestAnimationFrame(this.tick);
       return;
@@ -134,6 +145,7 @@ export class PlaybackEngine {
     this.inGap = false;
     this.gapRemainingMs = 0;
 
+    this.phase = "countdown";
     const countdownToken = ++this.countdownToken;
     prepareAudioClock()
       .then(() => {
@@ -189,10 +201,11 @@ export class PlaybackEngine {
           !this.playing ||
           this.sessionId !== session ||
           this.countdownToken !== countdownToken
-        ) return;
+        ) { stopAllAudio(); return; }          // paused or stopped while the notes were being scheduled
 
+        this.phase = "music";
         const beatMs = this.beatMs();
-        this.phaseStartedAt = (audio?.performanceStart ?? performance.now()) - (8 * beatMs);
+        this.phaseStartedAt = (audio?.performanceStart ?? performance.now()) - (SONG_START_BEAT * beatMs);
         this.onState?.("loop-start");
         this.renderTimelineState();
         this.rafId = requestAnimationFrame(this.tick);
@@ -252,6 +265,16 @@ export class PlaybackEngine {
   pause() {
     if (!this.playing) return;
 
+    if (this.phase === "countdown") {
+      clearTimeout(this.countdownTimer);
+      this.countdownToken += 1;
+      this.playing = false;
+      this.paused = true;
+      this.onCountIn?.({ type: "clear", values: [] });
+      this.onState?.("paused");
+      return;
+    }
+
     if (this.inGap) {
       const elapsed = performance.now() - this.gapStartedAt;
       this.gapRemainingMs = Math.max(0, this.gapRemainingMs - elapsed);
@@ -273,6 +296,7 @@ export class PlaybackEngine {
   }
 
   restart() {
+    this.phase = "idle";
     cancelAnimationFrame(this.rafId);
     clearTimeout(this.loopTimer);
     clearTimeout(this.countdownTimer);
@@ -295,6 +319,7 @@ export class PlaybackEngine {
   }
 
   stop() {
+    this.phase = "idle";
     this.sessionId += 1;
     cancelAnimationFrame(this.rafId);
     clearTimeout(this.loopTimer);
@@ -334,11 +359,13 @@ export class PlaybackEngine {
       this.loopNumber = 0;
       this.countKey = "";
       this.onCountIn?.({ type: "clear", values: [] });
+      this.phase = "idle";
       this.onState?.("finished");
       this.onFinish?.();
       return;
     }
 
+    this.phase = "gap";
     this.inGap = true;
     this.gapRemainingMs = GAP_MS;
     this.gapStartedAt = performance.now();

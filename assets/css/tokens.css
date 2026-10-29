@@ -1,0 +1,182 @@
+/* tokens.css
+   Verbatim copy of the token block (palette + semantic tokens) from
+   cardbox-app v3 clr.css. Do NOT edit here: to update the design system,
+   re-copy the block from cardbox. ABC Lab-specific values live in base.css. */
+
+/* ============================================
+   TOKENS — matched to v1's real values
+   ============================================ */
+:root {
+  /* ---- Raw palette ---------------------------------------------------- */
+  --leaf-50:  #E8F5DE;
+  --leaf-100: #D3ECC2;
+  --leaf-300: #A8D986;
+  --leaf-500: #7CBF57;
+  --leaf-700: #4F8F35;
+  --leaf-900: #2F5920;
+
+  --coral-50:  #FBE4E2;
+  --coral-100: #F7CBC7;
+  --coral-300: #EF9891;
+  --coral-500: #E2685D;
+  --coral-700: #B84B42;
+  --coral-900: #7A2F29;
+
+  --sky-50:  #E1F0FB;
+  --sky-100: #C3E1F7;
+  --sky-300: #8AC3EE;
+  --sky-500: #4FA3DE;
+  --sky-700: #337CAE;
+  --sky-900: #1F4E6E;
+
+  --peach-50:  #FCE9DC;
+  --peach-100: #FAD3B9;
+  --peach-300: #F3AC7D;
+  --peach-500: #E9884F;
+  --peach-700: #BC6533;
+  --peach-900: #7A4020;
+
+  --grape-50:  #EEE3F7;
+  --grape-100: #DCC7EF;
+  --grape-300: #BB94DE;
+  --grape-500: #9B6BC7;
+  --grape-700: #764A9C;
+  --grape-900: #4A2C63;
+
+  --sun-50:  #FBF0D2;
+  --sun-100: #F8E4A8;
+  --sun-300: #F0CB5C;
+  --sun-500: #E4B62E;
+  --sun-700: #B08A18;
+  --sun-900: #6E560F;
+
+  --bubblegum-50:  #FBE3EE;
+  --bubblegum-100: #F7C7DE;
+  --bubblegum-300: #EE94BE;
+  --bubblegum-500: #DD6B9C;
+  --bubblegum-700: #B04A78;
+  --bubblegum-900: #712D4C;
+
+  --mint-50:  #E1F7F0;
+  --mint-100: #C3EFE0;
+  --mint-300: #86DEC0;
+  --mint-500: #4DC2A0;
+  --mint-700: #339678;
+  --mint-900: #1F5F4C;
+
+  --sand-0:   #FFFFFF;
+  --sand-50:  #F7F2E9;
+  --sand-100: #EDE6D4;
+  --sand-300: #D1C5A9;
+  --sand-500: #A79976;
+  --sand-700: #6F654D;
+  --sand-900: #353127;
+
+  --slate-0:   #FFFFFF;
+  --slate-50:  #EEEFF1;
+  --slate-100: #DDDFE3;
+  --slate-300: #B1B5BE;
+  --slate-500: #7F8594;
+  --slate-700: #535865;
+  --slate-900: #22242B;
+
+  --orange-50:  #FBE7D6;
+  --orange-100: #F8D0AE;
+  --orange-300: #F3A263;
+  --orange-500: #E46A1A;
+  --orange-700: #B84F0E;
+  --orange-900: #6E2F0B;
+
+  --honey-50:  #F8E9C8;
+  --honey-100: #F5DCA0;
+  --honey-300: #EEC45A;
+  --honey-500: #9E6D12;
+  --honey-700: #7C520E;
+  --honey-900: #5A3D0A;
+
+  --lime-50:  #EEF8DC;
+  --lime-100: #DFF2C0;
+  --lime-300: #BDEB84;
+  --lime-500: #9BDF4F;
+  --lime-700: #649E24;
+  --lime-900: #3E6718;
+
+  --indigo-50:  #E9EAFB;
+  --indigo-100: #D4D5F6;
+  --indigo-300: #A1A4EB;
+  --indigo-500: #6468E6;
+  --indigo-700: #484CC0;
+  --indigo-900: #2B2E78;
+
+  /* ---- Cardbox semantic tokens (mapped onto the palette above) -------- */
+
+  /* Surface — warm, from Sand */
+  --surface-base:    var(--sand-50);
+  --surface-panel:   var(--sand-100);
+  --surface-card:    var(--sand-0);
+  --surface-inset:   var(--sand-50);
+
+  /* Text — cool, from Slate */
+  --text-primary:    var(--sand-900);
+  --text-secondary:  var(--sand-700);
+  --text-muted:      var(--sand-500);
+  --text-disabled:   var(--sand-300);
+  --text-inverse:    var(--sand-0);
+
+  /* Stroke — kept warm (Sand), matching Cardbox's cohesive look */
+  --stroke-default:  var(--sand-300);
+  --stroke-medium:   var(--sand-500);
+  --stroke-strong:   var(--sand-700);
+  --stroke-selected: var(--grape-500);
+
+  /* Interactive */
+  --green:                 var(--grape-500);
+  --interactive-primary:   var(--grape-500);
+  --interactive-secondary: var(--sun-500);
+  --tab-active:            var(--grape-500);
+  --tab-inactive:          var(--sand-700);
+  --interactive-disabled:  var(--sand-300);
+
+  /* Mode */
+  --flash:          var(--sun-500);
+  --flash-subtle:   var(--sun-50);
+  --reveal:         var(--sky-500);
+  --reveal-subtle:  var(--sky-50);
+  --target:         var(--coral-500);
+  --target-subtle:  var(--coral-50);
+  --vanish:         var(--leaf-500);
+  --vanish-subtle:  var(--leaf-50);
+  --roll:           var(--grape-500);
+  --roll-subtle:    var(--grape-50);
+  --flip:           var(--peach-500);
+  --flip-subtle:    var(--peach-50);
+  --spell:          var(--mint-500);
+  --spell-subtle:   var(--mint-50);
+  --call:           var(--bubblegum-500);
+  --call-subtle:    var(--bubblegum-50);
+  --beat:           var(--indigo-500);
+  --beat-subtle:    var(--indigo-50);
+  --bet:            var(--orange-500);
+  --bet-subtle:     var(--orange-50);
+
+  /* Feedback */
+  --success:        var(--leaf-500);
+  --success-subtle: var(--leaf-50);
+  --error:          var(--coral-500);
+  --error-subtle:   var(--coral-50);
+  --warning:        var(--sun-500);
+  --warning-subtle: var(--sun-50);
+  --info:           var(--sky-500);
+  --info-subtle:    var(--sky-50);
+
+  --font-display: 'Fredoka', sans-serif;
+  --font-ui:      'Nunito', sans-serif;
+  --font-card:    'Lexend', 'Nunito', sans-serif;
+
+  --card-image-ratio: 17;
+  --card-text-ratio:  3;
+
+  --r-lg:   16px;
+  --r-md:   12px;
+  --r-pill: 9999px;
+}
